@@ -1,5 +1,16 @@
-with import <nixpkgs> {};
-with pkgs.python3Packages;
+{ lib
+, buildPythonPackage
+, fetchFromGitHub
+, pythonRelaxDepsHook
+, pytest
+, numpy
+, pandas
+, gym
+, matplotlib
+, joblib
+, pytorch
+, importlib-metadata
+}:
 
 buildPythonPackage rec {
   name = "stable-baselines";
@@ -12,7 +23,8 @@ buildPythonPackage rec {
   format = "setuptools";
   prePatch = ''
     substituteInPlace setup.py \
-        --replace 'importlib-metadata~=4.13' 'importlib-metadata'
+        --replace 'importlib-metadata~=4.13' 'importlib-metadata' \
+        --replace 'gym==0.21' 'gym'
   '';
   doCheck = false;
   # unfortuneatly this package depends on the now agent Tensorflow 1 which had

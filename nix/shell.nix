@@ -1,32 +1,45 @@
-with (import <nixpkgs> {});
+{ pkgs ? import <nixpkgs> {} }:
+
+
+with pkgs.python3Packages;
 
 let
-gi = rec {
-  solidpy = import ./solidpy.nix;
-  stable-baselines = import ./stable-baselines.nix;
-  box2d-py = import ./box2d-py.nix;
-  python = python310.withPackages(ps: with ps; [ 
-      ipython
-      numpy 
-      pandas
-      matplotlib
-      pytorch
-      gym
-      pyglet
-      pytest
-      tqdm
-      rich
-      solidpy
-      stable-baselines
-      box2d-py
-    ]);
-};
+  packages = rec {
+    solidpy = callPackage ./solidpy.nix {};
+    stable-baselines = callPackage ./stable-baselines.nix {
+      gym = gym;
+    };
+    box2d-py = callPackage ./box2d-py.nix {};
+    gym-notices =  callPackage ./gym-notices.nix {};
+    /* stable baselines depends on gym=0.21 so we can't update to a newer version
+    gym = callPackage ./gym.nix {
+      gym-notices = gym-notices;
+    };
+    */
+    python = pkgs.python3.withPackages(ps: with ps; [ 
+        gym
+        solidpy
+        stable-baselines
+        box2d-py
+        gym-notices
 
+        ipython
+        numpy 
+        pandas
+        matplotlib
+        pytorch
+        pyglet
+        pytest
+        tqdm
+        rich
+        wandb
+      ]);
+  };
 in
-pkgs.mkShell {
-    nativeBuildInputs = [
-      gi.python
-    ];
-    shellHook = ''
-    '';
-}
+  pkgs.mkShell {
+      nativeBuildInputs = [
+        packages.python
+      ];
+      shellHook = ''
+      '';
+  }

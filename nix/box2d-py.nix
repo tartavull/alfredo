@@ -1,5 +1,7 @@
-with import <nixpkgs> {};
-with pkgs.python3Packages;
+{ buildPythonPackage
+, fetchFromGitHub
+, swig
+}:
 
 buildPythonPackage rec {
   name = "box2d-py";

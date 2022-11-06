@@ -1,5 +1,9 @@
-with import <nixpkgs> {};
-with pkgs.python3Packages;
+{ buildPythonPackage
+, fetchFromGitHub
+, pytest
+, numpy
+, libsndfile
+}:
 
 buildPythonPackage rec {
   name = "solidpy";
@@ -9,5 +13,5 @@ buildPythonPackage rec {
           rev = "f38ca4906b7a253bfbb74f271229625d0f1df175";
           hash = "sha256-1foBoRkCQieGAMQHGKoBu5MuCCv663BAIOZqpq9has4=";
   };
-  propagatedBuildInputs = [ pytest numpy pkgs.libsndfile ];
+  propagatedBuildInputs = [ pytest numpy libsndfile ];
 }
