@@ -6,9 +6,7 @@ with pkgs.python3Packages;
 let
   packages = rec {
     solidpy = callPackage ./solidpy.nix {};
-    stable-baselines = callPackage ./stable-baselines.nix {
-      gym = gym;
-    };
+    stable-baselines = callPackage ./stable-baselines.nix {};
     box2d-py = callPackage ./box2d-py.nix {};
     gym-notices =  callPackage ./gym-notices.nix {};
     /* stable baselines depends on gym=0.21 so we can't update to a newer version
@@ -16,7 +14,9 @@ let
       gym-notices = gym-notices;
     };
     */
-    genetic-intelligence = callPackage ./genetic-intelligence.nix {};
+    genetic-intelligence = callPackage ./genetic-intelligence.nix {
+        stable-baselines = stable-baselines;
+    };
     python = pkgs.python3.withPackages(ps: with ps; [ 
         gym
         solidpy
@@ -43,5 +43,6 @@ in
         packages.python
       ];
       shellHook = ''
+        cd ..
       '';
   }

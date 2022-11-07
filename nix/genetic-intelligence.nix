@@ -1,10 +1,12 @@
 { buildPythonPackage
 , fetchFromGitHub
-, pytest
+, gym
+, wandb
+, stable-baselines
 }:
 
 buildPythonPackage rec {
   name = "genetic-intelligence";
   src = ../.;
-  propagatedBuildInputs = [ pytest ];
+  propagatedBuildInputs = [ gym wandb stable-baselines];
 }
