@@ -48,3 +48,7 @@ def test_solid():
         best_solution, best_objective_value = algorithm.run()
     
     test_algorithm()
+
+def test_genetic_intelligence():
+    import genetic_intelligence
+    assert hasattr(genetic_intelligence, '__version__')

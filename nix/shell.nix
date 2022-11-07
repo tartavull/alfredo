@@ -16,12 +16,14 @@ let
       gym-notices = gym-notices;
     };
     */
+    genetic-intelligence = callPackage ./genetic-intelligence.nix {};
     python = pkgs.python3.withPackages(ps: with ps; [ 
         gym
         solidpy
         stable-baselines
         box2d-py
         gym-notices
+        genetic-intelligence
 
         ipython
         numpy 
