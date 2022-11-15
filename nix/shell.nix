@@ -14,6 +14,10 @@ let
       gym-notices = gym-notices;
     };
     */
+    mujoco = callPackage ./mujoco.nix {};
+    mujoco-py = callPackage ./mujoco-py.nix {
+      mujoco = mujoco;
+    };
     genetic-intelligence = callPackage ./genetic-intelligence.nix {
         stable-baselines = stable-baselines;
     };
@@ -24,6 +28,7 @@ let
         box2d-py
         gym-notices
         genetic-intelligence
+        mujoco-py
 
         ipython
         numpy 
@@ -41,6 +46,7 @@ in
   pkgs.mkShell {
       nativeBuildInputs = [
         packages.python
+        packages.mujoco
       ];
       shellHook = ''
         cd ..
