@@ -50,5 +50,6 @@ def test_solid():
     test_algorithm()
 
 def test_genetic_intelligence():
-    import genetic_intelligence
-    assert hasattr(genetic_intelligence, '__version__')
+    import genetic_intelligence as gi
+    assert hasattr(gi, '__version__')
+    assert "hello" == gi.echo("hello") 

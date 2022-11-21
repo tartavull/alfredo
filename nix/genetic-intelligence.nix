@@ -3,10 +3,12 @@
 , gym
 , wandb
 , stable-baselines
+, core-go
 }:
 
 buildPythonPackage rec {
   name = "genetic-intelligence";
-  src = ../.;
-  propagatedBuildInputs = [ gym wandb stable-baselines];
+  src = ../src/python/.;
+  propagatedBuildInputs = [ gym wandb stable-baselines core-go];
+  GICORE="${core-go}/core.so";
 }

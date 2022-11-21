@@ -11,11 +11,13 @@ let
     gym-notices =  callPackage ./gym-notices.nix {};
     /* stable baselines depends on gym=0.21 so we can't update to a newer version
     gym = callPackage ./gym.nix {
-      gym-notices = gym-notices;
+      inherit gym-notices;
     };
     */
+    core-go = callPackage ./core-go.nix {};
     genetic-intelligence = callPackage ./genetic-intelligence.nix {
-        stable-baselines = stable-baselines;
+        inherit stable-baselines;
+        inherit core-go;
     };
     python = pkgs.python3.withPackages(ps: with ps; [ 
         gym
@@ -41,8 +43,10 @@ in
   pkgs.mkShell {
       nativeBuildInputs = [
         packages.python
+        packages.core-go
       ];
       shellHook = ''
+        export GICORE=${packages.core-go}/core.so
         cd ..
       '';
   }

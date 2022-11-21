@@ -1,5 +1,3 @@
-from .version import __version__
-
 import time
 from copy import deepcopy
 

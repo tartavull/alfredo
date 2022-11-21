@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-exec(open('src/version.py').read())
+exec(open('version.py').read())
 
 setup(
     name='genetic-intelligence',
@@ -9,5 +9,5 @@ setup(
     author_email='tartavull@gmail.com',
     description='Attempt to increase sample efficiency of reinforcement',
     packages=["genetic_intelligence"],    
-    package_dir={"genetic_intelligence": "src"},
+    package_dir={"genetic_intelligence": "./"},
 )
