@@ -7,6 +7,8 @@
 , glfw
 , cffi
 , mujoco
+, mesa
+, pkg-config
 }:
 
 buildPythonPackage rec {
@@ -20,23 +22,31 @@ buildPythonPackage rec {
     hash = "sha256-nwIJzLPhTZNlwk/NAiWCV/zYdwKeuQqhW6UIniGw8+k=";
   };
 
+  nativeBuildInputs = [
+    cython
+    mesa
+    pkg-config
+  ];
+
   propagatedBuildInputs = [
     cython
     numpy
     fasteners
     cffi
     mujoco
+    glfw
+    mesa
+    pkg-config
   ];
 
   MUJOCO_PY_MUJOCO_PATH="${mujoco}";
-  LD_LIBRARY_PATH="${mujoco}/lib:${mujoco}/bin";
-  CPATH="-I${mujoco}/include/mujoco";
-  C_INCLUDE_PATH="-I${mujoco}/include/mujoco";
-  CPLUS_INCLUDE_PATH="-I${mujoco}/include/mujoco";
+  LD_LIBRARY_PATH="${mujoco}/include:${mujoco}/bin";
+  CPATH="-I ${mujoco}/include/mujoco";
+  C_INCLUDE_PATH="-I ${mujoco}/include/mujoco";
+  CPLUS_INCLUDE_PATH="-I ${mujoco}/include/mujoco";
 
 
   meta = with lib; {
     license = licenses.mit;
-    maintainers = with maintainers; [ tartavull ];
   };
 }
