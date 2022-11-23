@@ -8,11 +8,10 @@ def test_gpu_availability():
 def test_gym():
     import gym
     env = gym.make("MountainCar-v0")
-    env.seed(42)
-    observation, info = env.reset()
+    observation, info = env.reset(seed=42)
     action = env.action_space.sample()
     env.close()
-    assert observation == pytest.approx(-0.5251713, 0.001)
+    assert observation[0] == pytest.approx(-0.4452088, 0.001)
 
 
 def test_solid():

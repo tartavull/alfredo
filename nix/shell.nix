@@ -1,5 +1,5 @@
-{ pkgs ? import <nixpkgs> {} }:
-
+{ pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/69335c46c48a73f291d5c6f332fb9fe8b8e22b30.tar.gz") {}
+}:
 
 with pkgs.python3Packages;
 
@@ -24,7 +24,6 @@ let
         solidpy
         stable-baselines
         box2d-py
-        gym-notices
         genetic-intelligence
 
         ipython
