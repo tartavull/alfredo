@@ -47,6 +47,5 @@ in
       ];
       shellHook = ''
         export GICORE=${packages.core-go}/core.so
-        cd ..
       '';
   }
