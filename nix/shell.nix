@@ -8,7 +8,7 @@ let
     solidpy = callPackage ./solidpy.nix {};
     stable-baselines = callPackage ./stable-baselines.nix {};
     box2d-py = callPackage ./box2d-py.nix {};
-    gym-notices =  callPackage ./gym-notices.nix {};
+#     gym-notices =  callPackage ./gym-notices.nix {};
     /* stable baselines depends on gym=0.21 so we can't update to a newer version
     gym = callPackage ./gym.nix {
       gym-notices = gym-notices;
@@ -22,24 +22,24 @@ let
         stable-baselines = stable-baselines;
     };
     python = pkgs.python3.withPackages(ps: with ps; [ 
-        gym
-        solidpy
-        stable-baselines
-        box2d-py
-        gym-notices
-        genetic-intelligence
-        mujoco-py
-
-        ipython
-        numpy 
-        pandas
-        matplotlib
-        pytorch
-        pyglet
-        pytest
-        tqdm
-        rich
-        wandb
+      gym
+      solidpy
+      stable-baselines
+      box2d-py
+      gym-notices
+      genetic-intelligence
+      mujoco-py
+      mesa
+      ipython
+      numpy
+      pandas
+      matplotlib
+      pytorch
+      pyglet
+      pytest
+      tqdm
+      rich
+      wandb
       ]);
   };
 in

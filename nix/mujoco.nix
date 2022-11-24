@@ -6,6 +6,8 @@
 , xorg
 , zlib
 , libXxf86vm
+, mesa
+, writeText
 }:
 
 stdenv.mkDerivation rec {
@@ -32,6 +34,7 @@ stdenv.mkDerivation rec {
     xorg.libXrandr
     stdenv.cc.cc.lib
     libXxf86vm
+#     mesa.osmesa
   ];
 
   dontBuild = true;
@@ -40,6 +43,19 @@ stdenv.mkDerivation rec {
     mkdir $out
     cp -r bin include model sample $out
     addAutoPatchelfSearchPath $out/include $out/sample
+  '';
+
+  ldMesaPath = "${lib.makeLibraryPath [mesa]}";
+  ldGLPath = "${lib.makeLibraryPath [libGL]}";
+  setupHook = writeText "setupHook.sh" ''
+    addMujoco () {
+        export MUJOCO_PY_MUJOCO_PATH=@out@
+        addToSearchPath LD_LIBRARY_PATH @out@/bin
+        addToSearchPath LD_LIBRARY_PATH ${ldMesaPath}
+        addToSearchPath LD_LIBRARY_PATH ${ldGLPath}
+    }
+    addEnvHooks "$hostOffset" addMujoco
+    addEnvHooks "$targetOffset" addMujoco
   '';
 
   meta = with lib; {
