@@ -11,3 +11,5 @@ build/
 nix/result
 .direnv
 
+# Pre-commit
+nix/.pre-commit-config.yaml
