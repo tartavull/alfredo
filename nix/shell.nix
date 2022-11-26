@@ -45,7 +45,7 @@ in
         packages.core-go
       ];
       shellHook = ''
-        ${(import ./pre-commit.nix).pre-commit-check.shellHook}
+        ${import (./pre-commit.nix).shellHook}
         export GICORE=${packages.core-go}/core.so
       '';
   }
