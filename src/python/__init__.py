@@ -1,3 +1,3 @@
-from .version import __version__
+from .core import echo
 from .train import *
-from .core import echo 
+from .version import __version__

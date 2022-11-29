@@ -15,10 +15,10 @@
 buildPythonPackage rec {
   name = "stable-baselines";
   src = fetchFromGitHub {
-          owner = "DLR-RM";
-          repo = "stable-baselines3";
-          rev = "d5d1a02c15cdce868c72bbc94913e66fdd2efd3a";
-          hash = "sha256-zCAe5mfqyVlnfepiYwISUTSdlscBaSW7BZ4R+0kaHYE=";
+    owner = "DLR-RM";
+    repo = "stable-baselines3";
+    rev = "d5d1a02c15cdce868c72bbc94913e66fdd2efd3a";
+    hash = "sha256-zCAe5mfqyVlnfepiYwISUTSdlscBaSW7BZ4R+0kaHYE=";
   };
   format = "setuptools";
   prePatch = ''
@@ -34,6 +34,14 @@ buildPythonPackage rec {
   nativeBuildInputs = [ pythonRelaxDepsHook ];
   pythonRelaxDeps = true;
   propagatedBuildInputs = [
-    pytest numpy pandas gym matplotlib joblib pytorch importlib-metadata];
+    pytest
+    numpy
+    pandas
+    gym
+    matplotlib
+    joblib
+    pytorch
+    importlib-metadata
+  ];
 
 }
