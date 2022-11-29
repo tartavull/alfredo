@@ -11,5 +11,5 @@ buildGoModule {
     mkdir $out
     mv core.so $out/
     mv core.h $out/
-    '';
+  '';
 }

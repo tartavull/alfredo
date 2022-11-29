@@ -1,10 +1,11 @@
 <div align="center">
 
 ![banner](https://user-images.githubusercontent.com/4648166/200148655-0f1f7e16-77e5-464d-b40e-39bd6d01c0de.png)
+
 # genetic-intelligence
 
 [![built with nix](https://img.shields.io/badge/built%20with-nix-blue)](https://builtwithnix.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)  
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <br>
 <br>
 
@@ -17,6 +18,7 @@ Read more about the project at the notion-hosted [documentation](https://tartavu
 <br>
 
 :star: Star us on GitHub (is really motivating!) and consider citing our work.
+
 ```
 @misc{genetic-intelligence2022,
   author = {Genetic Intelligence Github Contributors},
