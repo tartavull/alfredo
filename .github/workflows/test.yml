@@ -4,6 +4,7 @@ on:
   push:
 jobs:
   tests:
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -14,4 +15,5 @@ jobs:
         with:
           name: tartavull
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: cd nix/ && nix-shell --run "cd .. && pytest && echo OK"
+      - run: cd nix/ && nix-shell --run "cd .. && pre-commit run --all"
+      - run: cd nix/ && nix-shell --run "cd .. && pytest"
