@@ -20,5 +20,5 @@ jobs:
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
 
-      - run: nix-shell ./nix/shell.nix --run "cd .. && pre-commit run --all"
-      - run: nix-shell ./nix/shell.nix --run "cd .. && pytest"
+      - run: nix-shell ./nix/shell.nix --run "pre-commit run --all"
+      - run: nix-shell ./nix/shell.nix --run "pytest"
