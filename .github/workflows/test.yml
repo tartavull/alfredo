@@ -15,5 +15,5 @@ jobs:
         with:
           name: tartavull
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: cd nix/ && nix-shell --run "cd .. && pre-commit run --all"
-      - run: cd nix/ && nix-shell --run "cd .. && pytest"
+      - run: nix-shell ./nix/shell.nix --run "cd .. && pre-commit run --all"
+      - run: nix-shell ./nix/shell.nix --run "cd .. && pytest"
