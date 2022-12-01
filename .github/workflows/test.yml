@@ -6,13 +6,18 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v17
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Install nix
+        uses: cachix/install-nix-action@v17
         with:
           nix_path: nixpkgs=channel:nixos-unstable
-      - uses: cachix/cachix-action@v11
+      - name: Cache build on cachix
+        uses: cachix/cachix-action@v11
         with:
           name: tartavull
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: nix-shell ./nix/shell.nix --run "pre-commit run --all"
-      - run: nix-shell ./nix/shell.nix --run "pytest"
+      - name: Run pre-commit tests
+        run: nix-shell ./nix/shell.nix --run "pre-commit run --all"
+      - name: Run pytest
+        run: nix-shell ./nix/shell.nix --run "pytest"
