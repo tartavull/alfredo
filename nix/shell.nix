@@ -43,6 +43,7 @@ pkgs.mkShell {
   nativeBuildInputs = [
     packages.python
     packages.core-go
+    pkgs.act
   ];
   shellHook = ''
     ${(import ./pre-commit.nix).pre-commit-check.shellHook}
