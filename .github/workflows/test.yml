@@ -4,7 +4,6 @@ on:
   push:
 jobs:
   tests:
-    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -15,10 +14,5 @@ jobs:
         with:
           name: tartavull
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-
-      # Debigging gh action
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-
       - run: nix-shell ./nix/shell.nix --run "pre-commit run --all"
       - run: nix-shell ./nix/shell.nix --run "pytest"
