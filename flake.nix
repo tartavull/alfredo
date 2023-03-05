@@ -80,13 +80,18 @@
         };
 
         packages.callPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3Packages // packages.ourPackages);
-        packages.ourPackages = {
+        packages.ourPackages = rec {
           stable-baselines = packages.callPackage ./nix/stable-baselines.nix { };
           solidpy = packages.callPackage ./nix/solidpy.nix { };
           box2d-py = packages.callPackage ./nix/box2d-py.nix { };
           # (packages.callPackage ./nix/gym-notices.nix {}) not necessary in python3.10
           core-go = packages.callPackage ./nix/core-go.nix { };
           core = packages.callPackage ./nix/genetic-intelligence.nix { };
+          dm_env = packages.callPackage ./nix/dm_env.nix { };
+          pytinyrenderer = packages.callPackage ./nix/pytinyrenderer.nix { };
+          #mujoco = packages.callPackage ./nix/mujoco.nix { };
+          trimesh = packages.callPackage ./nix/trimesh.nix { };
+          brax = packages.callPackage ./nix/brax.nix { };
         };
 
         packages.python = pkgs.python3.withPackages (ps: with ps; [
@@ -107,7 +112,10 @@
           packages.ourPackages.solidpy
           packages.ourPackages.box2d-py
           packages.ourPackages.core
+          packages.ourPackages.brax
         ]);
+
+        packages.default = packages.callPackage ./nix/mujoco.nix { };
 
         # to run a shell with all packages type `nix develop`
         devShells.default = pkgs.mkShell {
