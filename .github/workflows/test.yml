@@ -18,6 +18,6 @@ jobs:
           name: tartavull
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Run pre-commit tests
-        run: nix-shell ./nix/shell.nix --run "pre-commit run --all"
+        run: nix develop --command bash -c "pre-commit run --all"
       - name: Run pytest
-        run: nix-shell ./nix/shell.nix --run "pytest"
+        run: nix develop --command bash -c "pytest"
