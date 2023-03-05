@@ -99,6 +99,7 @@
           tqdm
           rich
           wandb
+          jaxlib
           jax # not available in aarch64-darwin
           #pyglet # not available in aarch64-darwin
 
