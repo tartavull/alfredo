@@ -27,7 +27,7 @@
     );
 
     # Image generators
-    packages.aarch64-darwin = {
+    packages.x86_64-linux = {
       gcp = nixos-generators.nixosGenerate {
         system = "x86_64-linux";
         modules = [ ./base.nix ];
