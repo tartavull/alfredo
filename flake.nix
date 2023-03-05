@@ -9,11 +9,6 @@
   outputs = inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
-        # To import a flake module
-        # 1. Add foo to inputs
-        # 2. Add foo as a parameter to the outputs function
-        # 3. Add here: foo.flakeModule
-
       ];
       systems = [ "x86_64-linux" "aarch64-darwin" ];
 
@@ -84,9 +79,16 @@
           };
         };
 
+        packages.callPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3Packages // packages.ourPackages);
+        packages.ourPackages = {
+          stable-baselines = packages.callPackage ./nix/stable-baselines.nix { };
+          solidpy = packages.callPackage ./nix/solidpy.nix { };
+          box2d-py = packages.callPackage ./nix/box2d-py.nix { };
+          # (packages.callPackage ./nix/gym-notices.nix {}) not necessary in python3.10
+          core-go = packages.callPackage ./nix/core-go.nix { };
+          core = packages.callPackage ./nix/genetic-intelligence.nix { };
+        };
 
-        packages.callPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3Packages);
-        packages.core-go = packages.callPackage ./nix/core-go.nix { };
         packages.python = pkgs.python3.withPackages (ps: with ps; [
           ipython
           numpy
@@ -97,28 +99,27 @@
           tqdm
           rich
           wandb
+          jax # not available in aarch64-darwin
           #pyglet # not available in aarch64-darwin
 
-          (packages.callPackage ./nix/stable-baselines.nix { })
-          (packages.callPackage ./nix/solidpy.nix { })
-          (packages.callPackage ./nix/box2d-py.nix { })
-          # (packages.callPackage ./nix/gym-notices.nix {}) not necessary in python3.10
-          # (callPackage ./nix/genetic-intelligence.nix { core-go = packages.core-go; }) # not needed right now
+          packages.ourPackages.stable-baselines
+          packages.ourPackages.solidpy
+          packages.ourPackages.box2d-py
+          packages.ourPackages.core
         ]);
 
         # to run a shell with all packages type `nix develop`
-        packages.default = pkgs.mkShell {
+        devShells.default = pkgs.mkShell {
           shellHook = ''
             echo " ---------------------------------"
             echo "| Welgome to Genetic Intelligence |"
             echo " ---------------------------------"
-            export GICORE=${packages.core-go}/core.so
+            export GICORE=${packages.ourPackages.core-go}/core.so
             ${checks.pre-commit.shellHook}
-
           '';
           packages = [
             packages.python
-            packages.core-go
+            packages.ourPackages.core-go
           ];
         };
       };
