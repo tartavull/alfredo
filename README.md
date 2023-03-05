@@ -29,3 +29,11 @@ Read more about the project at the notion-hosted [documentation](https://tartavu
   howpublished = {\url{https://github.com/tartavull/genentic-intelligence}},
 }
 ```
+
+<div align="center">
+
+### Made by
+
+<a href="https://github.com/tartavull/genetic-intelligence/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=tartavull/genetic-intelligence" />
+</a>
