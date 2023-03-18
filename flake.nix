@@ -14,9 +14,7 @@
         callPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3Packages // overlay);
         overlay = rec {
           stable-baselines = callPackage ./nix/stable-baselines.nix { };
-          solidpy = callPackage ./nix/solidpy.nix { };
           box2d-py = callPackage ./nix/box2d-py.nix { };
-          core-go = callPackage ./nix/core-go.nix { };
           core = callPackage ./nix/genetic-intelligence.nix { };
           dm_env = callPackage ./nix/dm_env.nix { };
           pytinyrenderer = callPackage ./nix/pytinyrenderer.nix { };
@@ -60,7 +58,6 @@
             echo " ---------------------------------"
             echo "| Welgome to Genetic Intelligence |"
             echo " ---------------------------------"
-            echo " ${system} "
             ${checks.pre-commit.shellHook}
           '';
           packages = [
