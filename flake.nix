@@ -5,9 +5,13 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     pre-commit.url = "github:cachix/pre-commit-hooks.nix";
+    nixos-generators = {
+      url = "github:nix-community/nixos-generators";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils, pre-commit }:
+  outputs = { self, nixpkgs, flake-utils, pre-commit, nixos-generators }:
     flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-darwin" ] (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
@@ -68,14 +72,37 @@
         # type `nix develop .#deploy` this shell works on all platforms
         devShells.deploy = pkgs.mkShell {
           shellHook = ''
-            echo " ---------------------------------"
-            echo "| Welgome to Deploy               |"
-            echo " ---------------------------------"
-            echo " ${system} "
+            echo "This shell provides google-cloud-sdk, ec2-api-tools and deploy-rs for CGP management, AWS mangement and remote deployment capabilities respectively."
             ${checks.pre-commit.shellHook}
           '';
           packages = [
+            pkgs.google-cloud-sdk
+            unfreepkgs.ec2-api-tools
+            pkgs.deploy-rs
           ];
+        };
+        unfreepkgs = import nixpkgs {
+          inherit system;
+          config = { allowUnfree = true; };
+        };
+
+        packages = {
+          # can't be build in darwin
+          gcp = nixos-generators.nixosGenerate {
+            system = "x86_64-linux";
+            modules = [ ./nix/deployer/base.nix ];
+            format = "gce";
+          };
+          aws = nixos-generators.nixosGenerate {
+            system = "x86_64-linux";
+            modules = [ ./nix/deployer/base.nix ] ++ [ (_: { amazonImage.sizeMB = 16 * 1024; }) ];
+            format = "amazon";
+          };
+          raw = nixos-generators.nixosGenerate {
+            system = "x86_64-linux";
+            modules = [ ./nix/deployer/base.nix ];
+            format = "raw-efi";
+          };
         };
       });
 }
