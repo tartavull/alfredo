@@ -1,0 +1,32 @@
+name: "Build machine image"
+on:
+  push:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install nix
+        uses: cachix/install-nix-action@v20
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm"
+      - name: Cache build on cachix
+        uses: cachix/cachix-action@v11
+        with:
+          name: tartavull
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - id: "auth"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
+      - name: Build and push GCP image
+        run: nix build .#gcp && gsutil cp ./result/*.raw.tar.gz "gs://openmind-vision/gcp-${{ steps.branch-name.outputs.current_branch }}.raw.tar.gz"
+      - name: Create compute image
+        run: gcloud compute images create "image-${{ steps.branch-name.outputs.current_branch }}" --source-uri "gs://openmind-vision/gcp-${{ steps.branch-name.outputs.current_branch }}.raw.tar.gz" || true
