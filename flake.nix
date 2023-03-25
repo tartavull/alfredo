@@ -5,13 +5,14 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     pre-commit.url = "github:cachix/pre-commit-hooks.nix";
+    nixos.url = "github:nixos/nixpkgs/nixos-22.11";
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixos";
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, pre-commit, nixos-generators }:
+  outputs = { self, nixpkgs, nixos, flake-utils, pre-commit, nixos-generators }:
     flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-darwin" ] (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
@@ -77,7 +78,6 @@
           '';
           packages = [
             pkgs.google-cloud-sdk
-            unfreepkgs.ec2-api-tools
             pkgs.deploy-rs
           ];
         };
@@ -87,7 +87,7 @@
         };
 
         packages = {
-          # can't be build in darwin
+          # can't be build on darwin :/
           gcp = nixos-generators.nixosGenerate {
             system = "x86_64-linux";
             modules = [ ./nix/deployer/base.nix ];
