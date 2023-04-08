@@ -17,20 +17,16 @@
     dev = {
       isNormalUser = true;
       extraGroups = [ "wheel" ];
-      openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHD6vu2OC+lMAF6mA+Nbn3aCH8/r9EHkNk8OM5QsV6Iw tartavull@gmail.com" ]; # Don't forget to add your ssh public key here!
     };
     root = {
-      openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHD6vu2OC+lMAF6mA+Nbn3aCH8/r9EHkNk8OM5QsV6Iw tartavull@gmail.com" ]; # Don't forget to add your ssh public key here!
       hashedPassword = "!";
     };
   };
 
   # Packages
   environment.systemPackages = with pkgs; [
-    google-cloud-sdk
-    ec2-api-tools
-    deploy-rs
     git
+    vim
   ];
 
   # Service to always fetch latest changes from master in github:tartavull/alfredo
@@ -38,7 +34,15 @@
     enable = true;
     path = with pkgs; [ git ];
     after = [ "NetworkManager-wait-online.service" ];
-    serviceConfig = { };
+    serviceConfig = {
+      WorkingDirectory = "~";
+      ExecStart = ''
+        if [ -z "$(ls -A $(pwd)/alfredo)" ]; then
+          git clone https://github.com/tartavull/alfredo.git
+        else
+          git pull main
+        fi
+      '';
+    };
   };
-
 }

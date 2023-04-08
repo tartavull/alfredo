@@ -30,7 +30,7 @@
           #wandb = callPackage ./nix/wandb.nix { };
         };
 
-        core-python = pkgs.python3.withPackages (ps: with ps; [
+        python-env = pkgs.python3.withPackages (ps: with ps; [
           ipython
           numpy
           pandas
@@ -43,7 +43,8 @@
           networkx
 
           # only supported on linux
-          jaxlib
+          jaxlib.override
+          { cudaSupport = true; }
           jax
           overlay.brax
           overlay.mplcursors
@@ -62,17 +63,51 @@
           });
         };
 
+        unfree = import nixpkgs {
+          inherit system;
+          config = { allowUnfree = true; };
+        };
+
         # to run a shell with all packages type `nix develop`
         # This shell only works on Linux
         devShells.default = pkgs.mkShell {
           shellHook = ''
-            echo " ---------------------------------"
-            echo "| Welgome to Genetic Intelligence |"
-            echo " ---------------------------------"
+            echo " ----------------------------"
+            echo "| Welgome to  Alfredo World |"
+            echo " ----------------------------"
             ${checks.pre-commit.shellHook}
+            export CUDA_PATH=${unfree.cudatoolkit}
+            export EXTRA_LDFLAGS="-L/lib -L${unfree.linuxPackages.nvidia_x11}/lib"
+            export EXTRA_CCFLAGS="-I/usr/include"
           '';
-          packages = [
-            core-python
+          packages = with pkgs; [
+            python-env
+            git
+            gitRepo
+            gnupg
+            autoconf
+            curl
+            procps
+            gnumake
+            util-linux
+            m4
+            gperf
+            unzip
+            unfree.cudatoolkit
+            unfree.linuxPackages.nvidia_x11
+            libGLU
+            libGL
+            xorg.libXi
+            xorg.libXmu
+            freeglut
+            xorg.libXext
+            xorg.libX11
+            xorg.libXv
+            xorg.libXrandr
+            zlib
+            ncurses5
+            stdenv.cc
+            binutils
           ];
         };
 
@@ -82,32 +117,23 @@
             echo "This shell provides google-cloud-sdk, ec2-api-tools and deploy-rs for CGP management, AWS mangement and remote deployment capabilities respectively."
             ${checks.pre-commit.shellHook}
           '';
-          packages = [
-            pkgs.google-cloud-sdk
-            pkgs.deploy-rs
+          packages = with pkgs; [
+            google-cloud-sdk
+            deploy-rs
           ];
-        };
-        unfreepkgs = import nixpkgs {
-          inherit system;
-          config = { allowUnfree = true; };
         };
 
         packages = {
           # can't be build on darwin :/
           gcp = nixos-generators.nixosGenerate {
             system = "x86_64-linux";
-            modules = [ ./nix/deployer/base.nix ];
+            modules = [ ./nix/base.nix ];
             format = "gce";
           };
           aws = nixos-generators.nixosGenerate {
             system = "x86_64-linux";
-            modules = [ ./nix/deployer/base.nix ] ++ [ (_: { amazonImage.sizeMB = 16 * 1024; }) ];
+            modules = [ ./nix/dbase.nix ] ++ [ (_: { amazonImage.sizeMB = 16 * 1024; }) ];
             format = "amazon";
-          };
-          raw = nixos-generators.nixosGenerate {
-            system = "x86_64-linux";
-            modules = [ ./nix/deployer/base.nix ];
-            format = "raw-efi";
           };
         };
       });
