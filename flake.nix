@@ -26,6 +26,10 @@
           #mujoco = callPackage ./nix/mujoco.nix { };
           trimesh = callPackage ./nix/trimesh.nix { };
           brax = callPackage ./nix/brax.nix { };
+          ml_collections = callPackage ./nix/ml_collections.nix { };
+          orbax = callPackage ./nix/orbax.nix { };
+          tensorstore = callPackage ./nix/tensorstore.nix { };
+          flax = callPackage ./nix/flax.nix { };
         };
 
         core-python = pkgs.python3.withPackages (ps: with ps; [
@@ -39,10 +43,13 @@
           rich
           # wandb # test failing
 
-          # only supported on linux
+          keras
+          tensorflow
           jaxlib
           jax
-          overlay.brax
+          #overlay.brax
+          overlay.ml_collections
+          overlay.flax
         ]);
 
 
