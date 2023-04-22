@@ -26,6 +26,8 @@
           #mujoco = callPackage ./nix/mujoco.nix { };
           trimesh = callPackage ./nix/trimesh.nix { };
           brax = callPackage ./nix/brax.nix { };
+          mplcursors = callPackage ./nix/mplcursors.nix { };
+          #wandb = callPackage ./nix/wandb.nix { };
         };
 
         core-python = pkgs.python3.withPackages (ps: with ps; [
@@ -34,15 +36,18 @@
           pandas
           matplotlib
           pytorch
+          torchvision
           pytest
           tqdm
           rich
-          # wandb # test failing
+          networkx
 
           # only supported on linux
           jaxlib
           jax
           overlay.brax
+          overlay.mplcursors
+          #overlay.wandb
         ]);
 
 

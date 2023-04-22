@@ -4,8 +4,6 @@ import pytest
 def test_gpu_availability():
     import torch
 
-    # assert torch.cuda.is_available()
-
 
 def test_gym():
     import gym
