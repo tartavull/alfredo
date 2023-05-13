@@ -20,7 +20,7 @@
         overlay = rec {
           stable-baselines = callPackage ./nix/stable-baselines.nix { };
           box2d-py = callPackage ./nix/box2d-py.nix { };
-          core = callPackage ./nix/genetic-intelligence.nix { };
+          alfredo = callPackage ./nix/alfredo.nix { };
           dm_env = callPackage ./nix/dm_env.nix { };
           pytinyrenderer = callPackage ./nix/pytinyrenderer.nix { };
           #mujoco = callPackage ./nix/mujoco.nix { };
@@ -47,6 +47,7 @@
           jax
           overlay.brax
           overlay.mplcursors
+          overlay.alfredo
           #overlay.wandb
         ]);
 

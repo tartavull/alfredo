@@ -33,7 +33,7 @@
     git
   ];
 
-  # Service to always fetch latest changes from master in github:tartavull/genetic-intelligence
+  # Service to always fetch latest changes from master in github:tartavull/alfredo
   systemd.user.services.geneticFetcher = {
     enable = true;
     path = with pkgs; [ git ];
