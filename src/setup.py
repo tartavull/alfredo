@@ -3,11 +3,11 @@ from setuptools import find_packages, setup
 exec(open("version.py").read())
 
 setup(
-    name="genetic-intelligence",
+    name="alfredo",
     version=__version__,
-    url="https://github.com/tartavull/genetic-intelligence.git",
-    author="Genetic Intelligence Github Contributors",
+    url="https://github.com/tartavull/alfredo.git",
+    author="Alfredo Contributors",
     author_email="tartavull@gmail.com",
-    packages=["genetic_intelligence"],
-    package_dir={"genetic_intelligence": "./"},
+    packages=["alfredo"],
+    package_dir={"alfredo": "./"},
 )

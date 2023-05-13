@@ -1,39 +1,25 @@
 <div align="center">
 
-![banner](https://user-images.githubusercontent.com/4648166/200148655-0f1f7e16-77e5-464d-b40e-39bd6d01c0de.png)
+# Alfredo
 
-# genetic-intelligence
+Relentlessly learning, persistently failing, but never surrendering.
+
+![alfredo_upscale](https://github.com/tartavull/alfredo/assets/4648166/e91d86ce-cccd-4b75-931f-f138beb16a86)
 
 [![built with nix](https://img.shields.io/badge/built%20with-nix-blue)](https://builtwithnix.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Test](https://github.com/tartavull/alfredo/actions/workflows/test.yml/badge.svg)](https://github.com/tartavull/alfredo/actions/workflows/test.yml)
 <br>
 <br>
 
-Read more about the project at the notion-hosted [documentation](https://tartavull.notion.site/Genetic-Intelligence-f5e7441404024efcb76fd01dd703c196)
-
-<div align="left">
-
+Read the [documentation](https://tartavull.notion.site/f5e7441404024efcb76fd01dd703c196) to get started!
+<br>
 <br>
 <br>
 <br>
 
-:star: Star us on GitHub (is really motivating!) and consider citing our work.
+---
 
-```
-@misc{genetic-intelligence2022,
-  author = {Genetic Intelligence Github Contributors},
-  title = {Genetic Intelligence},
-  year = {2022},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/tartavull/genentic-intelligence}},
-}
-```
+**⭐ Star this project to stay in the loop with exciting updates, and to show your support for the hardworking contributors shaping Alfredo's evolution!**
 
-<div align="center">
-
-### Made by
-
-<a href="https://github.com/tartavull/genetic-intelligence/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=tartavull/genetic-intelligence" />
-</a>
+[![Star History Chart](https://api.star-history.com/svg?repos=tartavull/alfredo&type=Date)](https://star-history.com/#tartavull/alfredo&Date)
