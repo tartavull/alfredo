@@ -1,32 +1,49 @@
 name: "Build machine image"
 on:
   push:
+
 jobs:
   tests:
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: gcp-${{ github.ref_name }} # github.ref_name provides the branch or tag name
     steps:
-      - name: Get branch name
-        id: branch-name
-        uses: tj-actions/branch-names@v6
+      # Checkout the current repository
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      # Install Nix package manager
       - name: Install nix
         uses: cachix/install-nix-action@v20
         with:
           nix_path: nixpkgs=channel:nixos-unstable
           extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm"
+
+      # Cache the build on cachix
       - name: Cache build on cachix
         uses: cachix/cachix-action@v11
         with:
           name: tartavull
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
+      # Authenticate with Google Cloud
       - id: "auth"
         uses: "google-github-actions/auth@v1"
         with:
           credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
+
+      # Set up Google Cloud SDK
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v1"
+
+      # Build and push the GCP image
       - name: Build and push GCP image
-        run: nix build .#gcp && gsutil cp ./result/*.raw.tar.gz "gs://openmind-vision/gcp-${{ steps.branch-name.outputs.current_branch }}.raw.tar.gz"
+        run: >
+          nix build .#gcp &&
+          gsutil cp ./result/*.raw.tar.gz "gs://openmind-vision/${{ env.IMAGE_NAME }}.raw.tar.gz"
+
+      # Delete the existing image (if it exists) and create a new one
       - name: Create compute image
-        run: gcloud compute images create "image-${{ steps.branch-name.outputs.current_branch }}" --source-uri "gs://openmind-vision/gcp-${{ steps.branch-name.outputs.current_branch }}.raw.tar.gz" || true
+        run: >
+          gcloud compute images delete "${{ env.IMAGE_NAME }}" --quiet || true &&
+          gcloud compute images create "${{ env.IMAGE_NAME }}" --source-uri "gs://openmind-vision/${{ env.IMAGE_NAME }}.raw.tar.gz"
