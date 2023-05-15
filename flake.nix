@@ -15,7 +15,11 @@
   outputs = { self, nixpkgs, nixos, flake-utils, pre-commit, nixos-generators }:
     flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-darwin" ] (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+          config.cudaSupport = true;
+        };
         callPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3Packages // overlay);
         overlay = rec {
           stable-baselines = callPackage ./nix/stable-baselines.nix { };
@@ -132,7 +136,7 @@
           };
           aws = nixos-generators.nixosGenerate {
             system = "x86_64-linux";
-            modules = [ ./nix/dbase.nix ] ++ [ (_: { amazonImage.sizeMB = 16 * 1024; }) ];
+            modules = [ ./nix/base.nix ] ++ [ (_: { amazonImage.sizeMB = 16 * 1024; }) ];
             format = "amazon";
           };
         };

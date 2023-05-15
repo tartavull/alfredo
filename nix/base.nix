@@ -6,7 +6,11 @@
   system.stateVersion = "22.11";
 
   # NVIDIA configuration
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config =
+    {
+      allowUnfree = true;
+      cudaSupport = true;
+    };
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl.enable = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
