@@ -5,6 +5,16 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
+      - name: Check Disk Space Before
+        run: df -h
+
+      - name: Remove Directories and Check Disk Space After
+        run: |
+          sudo rm -rf /usr/share/dotnet \
+          && sudo rm -rf /opt/ghc \
+          && sudo rm -rf "/usr/local/share/boost" \
+          && sudo rm -rf "$AGENT_TOOLSDIRECTORY" \
+          && df -h
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v6
