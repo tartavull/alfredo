@@ -37,6 +37,8 @@
     ec2-api-tools
     deploy-rs
     git
+    cachix
+    vim
   ];
 
   # Service to always fetch latest changes from master in github:tartavull/alfredo

@@ -18,6 +18,7 @@
   outputs = { self, nixpkgs, nixos-generators, ... }@inputs: {
     overlays.dev = nixpkgs.lib.composeManyExtensions [
       inputs.ml-pkgs.overlays.torch-family
+      inputs.ml-pkgs.overlays.jax-family
 
       # You can put your other overlays here, inline or with import. For example
       # if you want to put an inline overlay, uncomment below:
@@ -48,11 +49,9 @@
               numpy
               pandas
               pytorchWithCuda11
-
-              # Uncomment things below if you need them
-
-              # torchvisionWithCuda11
-              # pytorchLightningWithCuda11
+              torchvisionWithCuda11
+              jaxlibWithCuda11
+              jaxWithCuda11
             ]);
 
             name = "torch-basics";
