@@ -1,96 +1,73 @@
 {
-  description = "Genetic Intelligence Main Flake";
+  description = "An awesome machine-learning project";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
-    pre-commit.url = "github:cachix/pre-commit-hooks.nix";
-    nixos.url = "github:nixos/nixpkgs/nixos-22.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+
+    utils.url = "github:numtide/flake-utils";
+
+    ml-pkgs.url = "github:nixvital/ml-pkgs";
+    ml-pkgs.inputs.nixpkgs.follows = "nixpkgs";
+    ml-pkgs.inputs.utils.follows = "utils";
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixos";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, nixos, flake-utils, pre-commit, nixos-generators }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-darwin" ] (system:
+  outputs = { self, nixpkgs, nixos-generators, ... }@inputs: {
+    overlays.dev = nixpkgs.lib.composeManyExtensions [
+      inputs.ml-pkgs.overlays.torch-family
+
+      # You can put your other overlays here, inline or with import. For example
+      # if you want to put an inline overlay, uncomment below:
+      #
+      # (final: prev: {
+      #   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+      #     (python-final: python-prev: {
+      #       my-package = ...;
+      #     })
+      #   ];
+      # })
+    ];
+  } // inputs.utils.lib.eachSystem [
+    "x86_64-linux"
+  ]
+    (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
-        callPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3Packages // overlay);
-        overlay = rec {
-          stable-baselines = callPackage ./nix/stable-baselines.nix { };
-          box2d-py = callPackage ./nix/box2d-py.nix { };
-          alfredo = callPackage ./nix/alfredo.nix { };
-          dm_env = callPackage ./nix/dm_env.nix { };
-          pytinyrenderer = callPackage ./nix/pytinyrenderer.nix { };
-          #mujoco = callPackage ./nix/mujoco.nix { };
-          trimesh = callPackage ./nix/trimesh.nix { };
-          brax = callPackage ./nix/brax.nix { };
-          mplcursors = callPackage ./nix/mplcursors.nix { };
-          #wandb = callPackage ./nix/wandb.nix { };
-        };
-
-        core-python = pkgs.python3.withPackages (ps: with ps; [
-          ipython
-          numpy
-          pandas
-          matplotlib
-          pytorch
-          torchvision
-          pytest
-          tqdm
-          rich
-          networkx
-
-          # only supported on linux
-          jaxlib
-          jax
-          overlay.brax
-          overlay.mplcursors
-          overlay.alfredo
-          #overlay.wandb
-        ]);
-
-
-      in
-      rec {
-        # run `nix flake check`
-        checks = {
-          pre-commit = pre-commit.lib."${system}".run (import ./nix/pre-commit.nix {
-            inherit (pkgs) protolint;
-            inherit (pkgs.python3Packages) pre-commit-hooks;
-          });
-        };
-
-        # to run a shell with all packages type `nix develop`
-        # This shell only works on Linux
-        devShells.default = pkgs.mkShell {
-          shellHook = ''
-            echo " ---------------------------------"
-            echo "| Welgome to Genetic Intelligence |"
-            echo " ---------------------------------"
-            ${checks.pre-commit.shellHook}
-          '';
-          packages = [
-            core-python
-          ];
-        };
-
-        # type `nix develop .#deploy` this shell works on all platforms
-        devShells.deploy = pkgs.mkShell {
-          shellHook = ''
-            echo "This shell provides google-cloud-sdk, ec2-api-tools and deploy-rs for CGP management, AWS mangement and remote deployment capabilities respectively."
-            ${checks.pre-commit.shellHook}
-          '';
-          packages = [
-            pkgs.google-cloud-sdk
-            pkgs.deploy-rs
-          ];
-        };
-        unfreepkgs = import nixpkgs {
+        pkgs = import nixpkgs {
           inherit system;
-          config = { allowUnfree = true; };
+          config.allowUnfree = true;
+          overlays = [ self.overlays.dev ];
         };
+      in
+      {
+        devShells.default =
+          let
+            python-env = pkgs.python3.withPackages (pyPkgs: with pyPkgs; [
+              numpy
+              pandas
+              pytorchWithCuda11
+
+              # Uncomment things below if you need them
+
+              # torchvisionWithCuda11
+              # pytorchLightningWithCuda11
+            ]);
+
+            name = "torch-basics";
+          in
+          pkgs.mkShell {
+            inherit name;
+
+            packages = [
+              python-env
+            ];
+
+            shellHooks = let pythonIcon = "f3e2"; in ''
+              export PS1="$(echo -e '\u${pythonIcon}') {\[$(tput sgr0)\]\[\033[38;5;228m\]\w\[$(tput sgr0)\]\[\033[38;5;15m\]} (${name}) \\$ \[$(tput sgr0)\]"
+            '';
+          };
 
         packages = {
           # can't be build on darwin :/
