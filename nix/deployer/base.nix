@@ -11,14 +11,14 @@
   hardware.opengl.enable = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  nix.nixConfig = {
-    extra-substituters = [
-      "https://cuda-maintainers.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
-    ];
-  };
+  nix.binaryCaches = [
+    "https://cuda-maintainers.cachix.org"
+    "https://tartavull.cachix.org"
+  ];
+  nix.binaryCachePublicKeys = [
+    "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
+    "tartavull.cachix.org-1:xxmUheA3nzwan59bFhfKEShnPeDXMeii+sWHnbq8PsQ="
+  ];
 
   # Users
   users.users = {
