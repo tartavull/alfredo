@@ -47,9 +47,8 @@
           networkx
 
           # only supported on linux
-          jaxlib.override
-          { cudaSupport = true; }
-          jax
+          jaxlibWithCuda
+          jax.override { jaxlib = jaxlibWithCuda; }
           overlay.brax
           overlay.mplcursors
           overlay.alfredo
