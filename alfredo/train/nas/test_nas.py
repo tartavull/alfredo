@@ -6,9 +6,8 @@ import pytest
 import torch
 import torch.nn as nn
 from evolve import evolve
-from nodes import Multiply, Sum
-
 from nas import Net, Node, from_pytorch, to_pytorch
+from nodes import Multiply, Sum
 
 
 def test_empty():
