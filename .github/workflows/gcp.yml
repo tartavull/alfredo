@@ -3,14 +3,25 @@ on:
   push:
 
 jobs:
-  tests:
+  build-image:
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: gcp-${{ github.ref_name }} # github.ref_name provides the branch or tag name
+      IMAGE_NAME: ${{ github.ref_name }} # github.ref_name provides the branch or tag name
     steps:
       # Checkout the current repository
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Check Disk Space Before
+        run: df -h
+
+      - name: Remove Directories and Check Disk Space After
+        run: |
+          sudo rm -rf /usr/share/dotnet \
+          && sudo rm -rf /opt/ghc \
+          && sudo rm -rf "/usr/local/share/boost" \
+          && sudo rm -rf "$AGENT_TOOLSDIRECTORY" \
+          && df -h
 
       # Install Nix package manager
       - name: Install nix
@@ -20,6 +31,10 @@ jobs:
           extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm"
 
       # Cache the build on cachix
+      - name: Cache build on cachix
+        uses: cachix/cachix-action@v11
+        with:
+          name: cuda-maintainers
       - name: Cache build on cachix
         uses: cachix/cachix-action@v11
         with:

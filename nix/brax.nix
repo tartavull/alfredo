@@ -6,22 +6,21 @@
 , etils
 , flask
 , flask-cors
-, flax
 , grpcio
 , gym
 , jax
 , jaxlib
 , jaxopt
-, jinja2
-  #, mujoco
 , numpy
 , optax
 , pillow
 , pytinyrenderer
 , scipy
-, tensorboardx
 , trimesh
+, tensorboardx
 , typing-extensions
+, flax
+, mujoco
 }:
 
 
@@ -30,8 +29,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "google";
     repo = "brax";
-    rev = "v0.1.1";
-    hash = "sha256-HtdFkVK+QODA32s/I4CJB06i2g3Rr/IZyf7L45lc4Bo=";
+    rev = "v0.9.0";
+    hash = "sha256-c9Q/0s4o0nl07R0yPXxjSlJdm17lITO0wpK09Z8DYDM=";
   };
 
   nativeBuildInputs = [
@@ -40,11 +39,9 @@ buildPythonPackage rec {
 
   prePatch = ''
     substituteInPlace setup.py \
-        --replace 'mujoco' ' ' \
-        --replace 'dataclasses' ' '
+        --replace 'jax>=0.4.6' ' ' \
+        --replace 'jaxlib>=0.4.6' ' '
   '';
-
-  pythonRemoveDeps = [ "mujoco" ];
 
   doCheck = false;
 
@@ -55,21 +52,20 @@ buildPythonPackage rec {
     etils
     flask
     flask-cors
-    flax
     grpcio
     gym
     jax
     jaxlib
     jaxopt
-    jinja2
     numpy
-    optax
     pillow
     pytinyrenderer
     scipy
     tensorboardx
     trimesh
     typing-extensions
-    #mujoco
+    optax
+    mujoco
+    flax
   ];
 }

@@ -102,13 +102,91 @@ index 6616d6f..5d5a889 100644
 --- a/simulate/cmake/SimulateDependencies.cmake
 +++ b/simulate/cmake/SimulateDependencies.cmake
 @@ -81,10 +81,6 @@ findorfetch(
-   glfw
+   glfw3
    LIBRARY_NAME
-   glfw
+   glfw3
 -  GIT_REPO
 -  https://github.com/glfw/glfw.git
 -  GIT_TAG
--  ${MUJOCO_DEP_VERSION_glfw}
+-  ${MUJOCO_DEP_VERSION_glfw3}
    TARGETS
    glfw
    EXCLUDE_FROM_ALL
+diff --git a/python/make_sdist.sh b/python/make_sdist.sh
+index 71cc527..51df5e1 100755
+--- a/python/make_sdist.sh
++++ b/python/make_sdist.sh
+@@ -25,11 +25,9 @@ if [[ "$(uname)" == CYGWIN* || "$(uname)" == MINGW* ]]; then
+   package_dir="$(cygpath -m ${package_dir})"
+   readonly tmp_dir="$(TMPDIR="${LOCALAPPDATA//\\/$'/'}/Temp" mktemp -d)"
+ else
+-  readonly tmp_dir="$(mktemp -d)"
++  readonly tmp_dir="${package_dir}/build"
+ fi
+
+-python -m pip install --upgrade --require-hashes \
+-    -r ${package_dir}/make_sdist_requirements.txt
+ pushd ${tmp_dir}
+ cp -r "${package_dir}"/* .
+
+@@ -56,9 +54,4 @@ cp "${package_dir}"/../cmake/*.cmake cmake
+ # Copy over Simulate source code.
+ cp -r "${package_dir}"/../simulate mujoco
+
+-python setup.py sdist --formats=gztar
+-tar -tf dist/mujoco-*.tar.gz
+-popd
+-
+-mkdir -p "${package_dir}"/dist
+-mv "${tmp_dir}"/dist/* "${package_dir}"/dist
++python setup.py bdist_wheel
+diff --git a/python/mujoco/CMakeLists.txt b/python/mujoco/CMakeLists.txt
+index 6491272..2afb32e 100644
+--- a/python/mujoco/CMakeLists.txt
++++ b/python/mujoco/CMakeLists.txt
+@@ -137,10 +137,6 @@ findorfetch(
+   absl
+   LIBRARY_NAME
+   abseil-cpp
+-  GIT_REPO
+-  https://github.com/abseil/abseil-cpp
+-  GIT_TAG
+-  b971ac5250ea8de900eae9f95e06548d14cd95fe # LTS 20230125.2
+   TARGETS
+   ${MUJOCO_PYTHON_ABSL_TARGETS}
+   EXCLUDE_FROM_ALL
+@@ -170,10 +166,6 @@ findorfetch(
+   Eigen3
+   LIBRARY_NAME
+   eigen
+-  GIT_REPO
+-  https://gitlab.com/libeigen/eigen
+-  GIT_TAG
+-  b378014fef017a829fb42c7fad15f3764bfb8ef9
+   TARGETS
+   Eigen3::Eigen
+   EXCLUDE_FROM_ALL
+@@ -187,10 +179,6 @@ findorfetch(
+   pybind11
+   LIBRARY_NAME
+   pybind11
+-  GIT_REPO
+-  https://github.com/pybind/pybind11
+-  GIT_TAG
+-  5b0a6fc2017fcc176545afe3e09c9f9885283242 # v2.10.4
+   TARGETS
+   pybind11::pybind11_headers
+   EXCLUDE_FROM_ALL
+diff --git a/simulate/CMakeLists.txt b/simulate/CMakeLists.txt
+index f20013f..aaea7bc 100644
+--- a/simulate/CMakeLists.txt
++++ b/simulate/CMakeLists.txt
+@@ -83,8 +83,6 @@ endif()
+ if(NOT TARGET lodepng)
+   FetchContent_Declare(
+     lodepng
+-    GIT_REPOSITORY https://github.com/lvandeve/lodepng.git
+-    GIT_TAG ${MUJOCO_DEP_VERSION_lodepng}
+   )
+
+   FetchContent_GetProperties(lodepng)
