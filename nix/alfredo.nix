@@ -3,6 +3,6 @@
 
 buildPythonPackage rec {
   name = "alfredo";
-  src = ../src/.;
+  src = ../alfredo/.;
   propagatedBuildInputs = [ ];
 }
