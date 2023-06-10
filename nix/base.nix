@@ -16,6 +16,12 @@
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl.enable = true;
 
+  nixpkgs.overlays = [
+    (self: super: {
+      cuda = pkgs.cuda11_7;
+    })
+  ];
+
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
     trusted-users = [ "root" "dev" ];
@@ -28,6 +34,7 @@
       "tartavull.cachix.org-1:xxmUheA3nzwan59bFhfKEShnPeDXMeii+sWHnbq8PsQ="
     ];
   };
+
 
   # Users
   users.users = {
