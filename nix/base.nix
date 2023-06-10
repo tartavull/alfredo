@@ -3,8 +3,8 @@
 {
   imports = [
     "${builtins.fetchTarball {
-      url = "https://github.com/nix-community/home-manager/archive/release-23.05.tar.gz";
-      sha256 = "sha256:1ixy1bi21nq0dlfzpn72k1gjdm8aq7h84wvl1ysff7lmqc4gi1jf";
+      url = "https://github.com/nix-community/home-manager/archive/release-22.11.tar.gz";
+      sha256 = "sha256:1cp2rpprcfl4mjsrsrpfg6278nf05a0mpl3m0snksvdalfmc5si5";
     }}/nixos"
   ];
 
@@ -15,12 +15,6 @@
   nixpkgs.config.allowUnfree = true;
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl.enable = true;
-
-  nixpkgs.overlays = [
-    (self: super: {
-      cuda = pkgs.cuda11_7;
-    })
-  ];
 
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
