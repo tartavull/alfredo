@@ -148,6 +148,7 @@ buildPythonPackage (commonAttrs // rec {
   nativeBuildInputs = [ cmake git ];
 
   preConfigure = ''
+    /*
     mkdir -p build/_deps
     ln -s ${abseil-cpp} build/_deps/abseil-cpp-src
     ln -s ${benchmark} build/_deps/benchmark-src
@@ -159,6 +160,7 @@ buildPythonPackage (commonAttrs // rec {
     ln -s ${qhull} build/_deps/qhull-src
     ln -s ${tinyobjloader} build/_deps/tinyobjloader-src
     ln -s ${tinyxml2} build/_deps/tinyxml2-src
+    */
 
 
     mkdir -p python/build/temp.linux-x86_64-cpython-310/_deps

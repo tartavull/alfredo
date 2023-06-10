@@ -183,7 +183,7 @@ def get_next_instance_name(project_id):
 def main():
     project_id = "openmind-vis"  # Replace with your project ID
     city = "Toronto, ON, Canada"
-    machine_type = "n1-standard-32"
+    machine_type = "n1-standard-16"
     regions = sort_regions_by_distance(city)
     instance_name = get_next_instance_name(
         project_id
@@ -193,7 +193,7 @@ def main():
         zones = get_zones(project_id, region)
         for zone in zones:
             success = create_instance(
-                project_id, zone, instance_name, machine_type, "gcp-cuda-support"
+                project_id, zone, instance_name, machine_type, "cuda-support"
             )
             if success:
                 return
