@@ -12,8 +12,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "deepmind";
     repo = "dm_env";
-    rev = "v1.5";
-    hash = "sha256-aEudcqmrLquZ9XvK/7pjyLvN/nDIeuYFQjdD1Cyh3Us=";
+    rev = "91b46797fea731f80eab8cd2c8352a0674141d89";
+    hash = "sha256-yvvj8kKH+8afYPOJqJ1mBdjwxaiLdF4YVZo76CeZVFc=";
   };
   propagatedBuildInputs = [
     pytest

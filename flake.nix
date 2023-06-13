@@ -1,82 +1,136 @@
 {
-  description = "Genetic Intelligence Main Flake";
+  description = "Alfredo: relentlessly learning, persistently failing, but never surrendering.";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
-    pre-commit.url = "github:cachix/pre-commit-hooks.nix";
+    utils.url = "github:numtide/flake-utils";
     nixos.url = "github:nixos/nixpkgs/nixos-22.11";
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
       inputs.nixpkgs.follows = "nixos";
     };
+    pre-commit.url = "github:cachix/pre-commit-hooks.nix";
   };
 
-  outputs = { self, nixpkgs, nixos, flake-utils, pre-commit, nixos-generators }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-darwin" ] (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
-        callPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3Packages // overlay);
-        overlay = rec {
-          stable-baselines = callPackage ./nix/stable-baselines.nix { };
-          box2d-py = callPackage ./nix/box2d-py.nix { };
-          alfredo = callPackage ./nix/alfredo.nix { };
-          dm_env = callPackage ./nix/dm_env.nix { };
-          pytinyrenderer = callPackage ./nix/pytinyrenderer.nix { };
-          #mujoco = callPackage ./nix/mujoco.nix { };
-          trimesh = callPackage ./nix/trimesh.nix { };
-          brax = callPackage ./nix/brax.nix { };
-          mplcursors = callPackage ./nix/mplcursors.nix { };
-          #wandb = callPackage ./nix/wandb.nix { };
+  outputs = { self, nixpkgs, utils, nixos, nixos-generators, pre-commit, ... }@inputs:
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
+      callPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3Packages);
+      snappy = callPackage ./nix/snappy.nix { };
+      ml-dtypes = callPackage ./nix/ml-dtypes.nix { };
+      dm_env = callPackage ./nix/dm_env.nix { };
+      pytinyrenderer = callPackage ./nix/pytinyrenderer.nix { };
+      trimesh = callPackage ./nix/trimesh.nix { };
+      ml_collections = callPackage ./nix/ml_collections.nix { };
+      tensorstore = callPackage ./nix/tensorstore.nix { };
+    in
+    {
+      overlays.dev = final: prev: {
+        magmaWithCuda11 = prev.magma.override {
+          cudaPackages = final.cudaPackages_11_8;
         };
+        pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+          (python-final: python-prev: {
 
-        core-python = pkgs.python3.withPackages (ps: with ps; [
+            pytorch = python-prev.pytorchWithCuda.override {
+              magma = final.magmaWithCuda11;
+              cudaPackages = final.cudaPackages_11_8;
+            };
+
+            jaxlib = python-prev.jaxlib.override {
+              cudaPackages = final.cudaPackages_11_8;
+              cudaSupport = true;
+            };
+
+            jax = python-prev.jax.override {
+              inherit (python-final) jaxlib;
+            };
+
+            jaxopt = callPackage ./nix/jaxopt.nix {
+              inherit (python-final) jax;
+              inherit (python-final) jaxlib;
+            };
+
+            chex = callPackage ./nix/chex.nix {
+              inherit (python-final) jax;
+              inherit (python-final) jaxlib;
+            };
+
+            optax = callPackage ./nix/optax.nix {
+              inherit (python-final) jax;
+              inherit (python-final) jaxlib;
+              inherit (python-final) chex;
+            };
+
+            orbax = callPackage ./nix/orbax.nix {
+              inherit (python-final) jax;
+              inherit (python-final) jaxlib;
+            };
+
+            flax = callPackage ./nix/flax.nix {
+              inherit (python-final) jax;
+              inherit (python-final) jaxlib;
+              inherit (python-final) orbax;
+              inherit (python-final) optax;
+            };
+
+            mujoco = callPackage ./nix/mujoco.nix {
+              glfw-py = pkgs.python3Packages.glfw;
+            };
+
+            brax = callPackage ./nix/brax.nix {
+              inherit (python-final) jax;
+              inherit (python-final) jaxlib;
+              inherit (python-final) jaxopt;
+              inherit (python-final) optax;
+              inherit (python-final) flax;
+              inherit (python-final) mujoco;
+              inherit dm_env;
+              inherit pytinyrenderer;
+              inherit trimesh;
+            };
+          })
+        ];
+      };
+    } // utils.lib.eachSystem [ "x86_64-linux" ] (system:
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+          overlays = [ self.overlays.dev ];
+        };
+        python-env = pkgs.python3.withPackages (pyPkgs: with pyPkgs; [
           ipython
           numpy
           pandas
           matplotlib
-          pytorch
           torchvision
           pytest
           tqdm
           rich
           networkx
 
-          # only supported on linux
           jaxlib
           jax
-          overlay.brax
-          overlay.mplcursors
-          overlay.alfredo
-          #overlay.wandb
+          brax
+          mujoco
         ]);
-
-
+        name = "alfredo";
       in
       rec {
-        # run `nix flake check`
-        checks = {
-          pre-commit = pre-commit.lib."${system}".run (import ./nix/pre-commit.nix {
-            inherit (pkgs) protolint;
-            inherit (pkgs.python3Packages) pre-commit-hooks;
-          });
-        };
-
-        # to run a shell with all packages type `nix develop`
-        # This shell only works on Linux
         devShells.default = pkgs.mkShell {
-          shellHook = ''
-            echo " ---------------------------------"
-            echo "| Welgome to Genetic Intelligence |"
-            echo " ---------------------------------"
-            ${checks.pre-commit.shellHook}
-          '';
+          inherit name;
+
           packages = [
-            core-python
+            python-env
           ];
+          shellHooks = let pythonIcon = "f3e2"; in ''
+            ${checks.pre-commit.shellHook}
+            export PS1=" {\[$(tput sgr0)\]\[\033[38;5;228m\]\w\[$(tput sgr0)\]\[\033[38;5;15m\]} (${name}) \\$ \[$(tput sgr0)\]"
+          '';
         };
 
-        # type `nix develop .#deploy` this shell works on all platforms
         devShells.deploy = pkgs.mkShell {
           shellHook = ''
             echo "This shell provides google-cloud-sdk, ec2-api-tools and deploy-rs for CGP management, AWS mangement and remote deployment capabilities respectively."
@@ -87,28 +141,28 @@
             pkgs.deploy-rs
           ];
         };
-        unfreepkgs = import nixpkgs {
-          inherit system;
-          config = { allowUnfree = true; };
+
+        # run `nix flake check`
+        checks = {
+          pre-commit = pre-commit.lib."${system}".run (import ./nix/pre-commit.nix {
+            inherit (pkgs) protolint;
+            inherit (pkgs.python3Packages) pre-commit-hooks;
+          });
         };
 
         packages = {
           # can't be build on darwin :/
           gcp = nixos-generators.nixosGenerate {
             system = "x86_64-linux";
-            modules = [ ./nix/deployer/base.nix ];
+            modules = [ ./nix/base.nix ];
             format = "gce";
           };
           aws = nixos-generators.nixosGenerate {
             system = "x86_64-linux";
-            modules = [ ./nix/deployer/base.nix ] ++ [ (_: { amazonImage.sizeMB = 16 * 1024; }) ];
+            modules = [ ./nix/base.nix ] ++ [ (_: { amazonImage.sizeMB = 16 * 1024; }) ];
             format = "amazon";
           };
-          raw = nixos-generators.nixosGenerate {
-            system = "x86_64-linux";
-            modules = [ ./nix/deployer/base.nix ];
-            format = "raw-efi";
-          };
         };
-      });
+      }
+    );
 }

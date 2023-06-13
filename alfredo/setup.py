@@ -10,4 +10,9 @@ setup(
     author_email="tartavull@gmail.com",
     packages=["alfredo"],
     package_dir={"alfredo": "./"},
+    entry_points={
+        "console_scripts": [
+            "alfredo = alfredo.devops.cli:main",
+        ],
+    },
 )

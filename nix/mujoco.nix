@@ -1,11 +1,18 @@
 { buildPythonPackage
+, absl-py
 , cmake
-, pythonPackages
 , fetchFromGitHub
 , fetchFromGitLab
 , git
+, glfw-py
 , lib
 , libGL
+, numpy
+, pip
+, pyopengl
+, python3
+, pythonPackages
+, setuptools
 , stdenv
 , xorg
 }:
@@ -27,7 +34,7 @@ let
   ccd = fetchFromGitHub {
     owner = "danfis";
     repo = "libccd";
-    rev = "7931e764a19ef6b21b443376c699bbc9c6d4fba8";
+    rev = "7931e764a19ef6b21b443376c99bbc9c6d4fba8";
     hash = "sha256-TIZkmqQXa0+bSWpqffIgaBela0/INNsX9LPM026x1Wk=";
   };
   eigen3 = fetchFromGitLab {
@@ -74,24 +81,93 @@ let
     rev = "7482de6071d21db77a7236155da44c172a7f6c9e";
     hash = "sha256-4+H0IXjAwbL5mAWfsIVhW0BSJhcWjkQx4j2TrzZ3aIo=";
   };
-in
-
-buildPythonPackage rec {
-
-  pname = "mujoco";
-  version = "2.3.0";
-
-  venvDir = "./.venv";
-  src = fetchFromGitHub {
-    owner = "deepmind";
-    repo = pname;
-    rev = version;
-    hash = "sha256-FxMaXl7yfUAyY6LE1sxaw226dBtp1DOCWNnROp0WX2I=";
+  pybind11 = fetchFromGitHub {
+    owner = "pybind";
+    repo = "pybind11";
+    rev = "5b0a6fc2017fcc176545afe3e09c9f9885283242";
+    hash = "sha256-n7nLEG2+sSR9wnxM+C8FWc2B+Mx74Pan1+IQf+h2bGU=";
   };
 
-  patches = [ ./dependencies.patch ];
+  commonAttrs = rec {
+    pname = "mujoco";
+    version = "2.3.5";
+    src = fetchFromGitHub {
+      owner = "deepmind";
+      repo = pname;
+      rev = version;
+      hash = "sha256-lLMyyQzM8g6sZf2ZWA1rIueSorgpFPKmMVIUg7iexfc=";
+    };
+
+    patches = [ ./mujoco.patch ];
+
+    nativeBuildInputs = [ cmake git ];
+
+
+
+    # Move things into place so that cmake doesn't try downloading dependencies.
+    preConfigure = ''
+      mkdir -p build/_deps
+      ln -s ${abseil-cpp} build/_deps/abseil-cpp-src
+      ln -s ${benchmark} build/_deps/benchmark-src
+      ln -s ${ccd} build/_deps/ccd-src
+      ln -s ${eigen3} build/_deps/eigen3-src
+      ln -s ${glfw} build/_deps/glfw3-src
+      ln -s ${googletest} build/_deps/googletest-src
+      ln -s ${lodepng} build/_deps/lodepng-src
+      ln -s ${qhull} build/_deps/qhull-src
+      ln -s ${tinyobjloader} build/_deps/tinyobjloader-src
+      ln -s ${tinyxml2} build/_deps/tinyxml2-src
+    '';
+
+    meta = with lib; {
+      description = "Multi-Joint dynamics with Contact. A general purpose physics simulator.";
+      homepage = "https://mujoco.org/";
+      license = licenses.asl20;
+      maintainers = with maintainers; [ samuela ];
+    };
+  };
+
+  cmakeBuild = stdenv.mkDerivation (commonAttrs // rec {
+    buildInputs = [
+      libGL
+      xorg.libX11
+      xorg.libXcursor
+      xorg.libXext
+      xorg.libXi
+      xorg.libXinerama
+      xorg.libXrandr
+    ];
+  });
+
+in
+buildPythonPackage (commonAttrs // rec {
+
+  MUJOCO_PATH = cmakeBuild;
+  MUJOCO_PLUGIN_PATH = cmakeBuild;
 
   nativeBuildInputs = [ cmake git ];
+
+  preConfigure = ''
+    mkdir -p build/_deps
+    ln -s ${abseil-cpp} build/_deps/abseil-cpp-src
+    ln -s ${benchmark} build/_deps/benchmark-src
+    ln -s ${ccd} build/_deps/ccd-src
+    ln -s ${eigen3} build/_deps/eigen3-src
+    ln -s ${glfw} build/_deps/glfw3-src
+    ln -s ${googletest} build/_deps/googletest-src
+    ln -s ${lodepng} build/_deps/lodepng-src
+    ln -s ${qhull} build/_deps/qhull-src
+    ln -s ${tinyobjloader} build/_deps/tinyobjloader-src
+    ln -s ${tinyxml2} build/_deps/tinyxml2-src
+
+    mkdir -p python/build/temp.linux-x86_64-cpython-310/_deps
+    ln -s ${abseil-cpp} python/build/temp.linux-x86_64-cpython-310/_deps/abseil-cpp-src
+    ln -s ${eigen3} python/build/temp.linux-x86_64-cpython-310/_deps/eigen-src
+    ln -s ${pybind11} python/build/temp.linux-x86_64-cpython-310/_deps/pybind11-src
+    ln -s ${glfw} python/build/temp.linux-x86_64-cpython-310/_deps/glfw3-src
+    ln -s ${lodepng} python/build/temp.linux-x86_64-cpython-310/_deps/lodepng-src
+  '';
+
 
   buildInputs = [
     libGL
@@ -101,35 +177,25 @@ buildPythonPackage rec {
     xorg.libXi
     xorg.libXinerama
     xorg.libXrandr
-
-    pythonPackages.venvShellHook
+    cmakeBuild
   ];
 
-  # Move things into place so that cmake doesn't try downloading dependencies.
-  preConfigure = ''
-    mkdir -p build/_deps
-    ln -s ${abseil-cpp} build/_deps/abseil-cpp-src
-    ln -s ${benchmark} build/_deps/benchmark-src
-    ln -s ${ccd} build/_deps/ccd-src
-    ln -s ${eigen3} build/_deps/eigen3-src
-    ln -s ${glfw} build/_deps/glfw-src
-    ln -s ${googletest} build/_deps/googletest-src
-    ln -s ${lodepng} build/_deps/lodepng-src
-    ln -s ${qhull} build/_deps/qhull-src
-    ln -s ${tinyobjloader} build/_deps/tinyobjloader-src
-    ln -s ${tinyxml2} build/_deps/tinyxml2-src
+  propagatedBuildInputs = [
+    absl-py
+    glfw-py
+    pyopengl
+    pip
+    setuptools
+    numpy
+  ];
 
-    cmake .
-    make -j
-    cd python
-    ./make_sdist.sh
-    cp dist/mujoco-2.3.0.tar.gz $out
+  doCheck = false;
+
+  buildPhase = ''
+    cd ../python
+    python3 -m venv /tmp/mujoco
+    source /tmp/mujoco/bin/activate
+    bash make_sdist.sh
+    cd build
   '';
-
-  meta = with lib; {
-    description = "Multi-Joint dynamics with Contact. A general purpose physics simulator.";
-    homepage = "https://mujoco.org/";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ samuela ];
-  };
-}
+})
