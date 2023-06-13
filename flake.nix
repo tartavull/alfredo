@@ -2,7 +2,7 @@
   description = "Alfredo: relentlessly learning, persistently failing, but never surrendering.";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     utils.url = "github:numtide/flake-utils";
     nixos.url = "github:nixos/nixpkgs/nixos-22.11";
     nixos-generators = {
@@ -28,18 +28,19 @@
     {
       overlays.dev = final: prev: {
         magmaWithCuda11 = prev.magma.override {
-          cudaPackages = final.cudaPackages_11_7;
+          cudaPackages = final.cudaPackages_11_8;
         };
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
           (python-final: python-prev: {
 
             pytorch = python-prev.pytorchWithCuda.override {
               magma = final.magmaWithCuda11;
-              cudaPackages = final.cudaPackages_11_7;
+              cudaPackages = final.cudaPackages_11_8;
             };
 
-            jaxlib = python-prev.jaxlibWithCuda.override {
-              cudaPackages = final.cudaPackages_11_7;
+            jaxlib = python-prev.jaxlib.override {
+              cudaPackages = final.cudaPackages_11_8;
+              cudaSupport = true;
             };
 
             jax = python-prev.jax.override {
@@ -104,7 +105,6 @@
           numpy
           pandas
           matplotlib
-          pytorch
           torchvision
           pytest
           tqdm
