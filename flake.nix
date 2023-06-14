@@ -90,6 +90,9 @@
               inherit pytinyrenderer;
               inherit trimesh;
             };
+
+            alfredo = callPackage ./nix/alfredo.nix {
+            };
           })
         ];
       };
@@ -115,6 +118,7 @@
           jax
           brax
           mujoco
+          alfredo
         ]);
         name = "alfredo";
       in
