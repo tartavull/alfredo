@@ -104,16 +104,8 @@ func (m *Mods) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = stateCompletion
 		return m, m.startCompletionCmd(msg.content)
 	case completionOutput:
-        if m.Config.Auto {
-            // we do this such that it can be pretty printed by glow
-            m.auto.ParseResponse(msg.content)
-            m.Output = "```json\n" + msg.content + "\n```"
-            //m.state = questionState
-		    //return m, tea.Quit
-        } else {
-		    m.Output = msg.content
-		    return m, tea.Quit
-        }
+        m.Output = msg.content
+        return m, tea.Quit
 	case modsError:
 		m.Error = &msg
 		m.state = stateError

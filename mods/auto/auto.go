@@ -8,6 +8,8 @@ import (
     "github.com/charmbracelet/bubbles/textarea"
     "github.com/charmbracelet/bubbles/cursor"
     "github.com/charmbracelet/mods/common"
+
+
 )
 
 type Auto struct {
@@ -17,14 +19,24 @@ type Auto struct {
 }
 
 func New(s common.Styles) *Auto {
-    ta := textarea.New()
-	ta.Placeholder = ">"
-    ta.Focus()
-
-    return &Auto{
-        textarea: ta,
+    a := &Auto{
+        textarea: textarea.New(),
 		styles:   s,
     }
+
+	a.textarea.Placeholder = ">"
+    a.textarea.ShowLineNumbers = false
+    a.textarea.Focus()
+
+    testJson := `
+	{
+		"context": "Some context",
+		"goal": "Some goal",
+		"actions": [{"question":"Some question"}]
+	}`
+	a.Response, _ = a.ParseResponse(testJson)
+
+    return a 
 }
 
 func (a *Auto) Focus() tea.Cmd {
@@ -33,7 +45,7 @@ func (a *Auto) Focus() tea.Cmd {
 
 func (a *Auto) SetSize(width, height int) {
     a.textarea.SetWidth(width)
-    a.textarea.SetHeight(height/2)
+    a.textarea.MaxHeight = height / 2
 }
 
 func (a *Auto) Update(msg tea.Msg) (*Auto, tea.Cmd) {
@@ -56,11 +68,18 @@ func (a *Auto) Update(msg tea.Msg) (*Auto, tea.Cmd) {
 }
 
 func (a *Auto) View() string {
-    return fmt.Sprintf("\n%s\n\n%s\n%s", 
-        "Question?", 
-        a.textarea.View(),
-        "Press ctrl+d to submit answer",
-    )
+    view := ""
+
+    view += a.styles.ContextTag.String() + " " + a.styles.Context.Render(a.Response.Context)
+    view += "\n\n"
+    view += a.styles.GoalTag.String() + " " + a.styles.Goal.Render(a.Response.Goal)
+    view += "\n\n"
+    view += a.styles.QuestionTag.String() + " " + a.styles.Question.Render(a.Response.Actions[0].String())
+    view += "\n\n"
+    view += a.textarea.View()
+    view += "\n"
+    view += a.styles.Comment.Render("press ctrl+d to submit answer")
+    return a.styles.App.Render(view)
 }
 
 func (a *Auto) AddPrompt(prompt string) string {
