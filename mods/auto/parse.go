@@ -14,6 +14,7 @@ type LLMResponse struct {
 
 type Action interface {
 	IsValid() bool
+    String() string
 }
 
 type Question struct {
@@ -28,8 +29,16 @@ func (q Question) IsValid() bool {
 	return q.Question != ""
 }
 
+func (q Question) String() string {
+	return q.Question 
+}
+
 func (c Cmd) IsValid() bool {
 	return c.Cmd != ""
+}
+
+func (c Cmd) String() string {
+	return c.Cmd
 }
 
 func (c *LLMResponse) UnmarshalJSON(data []byte) error {
@@ -61,27 +70,27 @@ func (c *LLMResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (a *Auto) ParseResponse(jsonStr string) error {
+func (a *Auto) ParseResponse(jsonStr string) (*LLMResponse, error) {
     jsonBlob := []byte(jsonStr)
 
     response := LLMResponse{}
 	err := json.Unmarshal([]byte(jsonBlob), &response)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
     // Create a map to hold the JSON data
 	var data map[string]json.RawMessage
 	if err := json.Unmarshal([]byte(jsonBlob), &data); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Check for extra fields
 	responseType := reflect.TypeOf(response)
     for key := range data {
 		if !structHasField(responseType, key) {
-			return fmt.Errorf("extra field '%s' in JSON", key)
+			return nil, fmt.Errorf("extra field '%s' in JSON", key)
 		}
 	}
 
@@ -90,12 +99,10 @@ func (a *Auto) ParseResponse(jsonStr string) error {
 		field := responseType.Field(i)
 		_, ok := data[field.Tag.Get("json")]
 		if !ok {
-			return fmt.Errorf("missing field '%s' in JSON", field.Tag.Get("json"))
+			return nil, fmt.Errorf("missing field '%s' in JSON", field.Tag.Get("json"))
 		}
 	}
-	
-    a.Response = &response
-    return nil
+    return &response, nil
 }
 
 // Helper function to check if a JSON field name matches any struct fields

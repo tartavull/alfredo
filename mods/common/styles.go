@@ -6,6 +6,7 @@ import (
 
 type Styles struct {
 	AppName      lipgloss.Style
+    App          lipgloss.Style
 	CliArgs      lipgloss.Style
 	Comment      lipgloss.Style
 	CyclingChars lipgloss.Style
@@ -18,10 +19,18 @@ type Styles struct {
 	Link         lipgloss.Style
 	Pipe         lipgloss.Style
 	Quote        lipgloss.Style
+
+	Context      lipgloss.Style
+	ContextTag   lipgloss.Style
+	Goal         lipgloss.Style
+	GoalTag      lipgloss.Style
+	Question     lipgloss.Style
+	QuestionTag  lipgloss.Style
 }
 
 func MakeStyles(r *lipgloss.Renderer) (s Styles) {
 	s.AppName = r.NewStyle().Bold(true)
+    s.App = r.NewStyle().Margin(1, 2)
 	s.CliArgs = r.NewStyle().Foreground(lipgloss.Color("#585858"))
 	s.Comment = r.NewStyle().Foreground(lipgloss.Color("#757575"))
 	s.CyclingChars = r.NewStyle().Foreground(lipgloss.Color("#FF87D7"))
@@ -34,5 +43,14 @@ func MakeStyles(r *lipgloss.Renderer) (s Styles) {
 	s.Link = r.NewStyle().Foreground(lipgloss.Color("#00AF87")).Underline(true)
 	s.Quote = r.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#FF71D0", Dark: "#FF78D2"})
 	s.Pipe = r.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#8470FF", Dark: "#745CFF"})
+
+    s.Context = s.CliArgs.Copy()
+    s.ContextTag = s.Context.Copy().Bold(true).SetString("Context:")
+
+    s.Goal = r.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#00B594", Dark: "#3EEFCF"})
+    s.GoalTag = s.Goal.Copy().Bold(true).SetString("Goal:")
+
+    s.Question = s.Quote.Copy()
+    s.QuestionTag = s.Question.Copy().Bold(true).SetString("Question:")
 	return s
 }

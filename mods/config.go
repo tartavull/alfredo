@@ -203,7 +203,9 @@ func newConfig() (config, error) {
 	flag.StringVar(&c.StatusText, "status-text", c.StatusText, help["status-text"])
 	flag.BoolVar(&c.Auto, "auto", c.Auto, help["auto"])
 	flag.Lookup("prompt").NoOptDefVal = "-1"
-	flag.Usage = usage
+    flag.Usage = func() {
+		usage(c)
+	}
 	flag.CommandLine.SortFlags = false
 	flag.Parse()
 	c.Prefix = strings.Join(flag.Args(), " ")
@@ -211,7 +213,11 @@ func newConfig() (config, error) {
 	return c, nil
 }
 
-func usage() {
+func usage(c config) {
+    if c.Auto {
+        return
+    }
+
 	r := lipgloss.DefaultRenderer()
 	s := common.MakeStyles(r)
 	appName := filepath.Base(os.Args[0])
