@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/termenv"
+    "github.com/charmbracelet/mods/common"
 )
 
 const (
@@ -84,10 +85,10 @@ type anim struct {
 	label           []rune
 	ellipsis        spinner.Model
 	ellipsisStarted bool
-	styles          styles
+	styles          common.Styles
 }
 
-func newAnim(cyclingCharsSize uint, label string, r *lipgloss.Renderer, s styles) anim {
+func newAnim(cyclingCharsSize uint, label string, r *lipgloss.Renderer, s common.Styles) anim {
 	n := int(cyclingCharsSize)
 	if n > maxCyclingChars {
 		n = maxCyclingChars

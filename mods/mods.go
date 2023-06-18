@@ -17,9 +17,7 @@ import (
 	"github.com/mattn/go-isatty"
 	openai "github.com/sashabaranov/go-openai"
     "github.com/charmbracelet/mods/auto"
-    "github.com/charmbracelet/bubbles/textarea"
-    _ "github.com/charmbracelet/bubbles/key"
-
+    "github.com/charmbracelet/mods/common"
 )
 
 const markdownPrefix = "Format the response as Markdown."
@@ -27,11 +25,11 @@ const markdownPrefix = "Format the response as Markdown."
 type state int
 
 const (
-	startState state = iota
-	configLoadedState
-	completionState
-    questionState
-	errorState
+	stateStart state = iota
+	stateConfigLoaded
+	stateCompletion
+    stateAuto
+	stateError
 )
 
 // Mods is the Bubble Tea model that manages reading stdin and querying the
@@ -43,31 +41,21 @@ type Mods struct {
 	Error    *modsError
 	state    state
 	retries  int
-	styles   styles
+	styles   common.Styles
 	renderer *lipgloss.Renderer
 	anim     tea.Model
 	width    int
 	height   int
     auto     *auto.Auto
-    textarea textarea.Model
 }
 
 func newMods(r *lipgloss.Renderer) *Mods {
-	s := makeStyles(r)
-
-    ta := textarea.New()
-	ta.Placeholder = ">"
-	ta.SetWidth(30)
-	ta.SetHeight(10)
-    ta.Focus()
-    //ta.KeyMap.InsertNewline = key.NewBinding(key.WithKeys("shift+enter"))
-
+	s := common.MakeStyles(r)
 	return &Mods{
-		state:    startState,
+		state:    stateStart,
 		renderer: r,
 		styles:   s,
-        auto: auto.New(),
-        textarea: ta,
+        auto: auto.New(s),
 	}
 
 }
@@ -98,12 +86,14 @@ func (m *Mods) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case config:
 		m.Config = msg
-		m.state = configLoadedState
+		m.state = stateConfigLoaded
 		if m.Config.ShowHelp || m.Config.Version || m.Config.Settings {
 			return m, tea.Quit
 		}
 		m.anim = newAnim(m.Config.Fanciness, m.Config.StatusText, m.renderer, m.styles)
-		return m, tea.Batch(readStdinCmd, m.anim.Init())
+        if !m.Config.Auto {
+		    return m, tea.Batch(readStdinCmd, m.anim.Init())
+        }
 	case completionInput:
 		if msg.content == "" && m.Config.Prefix == "" {
 			return m, tea.Quit
@@ -111,15 +101,14 @@ func (m *Mods) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.content != "" {
 			m.Input = msg.content
 		}
-		m.state = completionState
+		m.state = stateCompletion
 		return m, m.startCompletionCmd(msg.content)
 	case completionOutput:
         if m.Config.Auto {
             // we do this such that it can be pretty printed by glow
             m.auto.ParseResponse(msg.content)
             m.Output = "```json\n" + msg.content + "\n```"
-            m.state = questionState
-            return m, textarea.Blink
+            //m.state = questionState
 		    //return m, tea.Quit
         } else {
 		    m.Output = msg.content
@@ -127,52 +116,46 @@ func (m *Mods) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         }
 	case modsError:
 		m.Error = &msg
-		m.state = errorState
+		m.state = stateError
 		return m, tea.Quit
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
-        m.textarea.SetWidth(m.width)
+        m.auto.SetSize(msg.Width, msg.Height)
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
 			return m, tea.Quit
 		}
 	}
-	if m.state == configLoadedState || m.state == completionState {
+    if m.Config.Auto {
+        var cmd tea.Cmd
+        m.state = stateAuto
+        m.auto, cmd = m.auto.Update(msg)
+        return m, cmd
+    }
+	if m.state == stateConfigLoaded || m.state == stateCompletion {
 		var cmd tea.Cmd
 		m.anim, cmd = m.anim.Update(msg)
 		return m, cmd
 	}
-    if m.state == questionState {
-        var cmd tea.Cmd
-        m.textarea, cmd = m.textarea.Update(msg)
-        switch msg := msg.(type) {
-            case tea.KeyMsg:
-                if msg.String() == "ctrl+d" {
-                    m.textarea.Reset()
-                }
-        }
-        return m, cmd
-    }
 	return m, nil
 }
 
 // View implements tea.Model.
 func (m *Mods) View() string {
 	//nolint:exhaustive
+    if m.Config.Auto {
+        return m.auto.View()
+    }
 	switch m.state {
-	case errorState:
+	case stateError:
 		return m.ErrorView()
-	case completionState:
+	case stateCompletion:
 		if !m.Config.Quiet {
 			return m.anim.View()
 		}
-    case questionState:
-        return fmt.Sprintf("\n%s\n\n%s\n%s", 
-            "Question?", 
-            m.textarea.View(),
-            "Press ctrl+d to submit answer",
-        ) 
+    case stateAuto:
+        return m.auto.View()
 	}
 	return ""
 }
@@ -188,8 +171,8 @@ func (m Mods) ErrorView() string {
 	s := m.renderer.NewStyle().Width(w).Padding(0, horizontalPadding)
 	return fmt.Sprintf(
 		"\n%s\n\n%s\n\n",
-		s.Render(m.styles.errorHeader.String(), m.Error.reason),
-		s.Render(m.styles.errorDetails.Render(m.Error.Error())),
+		s.Render(m.styles.ErrorHeader.String(), m.Error.reason),
+		s.Render(m.styles.ErrorDetails.Render(m.Error.Error())),
 	)
 }
 
@@ -252,8 +235,8 @@ func (m *Mods) startCompletionCmd(content string) tea.Cmd {
 		if !ok {
 			if cfg.API == "" {
 				return modsError{
-					reason: "Model " + m.styles.inlineCode.Render(cfg.Model) + " is not in the settings file.",
-					err:    fmt.Errorf("Please specify an API endpoint with %s or configure the model in the settings: %s", m.styles.inlineCode.Render("--api"), m.styles.inlineCode.Render("mods -s")),
+					reason: "Model " + m.styles.InlineCode.Render(cfg.Model) + " is not in the settings file.",
+					err:    fmt.Errorf("Please specify an API endpoint with %s or configure the model in the settings: %s", m.styles.InlineCode.Render("--api"), m.styles.InlineCode.Render("mods -s")),
 				}
 			}
 			mod.Name = cfg.Model
@@ -265,8 +248,8 @@ func (m *Mods) startCompletionCmd(content string) tea.Cmd {
 			key = os.Getenv("OPENAI_API_KEY")
 			if key == "" {
 				return modsError{
-					reason: m.styles.inlineCode.Render("OPENAI_API_KEY") + " environment variabled is required.",
-					err:    fmt.Errorf("You can grab one at %s", m.styles.link.Render("https://platform.openai.com/account/api-keys.")),
+					reason: m.styles.InlineCode.Render("OPENAI_API_KEY") + " environment variabled is required.",
+					err:    fmt.Errorf("You can grab one at %s", m.styles.Link.Render("https://platform.openai.com/account/api-keys.")),
 				}
 			}
 		}
@@ -275,10 +258,10 @@ func (m *Mods) startCompletionCmd(content string) tea.Cmd {
 		if !ok {
 			eps := make([]string, 0)
 			for k := range cfg.APIs {
-				eps = append(eps, m.styles.inlineCode.Render(k))
+				eps = append(eps, m.styles.InlineCode.Render(k))
 			}
 			return modsError{
-				reason: fmt.Sprintf("The API endpoint %s is not configured ", m.styles.inlineCode.Render(cfg.API)),
+				reason: fmt.Sprintf("The API endpoint %s is not configured ", m.styles.InlineCode.Render(cfg.API)),
 				err:    fmt.Errorf("Your configured API endpoints are: %s", eps),
 			}
 		}
