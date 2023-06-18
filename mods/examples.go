@@ -3,6 +3,8 @@ package main
 import (
 	"math/rand"
 	"regexp"
+
+    "github.com/charmbracelet/mods/common"
 )
 
 var examples = map[string]string{
@@ -20,16 +22,16 @@ func randomExample() (string, string) {
 	return desc, examples[desc]
 }
 
-func cheapHighlighting(s styles, code string) string {
+func cheapHighlighting(s common.Styles, code string) string {
 	code = regexp.
 		MustCompile(`"([^"\\]|\\.)*"`).
 		ReplaceAllStringFunc(code, func(x string) string {
-			return s.quote.Render(x)
+			return s.Quote.Render(x)
 		})
 	code = regexp.
 		MustCompile(`\|`).
 		ReplaceAllStringFunc(code, func(x string) string {
-			return s.pipe.Render(x)
+			return s.Pipe.Render(x)
 		})
 	return code
 }

@@ -3,17 +3,72 @@ package auto
 
 import (
     "fmt"
-	"encoding/json"
-    "reflect"
+
+	tea "github.com/charmbracelet/bubbletea"
+    "github.com/charmbracelet/bubbles/textarea"
+    "github.com/charmbracelet/bubbles/cursor"
+    "github.com/charmbracelet/mods/common"
 )
 
 type Auto struct {
     Response *LLMResponse
+    textarea textarea.Model
+    styles common.Styles 
 }
 
-func New() *Auto {
-    return &Auto{}
+func New(s common.Styles) *Auto {
+    ta := textarea.New()
+	ta.Placeholder = ">"
+    ta.Focus()
+
+    return &Auto{
+        textarea: ta,
+		styles:   s,
+    }
 }
+
+func (a *Auto) Focus() tea.Cmd {
+    return textarea.Blink
+}
+
+func (a *Auto) SetSize(width, height int) {
+    a.textarea.SetWidth(width)
+    a.textarea.SetHeight(height/2)
+}
+
+func (a *Auto) Update(msg tea.Msg) (*Auto, tea.Cmd) {
+    var cmd tea.Cmd
+    cmds := make([]tea.Cmd, 0)
+
+    a.textarea, cmd = a.textarea.Update(msg)
+    cmds = append(cmds, cmd)
+
+    switch msg := msg.(type) {
+        case tea.KeyMsg:
+            if msg.String() == "ctrl+d" {
+                a.textarea.Reset()
+                //FIXME actually submit an answer
+            }
+        case cursor.BlinkMsg:
+            cmds = append(cmds, textarea.Blink)
+    }
+    return a, tea.Batch(cmds...) 
+}
+
+func (a *Auto) View() string {
+    return fmt.Sprintf("\n%s\n\n%s\n%s", 
+        "Question?", 
+        a.textarea.View(),
+        "Press ctrl+d to submit answer",
+    )
+}
+
+func (a *Auto) AddPrompt(prompt string) string {
+    // FIXME 
+    return fmt.Sprintf(InitialPrompt, prompt)
+}
+
+
 
 const InitialPrompt = `
 {
@@ -38,114 +93,3 @@ const InitialPrompt = `
     "previous": [],
 }
 `
-
-func (a *Auto) AddPrompt(prompt string) string {
-    // FIXME 
-    return fmt.Sprintf(InitialPrompt, prompt)
-}
-
-type LLMResponse struct {
-	Context string  `json:"context"`
-	Goal    string  `json:"goal"`
-	Actions []Action `json:"actions"`
-}
-
-type Action interface {
-	IsValid() bool
-}
-
-type Question struct {
-	Question string `json:"question"`
-}
-
-type Cmd struct {
-	Cmd string `json:"cmd"`
-}
-
-func (q Question) IsValid() bool {
-	return q.Question != ""
-}
-
-func (c Cmd) IsValid() bool {
-	return c.Cmd != ""
-}
-
-func (c *LLMResponse) UnmarshalJSON(data []byte) error {
-	type Alias LLMResponse
-	aux := &struct {
-		Actions []json.RawMessage `json:"actions"`
-		*Alias
-	}{
-		Alias: (*Alias)(c),
-	}
-
-	if err := json.Unmarshal(data, &aux); err != nil {
-		return err
-	}
-
-	for _, action := range aux.Actions {
-		var q Question
-		if err := json.Unmarshal(action, &q); err == nil && q.IsValid() {
-			c.Actions = append(c.Actions, q)
-			continue
-		}
-
-		var cmd Cmd
-		if err := json.Unmarshal(action, &cmd); err == nil && cmd.IsValid() {
-			c.Actions = append(c.Actions, cmd)
-			continue
-		}
-
-		return fmt.Errorf("actions must contain either a valid 'question' or 'cmd' object")
-	}
-
-	return nil
-}
-
-func (a *Auto) ParseResponse(jsonStr string) error {
-    jsonBlob := []byte(jsonStr)
-
-    response := LLMResponse{}
-	err := json.Unmarshal([]byte(jsonBlob), &response)
-
-	if err != nil {
-		return err
-	}
-
-    // Create a map to hold the JSON data
-	var data map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(jsonBlob), &data); err != nil {
-		return err
-	}
-
-	// Check for extra fields
-	responseType := reflect.TypeOf(response)
-    for key := range data {
-		if !structHasField(responseType, key) {
-			return fmt.Errorf("extra field '%s' in JSON", key)
-		}
-	}
-
-    // Check for missing fields
-    for i := 0; i < responseType.NumField(); i++ {
-		field := responseType.Field(i)
-		_, ok := data[field.Tag.Get("json")]
-		if !ok {
-			return fmt.Errorf("missing field '%s' in JSON", field.Tag.Get("json"))
-		}
-	}
-	
-    a.Response = &response
-    return nil
-}
-
-// Helper function to check if a JSON field name matches any struct fields
-func structHasField(structType reflect.Type, jsonFieldName string) bool {
-	for i := 0; i < structType.NumField(); i++ {
-		field := structType.Field(i)
-		if field.Tag.Get("json") == jsonFieldName {
-			return true
-		}
-	}
-	return false
-}
