@@ -7,67 +7,10 @@ import (
 )
 
 type LLMResponse struct {
-	Context string  `json:"context"`
-	Goal    string  `json:"goal"`
-	Actions []Action `json:"actions"`
-}
-
-type Action interface {
-	IsValid() bool
-    String() string
-}
-
-type Question struct {
-	Question string `json:"question"`
-}
-
-type Cmd struct {
-	Cmd string `json:"cmd"`
-}
-
-func (q Question) IsValid() bool {
-	return q.Question != ""
-}
-
-func (q Question) String() string {
-	return q.Question 
-}
-
-func (c Cmd) IsValid() bool {
-	return c.Cmd != ""
-}
-
-func (c Cmd) String() string {
-	return c.Cmd
-}
-
-func (c *LLMResponse) UnmarshalJSON(data []byte) error {
-	type Alias LLMResponse
-	aux := &struct {
-		Actions []json.RawMessage `json:"actions"`
-		*Alias
-	}{
-		Alias: (*Alias)(c),
-	}
-
-	if err := json.Unmarshal(data, &aux); err != nil {
-		return err
-	}
-
-	for _, action := range aux.Actions {
-		var q Question
-		if err := json.Unmarshal(action, &q); err == nil && q.IsValid() {
-			c.Actions = append(c.Actions, q)
-			continue
-		}
-		var cmd Cmd
-		if err := json.Unmarshal(action, &cmd); err == nil && cmd.IsValid() {
-			c.Actions = append(c.Actions, cmd)
-			continue
-		}
-		return fmt.Errorf("actions must contain either a valid 'question' or 'cmd' object")
-	}
-	return nil
+	Context  string     `json:"context"`
+	Goal     string     `json:"goal"`
+	Questions []string `json:"questions"`
+    Commands []string  `json:"commands"`
 }
 
 func (a *Auto) ParseResponse(jsonStr string) (*LLMResponse, error) {
@@ -115,3 +58,4 @@ func structHasField(structType reflect.Type, jsonFieldName string) bool {
 	}
 	return false
 }
+
