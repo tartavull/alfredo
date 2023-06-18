@@ -26,6 +26,8 @@ type Styles struct {
 	GoalTag      lipgloss.Style
 	Question     lipgloss.Style
 	QuestionTag  lipgloss.Style
+
+    Command      lipgloss.Style
 }
 
 func MakeStyles(r *lipgloss.Renderer) (s Styles) {
@@ -52,5 +54,7 @@ func MakeStyles(r *lipgloss.Renderer) (s Styles) {
 
     s.Question = s.Quote.Copy()
     s.QuestionTag = s.Question.Copy().Bold(true).SetString("Question:")
+
+	s.Command = r.NewStyle().Foreground(lipgloss.Color("#F1F1F1")).Background(lipgloss.Color("#000000")).Padding(1, 1)
 	return s
 }

@@ -6,17 +6,6 @@ import (
     "github.com/charmbracelet/lipgloss"
 )
 
-func TestAddPrompt(t *testing.T) {
-	r := lipgloss.DefaultRenderer()
-    s := common.MakeStyles(r)
-    a := New(s)
-    msg := "Hello, world"
-    result := a.AddPrompt(msg)
-    if len(result) <= len(msg) {
-        t.Errorf("Expected '%s'  to be longer than '%s'", result, msg)
-    }
-}
-
 func TestParseResponse(t *testing.T) {
 	r := lipgloss.DefaultRenderer()
     s := common.MakeStyles(r)
@@ -24,7 +13,8 @@ func TestParseResponse(t *testing.T) {
 	testJson := `{
 		"context": "Some context",
 		"goal": "Some goal",
-		"actions": [{"question":"Some question"}]
+		"questions": ["Some question"],
+		"commands": ["Some cmd"]
 	}`
 	_, err := a.ParseResponse(testJson)
 	if err != nil {
@@ -32,7 +22,7 @@ func TestParseResponse(t *testing.T) {
 	}
 }
 
-func TestParseCmd(t *testing.T) {
+func TestParseMultipleQuestionsAndCommands(t *testing.T) {
 	r := lipgloss.DefaultRenderer()
     s := common.MakeStyles(r)
     a := New(s)
@@ -40,7 +30,8 @@ func TestParseCmd(t *testing.T) {
 	{
 		"context": "Some context",
 		"goal": "Some goal",
-		"actions": [{"cmd":"Some cmd"}]
+		"questions": ["Some question", "Another question"],
+		"commands": ["Some cmd", "Another cmd"]
 	}`
 	_, err := a.ParseResponse(testJson)
 	if err != nil {
@@ -48,7 +39,7 @@ func TestParseCmd(t *testing.T) {
 	}
 }
 
-func TestParseQuestion(t *testing.T) {
+func TestParseInvalidQuestionType(t *testing.T) {
 	r := lipgloss.DefaultRenderer()
     s := common.MakeStyles(r)
     a := New(s)
@@ -56,11 +47,27 @@ func TestParseQuestion(t *testing.T) {
 	{
 		"context": "Some context",
 		"goal": "Some goal",
-		"actions": [{"question":"Some question"}]
+		"questions": [1]
 	}`
 	_, err := a.ParseResponse(testJson)
-	if err != nil {
-		t.Errorf("Error parsing JSON: %v", err)
+	if err == nil || err.Error() != "json: cannot unmarshal number into Go struct field LLMResponse.questions of type string" {
+		t.Errorf("Expected error due to invalid question type but got: %v", err)
+	}
+}
+
+func TestParseInvalidCommandType(t *testing.T) {
+	r := lipgloss.DefaultRenderer()
+    s := common.MakeStyles(r)
+    a := New(s)
+	testJson := `
+	{
+		"context": "Some context",
+		"goal": "Some goal",
+		"commands": [1]
+	}`
+	_, err := a.ParseResponse(testJson)
+	if err == nil || err.Error() != "json: cannot unmarshal number into Go struct field LLMResponse.commands of type string" {
+		t.Errorf("Expected error due to invalid command type but got: %v", err)
 	}
 }
 
@@ -71,7 +78,7 @@ func TestParseMissingField(t *testing.T) {
 	testJson := `
 	{
 		"context": "Some context",
-		"actions": [{"question":"Some question"}]
+		"questions": ["Some question"]
 	}`
 	_, err := a.ParseResponse(testJson)
 	if err == nil || err.Error() != "missing field 'goal' in JSON" {
@@ -87,28 +94,12 @@ func TestParseExtraField(t *testing.T) {
 	{
 		"context": "Some context",
 		"goal": "Some goal",
-		"actions": [{"question":"Some question"}],
+		"questions": ["Some question"],
 		"responses": "Some response"
 	}`
 	_, err := a.ParseResponse(testJson)
 	if err == nil || err.Error() != "extra field 'responses' in JSON" {
 		t.Errorf("Expected error due to extra field but got: %v", err)
-	}
-}
-
-func TestParseInvalidAction(t *testing.T) {
-	r := lipgloss.DefaultRenderer()
-    s := common.MakeStyles(r)
-    a := New(s)
-	testJson := `
-	{
-		"context": "Some context",
-		"goal": "Some goal",
-		"actions": [{"invalid":"Some invalid action"}]
-	}`
-	_, err := a.ParseResponse(testJson)
-	if err == nil || err.Error() != "actions must contain either a valid 'question' or 'cmd' object" {
-		t.Errorf("Expected error due to invalid action but got: %v", err)
 	}
 }
 

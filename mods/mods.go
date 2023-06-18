@@ -268,9 +268,6 @@ func (m *Mods) startCompletionCmd(content string) tea.Cmd {
 		if prefix != "" {
 			content = strings.TrimSpace(prefix + "\n\n" + content)
 		}
-        if cfg.Auto {
-			content = m.auto.AddPrompt(content)
-        }
 		if !cfg.NoLimit {
 			if len(content) > mod.MaxChars {
 				content = content[:mod.MaxChars]
