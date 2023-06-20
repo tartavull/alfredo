@@ -2,11 +2,14 @@ package auto
 
 import (
     "fmt"
+    "log"
+    "io/ioutil"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
     "github.com/charmbracelet/bubbles/textarea"
     "github.com/charmbracelet/bubbles/cursor"
+	"github.com/mitchellh/go-wordwrap"
 
     "github.com/charmbracelet/mods/common"
     "github.com/charmbracelet/mods/sandbox"
@@ -38,14 +41,11 @@ func New(s common.Styles) *Auto {
     a.textarea.ShowLineNumbers = false
     a.textarea.Focus()
 
-    testJson := `
-	{
-		"context": "Some context",
-		"goal": "Some goal",
-		"questions": ["Some question"],
-        "commands": ["cat plan.md", "another action"]
-	}`
-	a.Response, _ = a.ParseResponse(testJson)
+    data, err := ioutil.ReadFile("chat/llm_1.json")
+    if err != nil {
+        log.Fatal(err)
+    }
+	a.Response, _ = a.ParseResponse(string(data))
     a.state = stateAnswering
     a.answers = []string{}
     a.outputs = []sandbox.Result{}
@@ -90,36 +90,40 @@ func (a *Auto) Update(msg tea.Msg) (*Auto, tea.Cmd) {
         	cmds = append(cmds, textarea.Blink)
         }
     }
+    if a.state == stateCompleted {
+        prompt := a.buildPrompt()
+        fmt.Println(prompt)
+    }
     return a, tea.Batch(cmds...) 
+}
+
+func (a *Auto) wrap(in string) string {
+    return wordwrap.WrapString(in, uint(a.textarea.Width()/2))
 }
 
 func (a *Auto) View() string {
     view := ""
-
-    view += a.styles.ContextTag.String() + " " + a.styles.Context.Render(a.Response.Context)
+    view += a.styles.ContextTag.String() + " " + a.styles.Context.Render(a.wrap(a.Response.Context))
     view += "\n\n"
-    view += a.styles.GoalTag.String() + " " + a.styles.Goal.Render(a.Response.Goal)
+    view += a.styles.GoalTag.String() + " " + a.styles.Goal.Render(a.wrap(a.Response.Goal))
     view += "\n\n"
     if a.state == stateAnswering {
         if len(a.outputs) < len(a.Response.Commands) {
 			var styledCmds []string
 			for _, cmd := range a.Response.Commands {
-				styledCmds = append(styledCmds, fmt.Sprintf("$ %s", cmd))
+				styledCmds = append(styledCmds, fmt.Sprintf("$ %s", a.wrap(cmd)))
 			}
 			styledCmdStr := strings.Join(styledCmds, "\n")
 			view += a.styles.Command.Render(styledCmdStr) + "\n\n"
             view += a.styles.Comment.Render("Press y to execute all commands or esc to exit")
         } else if len(a.answers) < len(a.Response.Questions) {
-            view += a.styles.QuestionTag.String() + " " + a.styles.Question.Render(a.Response.Questions[len(a.answers)])
+            question := a.Response.Questions[len(a.answers)]
+            view += a.styles.QuestionTag.String() + " " + a.styles.Question.Render(a.wrap(question))
             view += "\n\n"
             view += a.textarea.View()
             view += "\n"
             view += a.styles.Comment.Render(fmt.Sprintf("Question %d of %d: press ctrl+d to submit answer", len(a.answers)+1, len(a.Response.Questions)))
         }
-    } else if a.state == stateCompleted {
-        view += fmt.Sprintf("%+v\n", a.answers)
-        view += fmt.Sprintf("%+v\n", a.outputs)
     }
-
     return a.styles.App.Render(view)
 }

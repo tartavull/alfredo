@@ -1,0 +1,6 @@
+{
+  "context": "The `plan.md` file in the repository provides an outline of an AI system development process that relies heavily on a human-in-the-loop model for progressive system improvement. The key operational document in this process is `plan.md`, which will contain detailed steps for enhancing the system's intelligence. Tasks are meticulously defined, tracked, and managed, and tools continuously monitor `plan.md` for updates and changes. The file also contains an example of a task specification and a brief outline of the first task on the agenda - 'Plan for Markdown Linting System'.",
+  "goal": "To clarify the user's intent and assist with the tasks outlined in `plan.md`.",
+  "questions": ["What task would you like to begin with? Or, is there a new task you would like to add to the plan?"],
+  "commands": []
+}

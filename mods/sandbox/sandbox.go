@@ -21,24 +21,12 @@ func ExecuteCommand(cmd string) Result {
 		return result
 	}
 
-	// Splitting the command string into name and args
-	segments := strings.Fields(cmd)
-	name := segments[0]
-	args := segments[1:]
-
-    // Check if the program exists
-	_, err := exec.LookPath(name)
-	if err != nil {
-		result.Stderr = "program '" + name + "' does not exist or is not in PATH"
-		return result
-	}
-
-	command := exec.Command(name, args...)
+    command := exec.Command("bash", "-c", cmd)
 	var stdout, stderr bytes.Buffer
 	command.Stdout = &stdout
 	command.Stderr = &stderr
 
-	err = command.Run()
+    err := command.Run()
 
 	// Capturing the exit code
 	if exitError, ok := err.(*exec.ExitError); ok {
