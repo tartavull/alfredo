@@ -13,7 +13,6 @@ from vis import draw_graph
 
 class Net:
     def __init__(self, node_types=[Node]):
-
         self._node_types = node_types
         assert len(node_types)
 

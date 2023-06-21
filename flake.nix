@@ -90,6 +90,8 @@
               inherit pytinyrenderer;
               inherit trimesh;
             };
+
+            alfredo = callPackage ./nix/alfredo.nix { };
           })
         ];
       };
@@ -115,6 +117,7 @@
           jax
           brax
           mujoco
+          alfredo
         ]);
         name = "alfredo";
       in
@@ -124,10 +127,10 @@
 
           packages = [
             python-env
+            pkgs.pre-commit
           ];
           shellHooks = let pythonIcon = "f3e2"; in ''
             ${checks.pre-commit.shellHook}
-            export PS1=" {\[$(tput sgr0)\]\[\033[38;5;228m\]\w\[$(tput sgr0)\]\[\033[38;5;15m\]} (${name}) \\$ \[$(tput sgr0)\]"
           '';
         };
 
@@ -139,6 +142,7 @@
           packages = [
             pkgs.google-cloud-sdk
             pkgs.deploy-rs
+            pkgs.pre-commit
           ];
         };
 

@@ -39,4 +39,3 @@ func ExecuteCommand(cmd string) Result {
 
 	return result
 }
-

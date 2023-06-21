@@ -1,4 +1,4 @@
-package auto 
+package auto
 
 import (
     "fmt"
@@ -23,7 +23,7 @@ const (
 )
 
 type Auto struct {
-    styles common.Styles 
+    styles common.Styles
     textarea textarea.Model
     state State
     Response *LLMResponse
@@ -50,7 +50,7 @@ func New(s common.Styles) *Auto {
     a.answers = []string{}
     a.outputs = []sandbox.Result{}
 
-    return a 
+    return a
 }
 
 func (a *Auto) Focus() tea.Cmd {
@@ -94,7 +94,7 @@ func (a *Auto) Update(msg tea.Msg) (*Auto, tea.Cmd) {
         prompt := a.buildPrompt()
         fmt.Println(prompt)
     }
-    return a, tea.Batch(cmds...) 
+    return a, tea.Batch(cmds...)
 }
 
 func (a *Auto) wrap(in string) string {

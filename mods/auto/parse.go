@@ -58,4 +58,3 @@ func structHasField(structType reflect.Type, jsonFieldName string) bool {
 	}
 	return false
 }
-

@@ -102,4 +102,3 @@ func TestParseExtraField(t *testing.T) {
 		t.Errorf("Expected error due to extra field but got: %v", err)
 	}
 }
-

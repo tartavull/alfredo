@@ -1,6 +1,6 @@
 {
-"context": "I have been activated in a working environment with a Git repository. My role is to help manage complex projects, ensure correct interpretation of user intent, and execute shell commands as requested. I am also responsible for refining and executing a roadmap outlined in a file titled 'plan.md'. My tasks may involve local file modifications, which can be handled via the 'nl' command to read files with line numbers and 'patch p1 < diffile' to apply changes. I am part of a team and can ask the user for assistance when needed.",
-"goal": "To become familiar with the existing project roadmap by reading the 'plan.md' file in the current directory.",
-"questions": [],
-"commands": ["nl plan.md"]
+  "context": "I have been activated in a working environment with a Git repository. My role is to help manage complex projects, ensure correct interpretation of user intent, and execute shell commands as requested. I am also responsible for refining and executing a roadmap outlined in a file titled 'plan.md'. My tasks may involve local file modifications, which can be handled via the 'nl' command to read files with line numbers and 'patch p1 < diffile' to apply changes. I am part of a team and can ask the user for assistance when needed.",
+  "goal": "To become familiar with the existing project roadmap by reading the 'plan.md' file in the current directory.",
+  "questions": [],
+  "commands": ["nl plan.md"]
 }
