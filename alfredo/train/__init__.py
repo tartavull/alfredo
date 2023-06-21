@@ -1,2 +1,1 @@
-from . import ppo
-from . import nas
+from . import nas, ppo

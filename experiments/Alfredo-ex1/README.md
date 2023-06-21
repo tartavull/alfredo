@@ -1,4 +1,4 @@
-# Experimenting with Brax 
+# Experimenting with Brax
 
 The following is a self-contained experiment with Brax and PPO.
 

@@ -7,7 +7,7 @@
 buildPythonPackage rec {
   name = "alfredo";
   src = ../alfredo/.;
-  propagatedBuildInputs = [ 
+  propagatedBuildInputs = [
     geopy
     joblib
     tqdm

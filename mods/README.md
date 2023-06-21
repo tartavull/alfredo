@@ -151,8 +151,8 @@ sudo yum install mods
 
 Or, download it:
 
-* [Packages][releases] are available in Debian and RPM formats
-* [Binaries][releases] are available for Linux, macOS, and Windows
+- [Packages][releases] are available in Debian and RPM formats
+- [Binaries][releases] are available for Linux, macOS, and Windows
 
 [releases]: https://github.com/charmbracelet/mods/releases
 
@@ -256,18 +256,18 @@ Output nothing to standard err.
 
 We’d love to hear your thoughts on this project. Feel free to drop us a note.
 
-* [Twitter](https://twitter.com/charmcli)
-* [The Fediverse](https://mastodon.social/@charmcli)
-* [Discord](https://charm.sh/chat)
+- [Twitter](https://twitter.com/charmcli)
+- [The Fediverse](https://mastodon.social/@charmcli)
+- [Discord](https://charm.sh/chat)
 
 ## License
 
 [MIT](https://github.com/charmbracelet/mods/raw/main/LICENSE)
 
-***
+---
 
 Part of [Charm](https://charm.sh).
 
 <a href="https://charm.sh/"><img alt="The Charm logo" width="400" src="https://stuff.charm.sh/charm-badge.jpg" /></a>
 
-Charm热爱开源 • Charm loves open source
+Charm 热爱开源 • Charm loves open source

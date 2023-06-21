@@ -4,7 +4,7 @@ This repository is dedicated to the systematic development of an incrementally m
 
 The developmental framework relies heavily on a human-in-the-loop model. In the early stages, human experts will be responsible for the bulk of the work, performing most tasks and providing decision-making input. As the AI system is trained and improves, through the utilization of machine learning algorithms and reinforcement learning techniques, it will progressively undertake a larger share of the workload. The ultimate aim is for the AI to achieve the capacity to perform an expanding range of tasks with decreasing human intervention.
 
-The key operational document in this repository is 'plan.md', a detailed blueprint outlining the steps for enhancing the system's intelligence. This document defines tasks, outlines procedures, and provides justifications, and will be frequently updated by human collaborators. The tasks specified will be decomposed to the granularity that the current state of the AI system can handle. 
+The key operational document in this repository is 'plan.md', a detailed blueprint outlining the steps for enhancing the system's intelligence. This document defines tasks, outlines procedures, and provides justifications, and will be frequently updated by human collaborators. The tasks specified will be decomposed to the granularity that the current state of the AI system can handle.
 
 Meanwhile, a suite of tools will continuously monitor 'plan.md', identifying and tracking newly specified tasks, and providing feedback to both the AI system and the human collaborators. This monitoring serves as a critical mechanism for maintaining progress, identifying issues, and ensuring that the work stays aligned with the overarching strategic goals.
 
@@ -35,18 +35,26 @@ These include 'context', 'goal', 'questions', and 'commands'.
 - `commands`: These are shell commands planned to achieve the 'goals'. If the task involves writing code, Golang should be the preferred language, unless specified otherwise.
 
 ## Example Interaction
+
 ### Example message you might receive
+
 ```json
 {
   "prompt": "Please execute the uptime command.",
   "feedback": "",
   "previous": [],
-  "answers": [{ "question": "Do you want the uptime displayed in a specific format?", "answer": "No, default is fine." }],
+  "answers": [
+    {
+      "question": "Do you want the uptime displayed in a specific format?",
+      "answer": "No, default is fine."
+    }
+  ],
   "outputs": [{ "command": "uptime", "output": "up 10 days, 20:00" }]
 }
 ```
 
 ### Example message you might respond
+
 ```json
 {
   "context": "The user requested the operational duration of the current machine and prefers the default format.",
@@ -85,12 +93,12 @@ patch -p1 < change.patch
 This method allows precise and efficient file modifications.
 
 ## Task Management
+
 Task Management is integral to the organization and successful completion of any project. In this system, tasks are meticulously defined, linked to their specifications in a document called `plan.md`, and managed through a dedicated program, `task`.
 
 ### Task specifications
 
 Tasks are defined by a structured format with distinct fields, ensuring each task has complete, clearly defined specifications. Below is an example of a task specification:
-
 
 ```task
 {
@@ -103,18 +111,22 @@ Tasks are defined by a structured format with distinct fields, ensuring each tas
 ```
 
 Fields in Task Specification
+
 1. id: A unique, incrementing integer identifying each task. No two tasks will have the same ID.
 2. name: A concise, descriptive label for the task, summarizing its purpose in less than 80 characters.
 3. status: Indicates the current state of the task. It can take one of three values:
+
 - queued: The task is scheduled but has not yet started.
 - in-progress: The task is currently underway.
 - completed: The task has been successfully finished.
+
 4. anchor: A reference to the specific section of the plan.md document that provides detailed task specifications. Each anchor must be unique to unequivocally identify each task.
 5. blockers: A list of task IDs that must be completed before the current task can proceed. This helps manage task dependencies and ensures tasks are completed in the correct sequence.
 
 The plan.md document serves as a complete blueprint of the project, with detailed descriptions and specifications for all tasks. To keep the plan organized, tasks are embedded into the respective sections of the plan.md where they belong.
 
 # The task program
+
 The task program facilitates managing and tracking tasks according to their specifications. It allows retrieving any queued task, updating task status, and handling other related operations.
 
 Here are the key commands provided by the task program:
@@ -125,7 +137,7 @@ Here are the key commands provided by the task program:
 4. task queue: Retrieves the list of all tasks that are currently queued.
 5. task progress [id]: Marks the task with the given id as in progress.
 6. task complete [id]: Marks the task with the given id as completed.
-Adhering to these specifications and using the task program ensures tasks are systematically managed, tracked, and updated, facilitating clear communication and efficient workflow within the project.
+   Adhering to these specifications and using the task program ensures tasks are systematically managed, tracked, and updated, facilitating clear communication and efficient workflow within the project.
 
 # Roadmap
 
@@ -162,6 +174,7 @@ The first task on our agenda is to create a comprehensive plan for a Markdown li
 - Append the plan to this section of the document
 
 ### Plan
+
 - Define the Purpose: Enforce a consistent style and structure for the plan.md document, ensuring all tasks follow the defined specification.
 - Key Components: A Markdown parser, a set of custom linting rules, a linter to apply these rules, and a reporter to provide feedback.
 - Implementation Approach: Parse the plan.md document into an AST using the Markdown parser. Then, traverse the AST and apply the linting rules to each task.
@@ -172,7 +185,6 @@ The first task on our agenda is to create a comprehensive plan for a Markdown li
 
 ## Task: Plan to extract a dataset from chat
 
-
 ### Prompt
 
 ```
@@ -181,7 +193,7 @@ Your task is to parse a sequence of JSON files representing a conversation about
 You need to perform the following steps:
 
 1. Extract the initial task description from the first file in each sequence, 'user_0.json'.
-   
+
 2. Find the final satisfactory code snippet. This is in the last 'llm_X.json' file of each sequence where the user has agreed that the solution is satisfactory.
 
 3. Create an input-output pair for each sequence. The initial task description is the input, and the satisfactory code snippet is the output.
