@@ -91,7 +91,9 @@
               inherit trimesh;
             };
 
-            alfredo = callPackage ./nix/alfredo.nix { };
+            alfredo = callPackage ./nix/alfredo.nix { 
+              inherit (python-final) brax;
+            };
           })
         ];
       };
@@ -124,12 +126,15 @@
       rec {
         devShells.default = pkgs.mkShell {
           inherit name;
+          
+          LD_LIBRARY_PATH="${pkgs.cudaPackages_11_8.cudatoolkit}/lib";
 
           packages = [
             python-env
             pkgs.pre-commit
           ];
-          shellHooks = let pythonIcon = "f3e2"; in ''
+
+          shellHooks = ''
             ${checks.pre-commit.shellHook}
           '';
         };
@@ -143,6 +148,7 @@
             pkgs.google-cloud-sdk
             pkgs.deploy-rs
             pkgs.pre-commit
+            pkgs.ipython
           ];
         };
 

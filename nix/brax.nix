@@ -29,8 +29,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "google";
     repo = "brax";
-    rev = "v0.9.0";
-    hash = "sha256-c9Q/0s4o0nl07R0yPXxjSlJdm17lITO0wpK09Z8DYDM=";
+    rev = "v0.9.1";
+    hash = "sha256-tFoTsz+EEd35nO39/owBBKbJG1LnAGUZBoOJkYVuwlI=";
   };
 
   nativeBuildInputs = [

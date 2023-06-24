@@ -13,14 +13,14 @@ import jax
 import matplotlib.pyplot as plt
 import optax
 from brax import envs
-from brax.envs.wrappers import training
+# from brax.envs.wrappers import training
 from brax.io import html, json, model
 from brax.training.acme import running_statistics, specs
 from brax.training.agents.ppo import losses as ppo_losses
 from brax.training.agents.ppo import networks as ppo_networks
 from jax import numpy as jp
 
-from alfredo.agents.A0.alfredo_0 import Alfredo
+from alfredo.agents.A0 import Alfredo
 from alfredo.train import ppo
 
 # ==============================
