@@ -18,7 +18,7 @@ from typing import Tuple
 
 import jax
 from brax import actuator, base, math
-from brax.envs.base import PipelineEnv, State
+from brax.envs import PipelineEnv, State
 from brax.io import mjcf
 from etils import epath
 from jax import numpy as jp
@@ -373,7 +373,7 @@ class Alfredo(PipelineEnv):
         # com_ang = xd_i.ang
         # com_velocity = jp.hstack([com_vel, com_ang])
 
-        qfrc_actuator = actuator.to_tau(self.sys, action, pipeline_state.q)
+        qfrc_actuator = actuator.to_tau(self.sys, action, pipeline_state.q, pipeline_state.qd)
 
         # external_contact_forces are excluded
         # return jp.concatenate([

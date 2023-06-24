@@ -2,6 +2,7 @@
 , geopy
 , joblib
 , tqdm
+, brax
 }:
 
 buildPythonPackage rec {
@@ -11,5 +12,6 @@ buildPythonPackage rec {
     geopy
     joblib
     tqdm
+    brax
   ];
 }
