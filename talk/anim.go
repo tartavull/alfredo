@@ -10,7 +10,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/muesli/termenv"
-    "github.com/charmbracelet/mods/common"
+    "github.com/tartavull/alfredo/talk/common"
 )
 
 const (

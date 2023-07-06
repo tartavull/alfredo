@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"regexp"
 
-    "github.com/charmbracelet/mods/common"
+    "github.com/tartavull/alfredo/talk/common"
 )
 
 var examples = map[string]string{

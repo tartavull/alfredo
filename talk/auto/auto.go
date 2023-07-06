@@ -10,9 +10,11 @@ import (
     "github.com/charmbracelet/bubbles/textarea"
     "github.com/charmbracelet/bubbles/cursor"
 	"github.com/mitchellh/go-wordwrap"
+	"github.com/charmbracelet/bubbles/viewport"
+	"github.com/charmbracelet/lipgloss"
 
-    "github.com/charmbracelet/mods/common"
-    "github.com/charmbracelet/mods/sandbox"
+    "github.com/tartavull/alfredo/talk/common"
+    "github.com/tartavull/alfredo/talk/sandbox"
 )
 
 type State int
@@ -29,13 +31,19 @@ type Auto struct {
     Response *LLMResponse
     answers []string
     outputs []sandbox.Result
+
+    viewport   viewport.Model
+	width      int
+	height     int
 }
 
 func New(s common.Styles) *Auto {
     a := &Auto{
         textarea: textarea.New(),
 		styles:   s,
+        viewport: viewport.New(0, 0),
     }
+	a.viewport.YPosition = 0
 
 	a.textarea.Placeholder = ">"
     a.textarea.ShowLineNumbers = false
@@ -58,14 +66,24 @@ func (a *Auto) Focus() tea.Cmd {
 }
 
 func (a *Auto) SetSize(width, height int) {
+    a.width = width
+    a.height = height
     a.textarea.SetWidth(width)
     a.textarea.MaxHeight = height / 2
+    a.viewport.Width = width
+    a.viewport.Height = height
 }
 
 
 func (a *Auto) Update(msg tea.Msg) (*Auto, tea.Cmd) {
     var cmd tea.Cmd
     cmds := make([]tea.Cmd, 0)
+
+    switch msg := msg.(type) {
+    case tea.WindowSizeMsg:
+        a.width = msg.Width
+        a.height = msg.Height
+    }
 
 	if a.state == stateAnswering {
     	switch msg := msg.(type) {
@@ -102,7 +120,9 @@ func (a *Auto) wrap(in string) string {
 }
 
 func (a *Auto) View() string {
-    view := ""
+    // FIXME use string builder
+    view := a.styles.Logo.Render(" Alfredo ")
+    view += "\n\n"
     view += a.styles.ContextTag.String() + " " + a.styles.Context.Render(a.wrap(a.Response.Context))
     view += "\n\n"
     view += a.styles.GoalTag.String() + " " + a.styles.Goal.Render(a.wrap(a.Response.Goal))
@@ -125,5 +145,5 @@ func (a *Auto) View() string {
             view += a.styles.Comment.Render(fmt.Sprintf("Question %d of %d: press ctrl+d to submit answer", len(a.answers)+1, len(a.Response.Questions)))
         }
     }
-    return a.styles.App.Render(view)
+    return lipgloss.Place(a.width, a.height, lipgloss.Left, lipgloss.Top, a.styles.App.Render(view))
 }

@@ -16,8 +16,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mattn/go-isatty"
 	openai "github.com/sashabaranov/go-openai"
-    "github.com/charmbracelet/mods/auto"
-    "github.com/charmbracelet/mods/common"
+    "github.com/tartavull/alfredo/talk/auto"
+    "github.com/tartavull/alfredo/talk/common"
 )
 
 const markdownPrefix = "Format the response as Markdown."

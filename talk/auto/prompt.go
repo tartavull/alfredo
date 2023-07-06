@@ -5,7 +5,7 @@ import (
     _ "io/ioutil"
 
 	"encoding/json"
-	"github.com/charmbracelet/mods/sandbox"
+	"github.com/tartavull/alfredo/talk/sandbox"
 )
 
 func (a *Auto) buildPrompt() string {

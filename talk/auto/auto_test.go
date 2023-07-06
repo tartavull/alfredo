@@ -2,7 +2,7 @@ package auto
 
 import (
 	"testing"
-    "github.com/charmbracelet/mods/common"
+    "github.com/tartavull/alfredo/talk/common"
     "github.com/charmbracelet/lipgloss"
 )
 

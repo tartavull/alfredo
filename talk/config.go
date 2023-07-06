@@ -14,7 +14,7 @@ import (
 	flag "github.com/spf13/pflag"
 	"gopkg.in/yaml.v3"
 
-    "github.com/charmbracelet/mods/common"
+    "github.com/tartavull/alfredo/talk/common"
 )
 
 const configTemplate = `

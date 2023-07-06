@@ -1,4 +1,4 @@
-module github.com/charmbracelet/mods
+module github.com/tartavull/alfredo/talk
 
 go 1.18
 
