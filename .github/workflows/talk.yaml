@@ -1,0 +1,31 @@
+name: Talk Tests
+
+on:
+  push:
+    paths:
+      - 'talk/**'
+  pull_request:
+    paths:
+      - 'talk/**'
+
+jobs:
+  tests:
+    name: Run Go tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Get dependencies
+        run: go mod download
+        working-directory: talk
+
+
+      - name: Run tests
+        run: go test -v ./...
+        working-directory: talk
