@@ -94,7 +94,8 @@
                             
                             <body name="foot_r" pos="0 0 -0.0884431">
                                 <joint armature="0.006" axis="0 -1 0" name="ankle_r" pos="0 0 0" range="-45 20" type="hinge" />
-                                <geom fromto="0 0 -.0022983 0 0 .0022983" name="footm_r" size="0.128965" type="cylinder" />
+                                <!-- geom contype="1" fromto="0 0 -.0022983 0 0 .0022983" name="footm_r" size="0.128965" type="cylinder" /-->
+                                <geom contype="1" fromto="-0.10 0 0 0.178 0 0" name="footm_r" size="0.042983" type="box"/>
                             </body>
                         </body>
                     </body>
@@ -111,7 +112,8 @@
                             
                             <body name="foot_l" pos="0 0 -0.0884431">
                                 <joint armature="0.006" axis="0 -1 0" name="ankle_l" pos="0 0 0" range="-45 20" type="hinge" />
-                                <geom fromto="0 0 -.0022983 0 0 .0022983" name="footm_l" size="0.128965" type="cylinder" />
+                                <!-- geom contype="1" fromto="0 0 -.0022983 0 0 .0022983" name="footm_l" size="0.128965" type="cylinder" /-->
+                                <geom contype="1" fromto="-0.10 0 0 0.178 0 0" name="footm_l" size="0.042983" type="box"/>
                             </body>
                         </body>
                     </body>
@@ -130,23 +132,25 @@
     </worldbody>
 
     <actuator>
-        <motor gear="100" joint="abdomen_y" name="abdomen_y" />
-        <motor gear="100" joint="abdomen_z" name="abdomen_z" />
-        <motor gear="100" joint="abdomen_x" name="abdomen_x" />
-        <motor gear="100" joint="right_hip_x" name="right_hip_x" />
-        <motor gear="100" joint="right_hip_z" name="right_hip_z" />
-        <motor gear="300" joint="right_hip_y" name="right_hip_y" />
-        <motor gear="200" joint="right_knee" name="right_knee" />
-        <motor gear="100" joint="left_hip_x" name="left_hip_x" />
-        <motor gear="100" joint="left_hip_z" name="left_hip_z" />
-        <motor gear="300" joint="left_hip_y" name="left_hip_y" />
-        <motor gear="200" joint="left_knee" name="left_knee" />
-        <motor gear="25" joint="right_shoulder1" name="right_shoulder1" />
-        <motor gear="25" joint="right_shoulder2" name="right_shoulder2" />
-        <motor gear="25" joint="right_elbow" name="right_elbow" />
-        <motor gear="25" joint="left_shoulder1" name="left_shoulder1" />
-        <motor gear="25" joint="left_shoulder2" name="left_shoulder2" />
-        <motor gear="25" joint="left_elbow" name="left_elbow" />
+        <motor gear="100" joint="ab_y" name="ab_y" />
+        <motor gear="100" joint="ab_z" name="ab_z" />
+        <motor gear="100" joint="ab_x" name="ab_x" />
+        <motor gear="100" joint="hip_r_x" name="hip_r_x" />
+        <motor gear="100" joint="hip_r_z" name="hip_r_z" />
+        <motor gear="300" joint="hip_r_y" name="hip_r_y" />
+        <motor gear="200" joint="knee_r" name="knee_r" />
+        <motor gear="200" joint="ankle_r" name="ankle_r" />
+        <motor gear="100" joint="hip_l_x" name="hip_l_x" />
+        <motor gear="100" joint="hip_l_z" name="hip_l_z" />
+        <motor gear="300" joint="hip_l_y" name="hip_l_y" />
+        <motor gear="200" joint="knee_l" name="knee_l" />
+        <motor gear="200" joint="ankle_l" name="ankle_l" />
+        <motor gear="25" joint="shoulder_1_r" name="shoulder_1_r" />
+        <motor gear="25" joint="shoulder_2_r" name="shoulder_2_r" />
+        <motor gear="25" joint="elbow_r" name="elbow_r" />
+        <motor gear="25" joint="shoulder_1_l" name="shoulder_1_l" />
+        <motor gear="25" joint="shoulder_2_l" name="shoulder_2_l" />
+        <motor gear="25" joint="elbow_l" name="elbow_l" />
     </actuator>
 
 </mujoco>
