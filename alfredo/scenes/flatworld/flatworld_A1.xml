@@ -46,51 +46,51 @@
             <camera name="followme" mode="trackcom" pos="0 -4 0" xyaxes="1 0 0 0 0 1" />
 
             <joint armature="0" damping="0" limited="false" name="r" pos="0 0 0" stiffness="0" type="free" />
-            <geom fromto="0 0 -.118 0 0 .118" name="t1" size="0.2585" type="cylinder" />
+            <geom fromto="0 0 -.118 0 0 .118" name="t1" size="0.2585" type="box" />
             <geom name="h" pos="0 0 .29" size=".2" type="sphere" user="258" />
 
             <body name="upper_arm_r" pos="0.018568 -0.413263 0.068">
                 <joint armature="0.0068" axis="2 1 1" name="shoulder_1_r" pos="0 0 0" range="-85 60" stiffness="1" type="hinge" />
                 <joint armature="0.0051" axis="0 -1 1" name="shoulder_2_r" pos="0 0 0" range="-85 60" stiffness="1" type="hinge" />
-                <geom fromto="0 -.13788 0 0 .13788 0" name="triceps_r" size="0.087812" type="cylinder" />
+                <geom fromto="0 -.13788 0 0 .13788 0" name="triceps_r" size="0.087812" type="box" />
 
                 <body name="lower_arm_r" pos="0 -0.293311 0"> 
                     <joint armature="0.0028" axis="0 -1 1" name="elbow_r" pos="0 0 0" range="-90 50" stiffness="0" type="hinge" />
-                    <geom fromto="0 -.1167525 0 0 .1167525 0" name="forearm_r" size="0.087738" type="cylinder" />
-                    <geom pos="0 -0.2011965 0" name="gripper_r" size="0.084444" type="sphere" />
+                    <geom fromto="0 -.1167525 0 0 .1167525 0" name="forearm_r" size="0.087738" type="box" />
+                    <geom contype="1" pos="0 -0.2011965 0" name="gripper_r" size="0.084444" type="sphere" />
                 </body>
             </body>
 
             <body name="upper_arm_l" pos="0.018568 0.413263 0.068">
                 <joint armature="0.0068" axis="2 -1 1" name="shoulder_1_l" pos="0 0 0" range="-85 60" stiffness="1" type="hinge" />
                 <joint armature="0.0051" axis="0 1 1" name="shoulder_2_l" pos="0 0 0" range="-85 60" stiffness="1" type="hinge" />
-                <geom fromto="0 -.13788 0 0 .13788 0" name="triceps_l" size="0.087812" type="cylinder" />
+                <geom fromto="0 -.13788 0 0 .13788 0" name="triceps_l" size="0.087812" type="box" />
 
                 <body name="lower_arm_l" pos="0 0.293311 0"> 
                     <joint armature="0.0028" axis="0 -1 -1" name="elbow_l" pos="0 0 0" range="-90 50" stiffness="0" type="hinge" />
-                    <geom fromto="0 -.1167525 0 0 .1167525 0" name="forearm_l" size="0.087738" type="cylinder" />
-                    <geom pos="0 0.2011965 0" name="gripper_l" size="0.084444" type="sphere" />
+                    <geom fromto="0 -.1167525 0 0 .1167525 0" name="forearm_l" size="0.087738" type="box" />
+                    <geom contype="1" pos="0 0.2011965 0" name="gripper_l" size="0.084444" type="sphere" />
                 </body>
             </body>
 
             <body name="lw" pos="0 0 -.2159" quat="1.000 0 -0.002 0">
                 <joint armature="0.02" axis="0 1 0" damping="5" name="ab_y" pos="0 0 0" range="-75 30" stiffness="10" type="hinge" />
                 <joint armature="0.02" axis="0 0 1" damping="5" name="ab_z" pos="0 0 0" range="-45 45" stiffness="20" type="hinge" />
-                <geom fromto="0 0 -.0765 0 0 .0765" name="t2" size="0.2175" type="cylinder" />
+                <geom fromto="0 0 -.0765 0 0 .0765" name="t2" size="0.2175" type="box" />
 
                 <body name="pelv" pos="0 0 -.146907" quat="1.000 0 -0.002 0">
                     <joint armature="0.02" axis="1 0 0" damping="5" name="ab_x" pos="0 0 0" range="-35 35" stiffness="10" type="hinge" />
-                    <geom fromto="0 0 -.04995 0 0 .04995" name="booty" size="0.2445" type="cylinder" />
+                    <geom fromto="0 0 -.04995 0 0 .04995" name="booty" size="0.2445" type="box" />
 
                     <body name="thigh_r" pos="0 -0.138628 -0.1654815">
                         <joint armature="0.01" axis="1 0 0" damping="5" name="hip_r_x" pos="0 0 0" range="-25 5" stiffness="10" type="hinge" />
                         <joint armature="0.0080" axis="0 1 0" damping="5" name="hip_r_y" pos="0 0 0" range="-110 20" stiffness="10" type="hinge" />
                         <joint armature="0.01" axis="0 0 1" damping="5" name="hip_r_z" pos="0 0 0" range="-60 35" stiffness="10" type="hinge" />
-                        <geom fromto="0 0 -.105 0 0 .105" name="quad_r" size="0.0804" type="cylinder" />
+                        <geom fromto="0 0 -.105 0 0 .105" name="quad_r" size="0.0804" type="box" />
 
                         <body name="shin_r" pos="0 0 -.1948355">
                             <joint armature="0.006" axis="0 -1 0" name="knee_r" pos="0 0 0" range="-160 -2" type="hinge" />
-                            <geom fromto="0 0 -.063994 0 0 .063994" name="calves_r" size="0.0816535" type="cylinder" />
+                            <geom fromto="0 0 -.063994 0 0 .063994" name="calves_r" size="0.0816535" type="box" />
                             
                             <body name="foot_r" pos="0 0 -0.0884431">
                                 <joint armature="0.006" axis="0 -1 0" name="ankle_r" pos="0 0 0" range="-45 20" type="hinge" />
@@ -104,11 +104,11 @@
                         <joint armature="0.01" axis="-1 0 0" damping="5" name="hip_l_x" pos="0 0 0" range="-25 5" stiffness="10" type="hinge" />
                         <joint armature="0.0080" axis="0 1 0" damping="5" name="hip_l_y" pos="0 0 0" range="-110 20" stiffness="10" type="hinge" />
                         <joint armature="0.01" axis="0 0 -1" damping="5" name="hip_l_z" pos="0 0 0" range="-60 35" stiffness="10" type="hinge" />
-                        <geom fromto="0 0 -.105 0 0 .105" name="quad_l" size="0.0804" type="cylinder" />
+                        <geom fromto="0 0 -.105 0 0 .105" name="quad_l" size="0.0804" type="box" />
 
                         <body name="shin_l" pos="0 0 -.1948355">
                             <joint armature="0.006" axis="0 -1 0" name="knee_l" pos="0 0 0" range="-160 -2" type="hinge" />
-                            <geom fromto="0 0 -.063994 0 0 .063994" name="calves_l" size="0.0816535" type="cylinder" />
+                            <geom fromto="0 0 -.063994 0 0 .063994" name="calves_l" size="0.0816535" type="box" />
                             
                             <body name="foot_l" pos="0 0 -0.0884431">
                                 <joint armature="0.006" axis="0 -1 0" name="ankle_l" pos="0 0 0" range="-45 20" type="hinge" />
