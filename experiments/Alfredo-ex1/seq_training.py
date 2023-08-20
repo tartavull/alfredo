@@ -23,6 +23,19 @@ from jax import numpy as jp
 from alfredo.agents.A0 import Alfredo
 from alfredo.train import ppo
 
+
+import wandb
+# Initialize a new run
+wandb.init(project="alfredo"
+    config = {
+        "env_name": "A0",
+        "backend": "positional",
+        "seed": 0,
+        "len_training": 1_000_000,
+        # add any other hyperparameters or configurations you'd like to track
+    }
+)
+
 # ==============================
 # Useful Functions & Data Defs
 # ==============================
@@ -31,20 +44,14 @@ normalize_fn = running_statistics.normalize
 
 
 def progress(num_steps, metrics):
-    d_and_t = datetime.now()
-    print(f"Next Iteration: {num_steps}")
-    print(f"Datetime: {d_and_t}")
-
-    print(f"Total Reward: {metrics['eval/episode_reward']}")
-    print(f"Target Reward: {metrics['eval/episode_reward_to_target']}")
-    print(f"Vel Reward: {metrics['eval/episode_reward_velocity']}")
-    print(f"Alive Reward: {metrics['eval/episode_reward_alive']}")
-    print(f"Ctrl Reward: {metrics['eval/episode_reward_ctrl']}")
-    print(f"a_vel_x: {metrics['eval/episode_agent_x_velocity']}")
-    print(f"a_vel_y: {metrics['eval/episode_agent_y_velocity']}")
-
-    print("==========================================================")
-
+    wandb.log({"step": num_steps, 
+        "Total Reward": metrics['eval/episode_reward'],
+        "Target Reward": metrics['eval/episode_reward_to_target'],
+        "Vel Reward": metrics['eval/episode_reward_velocity'],
+        "Alive Reward": metrics['eval/episode_reward_alive'],
+        "Ctrl Reward": metrics['eval/episode_reward_ctrl'],
+        "a_vel_x": metrics['eval/episode_agent_x_velocity'],
+        "a_vel_y": metrics['eval/episode_agent_y_velocity']})
 
 # ==============================
 # General Variable Defs
@@ -55,14 +62,6 @@ cwd = os.getcwd()
 import alfredo.scenes as scenes
 
 scene_fp = os.path.dirname(scenes.__file__)
-
-env_name = "A0"
-backend = "positional"
-
-seed = 0
-
-len_training = 1_000_000
-
 # ============================
 # Loading and Defining Envs
 # ============================
@@ -73,41 +72,10 @@ key = jax.random.PRNGKey(seed)
 global_key, local_key = jax.random.split(key)
 key_policy, key_value = jax.random.split(global_key)
 
-env = Alfredo(backend=backend, paramFile_path=pf_paths[0])
-# print(env.__dict__)
-# print(dir(env))
-# print(env.observation_size)
-# print(dir(env._pipeline))
+env = Alfredo(backend=wandb.config.backend, paramFile_path=pf_paths[0])
 
 rng = jax.random.PRNGKey(seed=1)
 state = env.reset(rng)
-
-# ==================SINGLE STEP DEBUGGING ==================
-
-# com0 = env._com(state.pipeline_state)
-# print(f"\n")
-# nState = env.step(state, jp.zeros(env.action_size))
-# com1 = env._com(nState.pipeline_state)
-# lcom = len(com0)
-# print(f"{com0}")
-# print(f"{lcom}")
-
-# print(f"\n")
-# nState = env.step(nState, jp.zeros(env.action_size))
-
-# print(f"\n")
-# nState = env.step(nState, jp.zeros(env.action_size))
-
-# print(f"\n")
-# nState = env.step(nState, jp.zeros(env.action_size))
-
-# print(f"\n")
-# nState = env.step(nState, jp.zeros(env.action_size))
-
-# print(f"\n")
-# nState = env.step(nState, jp.zeros(env.action_size))
-
-# ========================================================
 
 ppo_network = ppo_networks.make_ppo_networks(
     env.observation_size, env.action_size, normalize_fn
@@ -151,27 +119,25 @@ for p in pf_paths:
     print(f"[{d_and_t}] jitting end for model: {i}")
 
     # define new training function
-    train_fn = {
-        "A0": functools.partial(
-            ppo.train,
-            num_timesteps=len_training,
-            num_evals=10,
-            reward_scaling=0.1,
-            episode_length=1000,
-            normalize_observations=True,
-            action_repeat=1,
-            unroll_length=10,
-            num_minibatches=32,
-            num_updates_per_batch=8,
-            discounting=0.97,
-            learning_rate=3e-4,
-            entropy_cost=1e-3,
-            num_envs=2048,
-            batch_size=1024,
-            seed=1,
-            in_params=mParams,
-        )
-    }[env_name]
+    train_fn = functools.partial(
+        ppo.train,
+        num_timesteps=len_training,
+        num_evals=10,
+        reward_scaling=0.1,
+        episode_length=1000,
+        normalize_observations=True,
+        action_repeat=1,
+        unroll_length=10,
+        num_minibatches=32,
+        num_updates_per_batch=8,
+        discounting=0.97,
+        learning_rate=3e-4,
+        entropy_cost=1e-3,
+        num_envs=2048,
+        batch_size=1024,
+        seed=1,
+        in_params=mParams,
+    )
 
     d_and_t = datetime.now()
     print(f"[{d_and_t}] training start for model: {i}")
@@ -185,9 +151,3 @@ for p in pf_paths:
 
     d_and_t = datetime.now()
     print(f"[{d_and_t}] loop end for model: {i}")
-
-# ============================
-# Presenting Final Stats
-# ============================
-
-# none right now
