@@ -11,16 +11,17 @@
 , numpy
 , pyyaml
 , tensorflow
+, importlib-resources
   #, tensorstore
 }:
 
 buildPythonPackage rec {
-  name = "orbax";
+  name = "orbax-checkpoint";
   src = fetchFromGitHub {
     owner = "google";
     repo = "orbax";
-    rev = "v0.1.6";
-    hash = "sha256-Vkqt2ovTan6bQJI4Il06hG0NlYmt60to4ue4U9qG9HY=";
+    rev = "v0.1.7";
+    hash = "sha256-Zk9hbvSA82jt0wLR7AZWEmHDA4A1+9t0ezf74FYkqe0=";
   };
   format = "pyproject";
 
@@ -36,6 +37,7 @@ buildPythonPackage rec {
     numpy
     pyyaml
     tensorflow
+    importlib-resources
     # tensorstore
   ];
 

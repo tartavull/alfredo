@@ -10,11 +10,12 @@
 
 buildPythonPackage rec {
   name = "flax";
+  format = "pyproject";
   src = fetchFromGitHub {
     owner = "google";
     repo = "flax";
-    rev = "v0.6.5";
-    hash = "sha256-Vv68BK83gTIKj0r9x+twdhqmRYziD0vxQCdHkYSeTak=";
+    rev = "v0.7.2";
+    hash = "sha256-Zj2xwtUBYrr0lwSjKn8bLHiBtKB0ZUFif7byHoGSZvg=";
   };
   propagatedBuildInputs = [
     jax
@@ -25,8 +26,8 @@ buildPythonPackage rec {
     matplotlib
   ];
   postPatch = ''
-    sed -i '/tensorstore/d' setup.py
+    sed -i '/tensorstore/d' pyproject.toml
+    sed -i '/orbax/d' pyproject.toml
   '';
   doCheck = false;
-  pythonRemoveDeps = [ "orbax" ];
 }
