@@ -15,6 +15,7 @@ import (
 
     "github.com/tartavull/alfredo/talk/common"
     "github.com/tartavull/alfredo/talk/sandbox"
+    "github.com/tartavull/alfredo/talk/components/tabs"
 )
 
 type State int
@@ -25,7 +26,10 @@ const (
 )
 
 type Auto struct {
+    common common.Common
     styles common.Styles
+    tabs *tabs.Tabs
+
     textarea textarea.Model
     state State
     Response *LLMResponse
@@ -37,10 +41,12 @@ type Auto struct {
 	height     int
 }
 
-func New(s common.Styles) *Auto {
+func New(c common.Common, s common.Styles) *Auto {
     a := &Auto{
+        common: c,
         textarea: textarea.New(),
 		styles:   s,
+        tabs: tabs.New(c, []string{"chat", "history"}),
         viewport: viewport.New(0, 0),
     }
 	a.viewport.YPosition = 0
@@ -122,6 +128,8 @@ func (a *Auto) wrap(in string) string {
 func (a *Auto) View() string {
     // FIXME use string builder
     view := a.styles.Logo.Render(" Alfredo ")
+    view += "\n\n"
+    view += a.tabs.View()
     view += "\n\n"
     view += a.styles.ContextTag.String() + " " + a.styles.Context.Render(a.wrap(a.Response.Context))
     view += "\n\n"

@@ -5,6 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/tartavull/alfredo/talk/common"
 )
 
 // SelectTabMsg is a message that contains the index of the tab to select.

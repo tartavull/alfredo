@@ -55,6 +55,11 @@ type Styles struct {
 	QuestionTag  Style
 
     Command      Style
+
+    Tabs         Style
+	TabInactive  Style
+	TabActive    Style
+	TabSeparator Style
 }
 
 func MakeStyles(r *Renderer) (s Styles) {
@@ -88,5 +93,19 @@ func MakeStyles(r *Renderer) (s Styles) {
     s.QuestionTag = s.Question.Copy().Bold(true).SetString("Question:")
 
 	s.Command = r.NewStyle().Foreground(Color("#F1F1F1")).Background(Color("#000000")).Padding(1, 1)
+
+    s.Tabs = NewStyle().
+		Height(1)
+
+	s.TabInactive = NewStyle()
+
+	s.TabActive = NewStyle().
+		Underline(true).
+		Foreground(Color("36"))
+
+	s.TabSeparator = NewStyle().
+		SetString("│").
+		Padding(0, 1).
+		Foreground(Color("238"))
 	return s
 }

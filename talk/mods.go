@@ -51,11 +51,12 @@ type Mods struct {
 
 func newMods(r *lipgloss.Renderer) *Mods {
 	s := common.MakeStyles(r)
+    c := common.NewCommon(0,0, &s)
 	return &Mods{
 		state:    stateStart,
 		renderer: r,
 		styles:   s,
-        auto: auto.New(s),
+        auto: auto.New(c, s),
 	}
 
 }
