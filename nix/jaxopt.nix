@@ -8,6 +8,7 @@
 , fetchFromGitHub
 , matplotlib
 , scikit-learn
+, typing-extensions
 }:
 
 buildPythonPackage rec {
@@ -27,6 +28,7 @@ buildPythonPackage rec {
     jax
     matplotlib
     scikit-learn
+    typing-extensions
   ];
 
   doCheck = true;
