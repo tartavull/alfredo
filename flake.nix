@@ -119,7 +119,6 @@
           jax
           brax
           mujoco
-          alfredo
         ]);
         name = "alfredo";
       in
