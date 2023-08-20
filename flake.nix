@@ -114,6 +114,7 @@
           tqdm
           rich
           networkx
+          wandb
 
           jaxlib
           jax

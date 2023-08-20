@@ -26,13 +26,13 @@ from alfredo.train import ppo
 
 import wandb
 # Initialize a new run
-wandb.init(project="alfredo"
+wandb.init(project="alfredo",
     config = {
         "env_name": "A0",
         "backend": "positional",
         "seed": 0,
         "len_training": 1_000_000,
-        # add any other hyperparameters or configurations you'd like to track
+        "batch_size": 1024,
     }
 )
 
@@ -44,6 +44,7 @@ normalize_fn = running_statistics.normalize
 
 
 def progress(num_steps, metrics):
+    print(num_steps)
     wandb.log({"step": num_steps, 
         "Total Reward": metrics['eval/episode_reward'],
         "Target Reward": metrics['eval/episode_reward_to_target'],
@@ -62,13 +63,14 @@ cwd = os.getcwd()
 import alfredo.scenes as scenes
 
 scene_fp = os.path.dirname(scenes.__file__)
+
 # ============================
 # Loading and Defining Envs
 # ============================
 pf_paths = [f"{scene_fp}/flatworld/flatworld.xml"]
 
 # make and save initial ppo_network
-key = jax.random.PRNGKey(seed)
+key = jax.random.PRNGKey(wandb.config.seed)
 global_key, local_key = jax.random.split(key)
 key_policy, key_value = jax.random.split(global_key)
 
@@ -92,7 +94,7 @@ normalizer_params = running_statistics.init_state(
 
 params_to_save = (normalizer_params, init_params.policy, init_params.value)
 
-model.save_params(f"param-store/{env_name}_params_0", params_to_save)
+model.save_params(f"param-store/A0_params_0", params_to_save)
 
 # ============================
 # Training & Saving Params
@@ -107,9 +109,9 @@ for p in pf_paths:
 
     d_and_t = datetime.now()
     print(f"[{d_and_t}] loop start for model: {i}")
-    env = Alfredo(backend=backend, paramFile_path=p)
+    env = Alfredo(backend=wandb.config.backend, paramFile_path=p)
 
-    mF = f"{cwd}/param-store/{env_name}_params_{i}"
+    mF = f"{cwd}/param-store/{wandb.config.env_name}_params_{i}"
     mParams = model.load_params(mF)
 
     d_and_t = datetime.now()
@@ -121,8 +123,8 @@ for p in pf_paths:
     # define new training function
     train_fn = functools.partial(
         ppo.train,
-        num_timesteps=len_training,
-        num_evals=10,
+        num_timesteps=wandb.config.len_training,
+        num_evals=1000,
         reward_scaling=0.1,
         episode_length=1000,
         normalize_observations=True,
@@ -134,7 +136,7 @@ for p in pf_paths:
         learning_rate=3e-4,
         entropy_cost=1e-3,
         num_envs=2048,
-        batch_size=1024,
+        batch_size=wandb.config.batch_size,
         seed=1,
         in_params=mParams,
     )
