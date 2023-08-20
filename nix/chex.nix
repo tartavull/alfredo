@@ -9,7 +9,6 @@
 , pytestCheckHook
 , toolz
 , cloudpickle
-, typing-extensions
 }:
 
 buildPythonPackage rec {
@@ -31,7 +30,6 @@ buildPythonPackage rec {
     jax
     numpy
     toolz
-    typing-extensions
   ];
 
   postPatch = ''
