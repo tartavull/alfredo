@@ -73,7 +73,7 @@
                 <body name="lower_arm_l" pos=".18 .18 -.18">
                     <joint armature="0.0028" axis="0 -1 -1" name="elbow_l" pos="0 0 0" range="-90 50" stiffness="0" type="hinge" />
                     <geom fromto="0.01 -0.01 0.01 .17 -.17 .17" name="forearm_l" size="0.031" type="capsule" />
-                    <geom contyope="1" name="gripper_l" pos=".18 -.18 .18" size="0.04" type="sphere" />
+                    <geom contype="1" name="gripper_l" pos=".18 -.18 .18" size="0.04" type="sphere" />
                 </body>
             </body>
 
