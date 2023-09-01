@@ -66,7 +66,7 @@ len_training = 1_000
 # ============================
 # Loading and Defining Envs
 # ============================
-pf_paths = [f"{scene_fp}/flatworld/flatworld_A1.xml"]
+pf_paths = [f"{scene_fp}/flatworld/flatworld_A1_alternate.xml"]
 
 # make and save initial ppo_network
 key = jax.random.PRNGKey(seed)
