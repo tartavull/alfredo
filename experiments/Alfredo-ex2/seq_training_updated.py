@@ -129,7 +129,7 @@ for p in pf_paths:
     train_fn = functools.partial(
         ppo.train,
         num_timesteps=wandb.config.len_training,
-        num_evals=10,
+        num_evals=40,
         reward_scaling=0.1,
         episode_length=1000,
         normalize_observations=True,
