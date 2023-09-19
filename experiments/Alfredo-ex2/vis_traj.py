@@ -28,6 +28,9 @@ scene_fp = os.path.dirname(scenes.__file__)
 
 pf_path = f"{scene_fp}/{sys.argv[-2]}"
 tpf_path = f"{cwd}/{sys.argv[-1]}"
+print(scene_fp)
+print(pf_path)
+print(tpf_path)
 params = model.load_params(tpf_path)
 
 # create an env with auto-reset and load previously trained parameters
