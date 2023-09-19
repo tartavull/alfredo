@@ -134,6 +134,14 @@ def train(
         -num_timesteps // (num_evals_after_init * env_step_per_training_step)
     )
 
+    print(f"batch_size: {batch_size}")
+    print(f"unroll_length: {unroll_length}")
+    print(f"num_minibatches: {num_minibatches}")
+    print(f"env_step_per_training_step: {env_step_per_training_step}")
+    print(f"num_evals: {num_evals}")
+    print(f"num_evals_after_init: {num_evals_after_init}")
+    print(f"num_training_steps_per_epoch: {num_training_steps_per_epoch}")
+
     key = jax.random.PRNGKey(seed)
     global_key, local_key = jax.random.split(key)
     del key

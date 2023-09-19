@@ -26,8 +26,7 @@ from jax import numpy as jp
 
 class Alfredo(PipelineEnv):
     # pyformat: disable
-    """
-    """
+    """ """
     # pyformat: enable
 
     def __init__(
@@ -178,7 +177,7 @@ class Alfredo(PipelineEnv):
         else:
             healthy_reward = self._healthy_reward * is_healthy
 
-        reward = healthy_reward - ctrl_cost  # + forward_reward #+ reward_to_target
+        reward = healthy_reward - ctrl_cost + forward_reward  # + reward_to_target
 
         done = 1.0 - is_healthy if self._terminate_when_unhealthy else 0.0
 
@@ -233,7 +232,9 @@ class Alfredo(PipelineEnv):
         # com_ang = xd_i.ang
         # com_velocity = jp.hstack([com_vel, com_ang])
 
-        qfrc_actuator = actuator.to_tau(self.sys, action, pipeline_state.q, pipeline_state.qd)
+        qfrc_actuator = actuator.to_tau(
+            self.sys, action, pipeline_state.q, pipeline_state.qd
+        )
 
         # external_contact_forces are excluded
         # return jp.concatenate([
