@@ -31,7 +31,7 @@ wandb.init(
         "env_name": "A1",
         "backend": "positional",
         "seed": 0,
-        "len_training": 50_000_000,
+        "len_training": 500_000,
         "batch_size": 1024,
     },
 )
@@ -129,7 +129,7 @@ for p in pf_paths:
     train_fn = functools.partial(
         ppo.train,
         num_timesteps=wandb.config.len_training,
-        num_evals=200,
+        num_evals=10,
         reward_scaling=0.1,
         episode_length=1000,
         normalize_observations=True,
