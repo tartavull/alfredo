@@ -98,7 +98,7 @@
 
                             <body name="foot_r" pos="0 0 -0.37">
                                 <joint armature="0.006" axis="0 -1 0" name="ankle_r" pos="0 0 0" range="-45 20" type="hinge" />
-                                <geom contype="1" fromto="-0.07 0 0 0.170 0 0" name="footm_r" size="0.042983" type="box" user="0" density="400" />
+                                <geom contype="1" fromto="-0.07 0 0 0.150 0 0" name="footm_r" size="0.042983" type="box" user="0" density="200" />
                             </body>
                         </body>
                     </body>
@@ -115,7 +115,7 @@
 
                             <body name="foot_l" pos="0 0 -0.37">
                                 <joint armature="0.006" axis="0 -1 0" name="ankle_l" pos="0 0 0" range="-45 20" type="hinge" />
-                                <geom contype="1" fromto="-0.07 0 0 0.170 0 0" name="footm_l" size="0.042983" type="box" user="0" density="400"/>
+                                <geom contype="1" fromto="-0.07 0 0 0.150 0 0" name="footm_l" size="0.042983" type="box" user="0" density="200"/>
                             </body>
                         </body>
                     </body>
@@ -134,7 +134,7 @@
     </worldbody>
 
     <actuator>
-    
+
         <motor gear="100" joint="ab_y" name="ab_y" />
         <motor gear="100" joint="ab_z" name="ab_z" />
         <motor gear="100" joint="ab_x" name="ab_x" />
