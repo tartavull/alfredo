@@ -51,7 +51,8 @@
             <geom fromto="0 -.07 0 0 .07 0" name="torso1" size="0.07" type="capsule" />
             <geom name="head" pos="0 0 .19" size=".09" type="sphere" user="258" />
             <geom fromto="-.01 -.06 -.12 -.01 .06 -.12" name="uwaist" size="0.06" type="capsule" />
-
+            
+            <!--
             <body name="upper_arm_r" pos="0 -0.17 0.06">
                 <joint armature="0.0068" axis="2 1 1" name="shoulder_1_r" pos="0 0 0" range="-85 60" stiffness="1" type="hinge" />
                 <joint armature="0.0051" axis="0 -1 1" name="shoulder_2_r" pos="0 0 0" range="-85 60" stiffness="1" type="hinge" />
@@ -74,6 +75,32 @@
                     <joint armature="0.0028" axis="0 -1 -1" name="elbow_l" pos="0 0 0" range="-90 50" stiffness="0" type="hinge" />
                     <geom fromto="0.01 -0.01 0.01 .17 -.17 .17" name="forearm_l" size="0.031" type="capsule" />
                     <geom contype="1" name="gripper_l" pos=".18 -.18 .18" size="0.04" type="sphere" />
+                </body>
+            </body>
+            -->
+
+            <body name="upper_arm_r" pos="0 -0.17 0.06">
+                <joint armature="0.0068" axis="2 1 1" name="shoulder_1_r" pos="0 0 0" range="-85 60" stiffness="1" type="hinge" />
+                <joint armature="0.0051" axis="0 -1 1" name="shoulder_2_r" pos="0 0 0" range="-85 60" stiffness="1" type="hinge" />
+                <geom fromto="0 0 0 0 -.277 0" name="triceps_r" size="0.04 0.16" type="capsule" />
+
+                <body name="lower_arm_r" pos="0 -.645 0">
+                    <joint armature="0.0028" axis="0 -1 1" name="elbow_r" pos="0 0 0" range="-90 50" stiffness="0" type="hinge" />
+                    <geom fromto="0.01 0.01 0.01 0 .295 0" name="forearm_r" size="0.031" type="capsule" />
+                    <geom contype="1" name="gripper_r" pos="0.01 0 0.01" size="0.04" type="sphere" />
+                    <camera pos="0 0 0" />
+                </body>
+            </body>
+
+            <body name="upper_arm_l" pos="0 0.17 0.06">
+                <joint armature="0.0068" axis="2 -1 1" name="shoulder_1_l" pos="0 0 0" range="-60 85" stiffness="1" type="hinge" />
+                <joint armature="0.0051" axis="0 1 1" name="shoulder_2_l" pos="0 0 0" range="-60 85" stiffness="1" type="hinge" />
+                <geom fromto="0 0 0 0 .277 0" name="triceps_l" size="0.04 0.16" type="capsule" />
+
+                <body name="lower_arm_l" pos="0 .645 0">
+                    <joint armature="0.0028" axis="0 -1 -1" name="elbow_l" pos="0 0 0" range="-90 50" stiffness="0" type="hinge" />
+                    <geom fromto="0.01 -0.01 0.01 0 -.295 0" name="forearm_l" size="0.031" type="capsule" />
+                    <geom contype="1" name="gripper_l" pos="0.01 0 0.01" size="0.04" type="sphere" />
                 </body>
             </body>
 
