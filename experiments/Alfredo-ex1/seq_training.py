@@ -152,7 +152,7 @@ for p in pf_paths:
     print(f"[{d_and_t}] training end for model: {i}")
 
     i += 1
-    next_m_name = f"param-store/{env_name}_params_{i}"
+    next_m_name = f"param-store/{wandb.config.env_name}_params_{i}"
     model.save_params(next_m_name, params)
 
     d_and_t = datetime.now()
