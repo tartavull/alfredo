@@ -12,6 +12,7 @@ import flax
 import jax
 import matplotlib.pyplot as plt
 import optax
+import wandb
 from brax import envs
 # from brax.envs.wrappers import training
 from brax.io import html, json, model
@@ -23,17 +24,16 @@ from jax import numpy as jp
 from alfredo.agents.A0 import Alfredo
 from alfredo.train import ppo
 
-
-import wandb
 # Initialize a new run
-wandb.init(project="alfredo",
-    config = {
+wandb.init(
+    project="alfredo",
+    config={
         "env_name": "A0",
         "backend": "positional",
         "seed": 0,
-        "len_training": 1_000_000,
+        "len_training": 1_500_000,
         "batch_size": 1024,
-    }
+    },
 )
 
 # ==============================
@@ -45,14 +45,19 @@ normalize_fn = running_statistics.normalize
 
 def progress(num_steps, metrics):
     print(num_steps)
-    wandb.log({"step": num_steps, 
-        "Total Reward": metrics['eval/episode_reward'],
-        "Target Reward": metrics['eval/episode_reward_to_target'],
-        "Vel Reward": metrics['eval/episode_reward_velocity'],
-        "Alive Reward": metrics['eval/episode_reward_alive'],
-        "Ctrl Reward": metrics['eval/episode_reward_ctrl'],
-        "a_vel_x": metrics['eval/episode_agent_x_velocity'],
-        "a_vel_y": metrics['eval/episode_agent_y_velocity']})
+    wandb.log(
+        {
+            "step": num_steps,
+            "Total Reward": metrics["eval/episode_reward"],
+            "Target Reward": metrics["eval/episode_reward_to_target"],
+            "Vel Reward": metrics["eval/episode_reward_velocity"],
+            "Alive Reward": metrics["eval/episode_reward_alive"],
+            "Ctrl Reward": metrics["eval/episode_reward_ctrl"],
+            "a_vel_x": metrics["eval/episode_agent_x_velocity"],
+            "a_vel_y": metrics["eval/episode_agent_y_velocity"],
+        }
+    )
+
 
 # ==============================
 # General Variable Defs
@@ -124,13 +129,13 @@ for p in pf_paths:
     train_fn = functools.partial(
         ppo.train,
         num_timesteps=wandb.config.len_training,
-        num_evals=1000,
+        num_evals=200,
         reward_scaling=0.1,
         episode_length=1000,
         normalize_observations=True,
         action_repeat=1,
         unroll_length=10,
-        num_minibatches=32,
+        num_minibatches=8,
         num_updates_per_batch=8,
         discounting=0.97,
         learning_rate=3e-4,

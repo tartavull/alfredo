@@ -294,7 +294,7 @@ class Alfredo(PipelineEnv):
         # print(f"a_vel -> {a_velocity}")
 
         reward_vel = math.safe_norm(a_velocity)
-        forward_reward = self._forward_reward_weight * reward_vel
+        forward_reward = self._forward_reward_weight * a_velocity[0]
         # print(f"a_vel -> {a_velocity}")
         # print(f"target_pos -> {pipeline_state.q[-2:]}")
         dist_diff = jp.array(
@@ -318,7 +318,7 @@ class Alfredo(PipelineEnv):
         else:
             healthy_reward = self._healthy_reward * is_healthy
 
-        reward = healthy_reward - ctrl_cost  # + forward_reward #+ reward_to_target
+        reward = healthy_reward - ctrl_cost + forward_reward  # + reward_to_target
 
         done = 1.0 - is_healthy if self._terminate_when_unhealthy else 0.0
 
@@ -373,7 +373,9 @@ class Alfredo(PipelineEnv):
         # com_ang = xd_i.ang
         # com_velocity = jp.hstack([com_vel, com_ang])
 
-        qfrc_actuator = actuator.to_tau(self.sys, action, pipeline_state.q, pipeline_state.qd)
+        qfrc_actuator = actuator.to_tau(
+            self.sys, action, pipeline_state.q, pipeline_state.qd
+        )
 
         # external_contact_forces are excluded
         # return jp.concatenate([
