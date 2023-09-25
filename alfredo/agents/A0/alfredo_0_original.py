@@ -378,7 +378,7 @@ class Alfredo(PipelineEnv):
             self.sys, action, pipeline_state.q, pipeline_state.qd
         )
 
-        external_contact_forces are excluded
+        #external_contact_forces are excluded
         return jp.concatenate([
            position,
            velocity,
