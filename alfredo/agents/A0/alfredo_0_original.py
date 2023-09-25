@@ -249,11 +249,11 @@ class Alfredo(PipelineEnv):
 
         qvel = jax.random.uniform(rng2, (self.sys.qd_size(),), minval=low, maxval=hi)
 
-        #_, target = self._random_target(rng)
+        # _, target = self._random_target(rng)
         # target = jp.array([10.0, 0.0])
         # print(f'{target}')
-        #qpos = qpos.at[-2:].set(target)
-        #qvel = qvel.at[-2:].set(0.0)
+        # qpos = qpos.at[-2:].set(target)
+        # qvel = qvel.at[-2:].set(0.0)
 
         pipeline_state = self.pipeline_init(qpos, qvel)
 
@@ -295,12 +295,12 @@ class Alfredo(PipelineEnv):
         forward_reward = self._forward_reward_weight * a_velocity[0]
         # print(f"a_vel -> {a_velocity}")
         # print(f"target_pos -> {pipeline_state.q[-2:]}")
-        #dist_diff = jp.array(
+        # dist_diff = jp.array(
         #    [pipeline_state.q[-2] - com_after[0], pipeline_state.q[-1] - com_after[1]]
-        #)
+        # )
 
-        #dist_to_target = math.safe_norm(dist_diff)
-        #reward_to_target = -dist_to_target
+        # dist_to_target = math.safe_norm(dist_diff)
+        # reward_to_target = -dist_to_target
 
         ctrl_cost = self._ctrl_cost_weight * jp.sum(jp.square(action))
         # print(f"dis_to_target -> {dist_to_target}")
@@ -321,11 +321,11 @@ class Alfredo(PipelineEnv):
         done = 1.0 - is_healthy if self._terminate_when_unhealthy else 0.0
 
         state.metrics.update(
-            #reward_to_target=reward_to_target,
+            # reward_to_target=reward_to_target,
             reward_ctrl=-ctrl_cost,
             reward_alive=healthy_reward,
             reward_velocity=forward_reward,
-            #dist_to_target=dist_to_target,
+            # dist_to_target=dist_to_target,
             agent_x_position=com_after[0],
             agent_y_position=com_after[1],
             agent_x_velocity=a_velocity[0],
@@ -347,13 +347,13 @@ class Alfredo(PipelineEnv):
     def _get_obs(self, pipeline_state: base.State, action: jp.ndarray) -> jp.ndarray:
         """Observes humanoid body position, velocities, and angles."""
 
-        a_positions = pipeline_state.q 
+        a_positions = pipeline_state.q
         a_velocities = pipeline_state.qd
-        
-        #a_positions = pipeline_state.q[:-2]
-        #a_velocities = pipeline_state.qd[:-2]
 
-        #target_position = pipeline_state.q[-2:]
+        # a_positions = pipeline_state.q[:-2]
+        # a_velocities = pipeline_state.qd[:-2]
+
+        # target_position = pipeline_state.q[-2:]
 
         if self._exclude_current_positions_from_observation:
             a_positions = a_positions[2:]
@@ -361,13 +361,13 @@ class Alfredo(PipelineEnv):
         com, inertia, mass_sum, x_i = self._com(pipeline_state)
         cinr = x_i.replace(pos=x_i.pos - com).vmap().do(inertia)
         com_inertia = jp.hstack(
-          [cinr.i.reshape((cinr.i.shape[0], -1)), inertia.mass[:, None]]
+            [cinr.i.reshape((cinr.i.shape[0], -1)), inertia.mass[:, None]]
         )
 
         xd_i = (
-           base.Transform.create(pos=x_i.pos - pipeline_state.x.pos)
-           .vmap()
-           .do(pipeline_state.xd)
+            base.Transform.create(pos=x_i.pos - pipeline_state.x.pos)
+            .vmap()
+            .do(pipeline_state.xd)
         )
 
         com_vel = inertia.mass[:, None] * xd_i.vel / mass_sum
@@ -378,18 +378,20 @@ class Alfredo(PipelineEnv):
             self.sys, action, pipeline_state.q, pipeline_state.qd
         )
 
-        #external_contact_forces are excluded
-        return jp.concatenate([
-           position,
-           velocity,
-           com_inertia.ravel(),
-           com_velocity.ravel(),
-           qfrc_actuator,
-        ])
+        # external_contact_forces are excluded
+        return jp.concatenate(
+            [
+                a_positions,
+                a_velocities,
+                com_inertia.ravel(),
+                com_velocity.ravel(),
+                qfrc_actuator,
+            ]
+        )
 
-        #return jp.concatenate(
+        # return jp.concatenate(
         #    [a_positions, a_velocities, target_position, qfrc_actuator, com]
-        #)
+        # )
 
     def _com(self, pipeline_state: base.State) -> jp.ndarray:
         """Computes Center of Mass of the Humanoid"""
@@ -405,16 +407,16 @@ class Alfredo(PipelineEnv):
                 mass=inertia.mass ** (1 - self.sys.spring_mass_scale),
             )
 
-        #mass_sum = jp.sum(inertia.mass[:-1])
+        # mass_sum = jp.sum(inertia.mass[:-1])
         mass_sum = jp.sum(inertia.mass)
-        
+
         x_i = pipeline_state.x.vmap().do(inertia.transform)
 
-        #com = (
+        # com = (
         #    jp.sum(jax.vmap(jp.multiply)(inertia.mass[:-1], x_i.pos[:-1]), axis=0)
         #    / mass_sum
-        #)
-        
+        # )
+
         com = (
             jp.sum(jax.vmap(jp.multiply)(inertia.mass[:-1], x_i.pos[:-1]), axis=0)
             / mass_sum
