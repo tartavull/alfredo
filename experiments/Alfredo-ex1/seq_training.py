@@ -49,7 +49,6 @@ def progress(num_steps, metrics):
         {
             "step": num_steps,
             "Total Reward": metrics["eval/episode_reward"],
-            "Target Reward": metrics["eval/episode_reward_to_target"],
             "Vel Reward": metrics["eval/episode_reward_velocity"],
             "Alive Reward": metrics["eval/episode_reward_alive"],
             "Ctrl Reward": metrics["eval/episode_reward_ctrl"],
@@ -72,7 +71,7 @@ scene_fp = os.path.dirname(scenes.__file__)
 # ============================
 # Loading and Defining Envs
 # ============================
-pf_paths = [f"{scene_fp}/flatworld/flatworld.xml"]
+pf_paths = [f"{scene_fp}/flatworld/humanoid.xml"]
 
 # make and save initial ppo_network
 key = jax.random.PRNGKey(wandb.config.seed)
