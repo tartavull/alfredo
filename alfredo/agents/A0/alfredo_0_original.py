@@ -417,10 +417,7 @@ class Alfredo(PipelineEnv):
         #    / mass_sum
         # )
 
-        com = (
-            jp.sum(jax.vmap(jp.multiply)(inertia.mass[:-1], x_i.pos[:-1]), axis=0)
-            / mass_sum
-        )
+        com = jp.sum(jax.vmap(jp.multiply)(inertia.mass, x_i.pos), axis=0) / mass_sum
 
         return (
             com,
