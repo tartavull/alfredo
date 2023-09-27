@@ -31,7 +31,7 @@ wandb.init(
         "env_name": "A1",
         "backend": "positional",
         "seed": 0,
-        "len_training": 500_000,
+        "len_training": 1_500_000,
         "batch_size": 1024,
     },
 )
@@ -49,7 +49,7 @@ def progress(num_steps, metrics):
         {
             "step": num_steps,
             "Total Reward": metrics["eval/episode_reward"],
-            "Target Reward": metrics["eval/episode_reward_to_target"],
+            #"Target Reward": metrics["eval/episode_reward_to_target"],
             "Vel Reward": metrics["eval/episode_reward_velocity"],
             "Alive Reward": metrics["eval/episode_reward_alive"],
             "Ctrl Reward": metrics["eval/episode_reward_ctrl"],
@@ -99,7 +99,7 @@ normalizer_params = running_statistics.init_state(
 
 params_to_save = (normalizer_params, init_params.policy, init_params.value)
 
-model.save_params(f"param-store/A1_params_1", params_to_save)
+model.save_params(f"param-store/A1_params_0", params_to_save)
 
 # ============================
 # Training & Saving Params
@@ -129,7 +129,7 @@ for p in pf_paths:
     train_fn = functools.partial(
         ppo.train,
         num_timesteps=wandb.config.len_training,
-        num_evals=40,
+        num_evals=200,
         reward_scaling=0.1,
         episode_length=1000,
         normalize_observations=True,

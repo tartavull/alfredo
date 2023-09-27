@@ -80,12 +80,12 @@
             -->
 
             <body name="upper_arm_r" pos="0 -0.17 0.06">
-                <joint armature="0.0068" axis="1 0 0" name="shoulder_1_r" pos="0 0 0" range="-75 85" stiffness="1" type="hinge" />
-                <joint armature="0.0051" axis="0 0 1" name="shoulder_2_r" pos="0 0 0" range="-60 85" stiffness="1" type="hinge" />
+                <joint armature="0.0068" axis="-1 0 0" name="shoulder_1_r" pos="0 0 0" range="-75 85" stiffness="1" type="hinge" />
+                <joint armature="0.0051" axis="0 0 -1" name="shoulder_2_r" pos="0 0 0" range="-60 85" stiffness="1" type="hinge" />
                 <geom fromto="0 0 0 0 -.277 0" name="triceps_r" size="0.04 0.16" type="capsule" />
 
                 <body name="lower_arm_r" pos="0 -.29 0">
-                    <joint armature="0.0028" axis="0 0 -1" name="elbow_r" pos="0 0 0" range="-90 10" stiffness="0" type="hinge" />
+                    <joint armature="0.0028" axis="0 0 1" name="elbow_r" pos="0 0 0" range="-90 10" stiffness="0" type="hinge" />
                     <geom fromto="0.01 0.01 0.01 0 -.295 0" name="forearm_r" size="0.031" type="capsule" />
                     <geom contype="1" name="gripper_r" pos="0.0 -.3 0.0" size="0.04" type="sphere" />
                     <camera pos="0 0 0" />
@@ -93,12 +93,12 @@
             </body>
 
             <body name="upper_arm_l" pos="0 0.17 0.06">
-                <joint armature="0.0068" axis="-1 0 0" name="shoulder_1_l" pos="0 0 0" range="-75 85" stiffness="1" type="hinge" />
-                <joint armature="0.0051" axis="0 0 -1" name="shoulder_2_l" pos="0 0 0" range="-60 85" stiffness="1" type="hinge" />
+                <joint armature="0.0068" axis="1 0 0" name="shoulder_1_l" pos="0 0 0" range="-75 85" stiffness="1" type="hinge" />
+                <joint armature="0.0051" axis="0 0 1" name="shoulder_2_l" pos="0 0 0" range="-60 85" stiffness="1" type="hinge" />
                 <geom fromto="0 0 0 0 .277 0" name="triceps_l" size="0.04 0.16" type="capsule" />
 
                 <body name="lower_arm_l" pos="0 .29 0">
-                    <joint armature="0.0028" axis="0 0 1" name="elbow_l" pos="0 0 0" range="-90 10" stiffness="0" type="hinge" />
+                    <joint armature="0.0028" axis="0 0 -1" name="elbow_l" pos="0 0 0" range="-90 10" stiffness="0" type="hinge" />
                     <geom fromto="0.01 -0.01 0.01 0 .295 0" name="forearm_l" size="0.031" type="capsule" />
                     <geom contype="1" name="gripper_l" pos="0.0 0.3 0.0" size="0.04" type="sphere" />
                 </body>
