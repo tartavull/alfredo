@@ -55,26 +55,22 @@ class Alfredo(PipelineEnv):
             sys = sys.replace(dt=0.0015)
             n_frames = 10
             gear = jp.array(
-                [
-                    150.0,
-                    150.0,
-                    150.0,
-                    150.0,
-                    150.0,
-                    150.0,
-                    150.0,
-                    150.0,
-                    150.0,
-                    150.0,
-                    150.0,
-                    150.0,
-                    150.0,
+                [   
                     100.0,
                     100.0,
                     100.0,
                     100.0,
                     100.0,
                     100.0,
+                    150.0,
+                    150.0,
+                    150.0,
+                    150.0,
+                    150.0,
+                    150.0,
+                    150.0,
+                    150.0,
+                    150.0,
                 ]
             )  # pyformat: disable
             sys = sys.replace(actuator=sys.actuator.replace(gear=gear))
