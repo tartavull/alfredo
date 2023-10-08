@@ -60,6 +60,10 @@ type Styles struct {
 	TabInactive  Style
 	TabActive    Style
 	TabSeparator Style
+
+	TopLevelNormalTab    Style
+	TopLevelActiveTab    Style
+	TopLevelActiveTabDot Style
 }
 
 func MakeStyles(r *Renderer) (s Styles) {
@@ -107,5 +111,16 @@ func MakeStyles(r *Renderer) (s Styles) {
 		SetString("│").
 		Padding(0, 1).
 		Foreground(Color("238"))
+
+
+	s.TopLevelNormalTab = NewStyle().
+		MarginRight(2)
+
+	s.TopLevelActiveTab = s.TopLevelNormalTab.Copy().
+		Foreground(Color("36"))
+
+	s.TopLevelActiveTabDot = NewStyle().
+		Foreground(Color("36"))
+
 	return s
 }

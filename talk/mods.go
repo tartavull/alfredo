@@ -56,7 +56,7 @@ func newMods(r *lipgloss.Renderer) *Mods {
 		state:    stateStart,
 		renderer: r,
 		styles:   s,
-        auto: auto.New(c, s),
+        auto: auto.New(&c, s),
 	}
 
 }
@@ -121,9 +121,9 @@ func (m *Mods) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
     if m.Config.Auto {
-        var cmd tea.Cmd
         m.state = stateAuto
-        m.auto, cmd = m.auto.Update(msg)
+        model, cmd := m.auto.Update(msg)
+        m.auto = model.(*auto.Auto)
         return m, cmd
     }
 	if m.state == stateConfigLoaded || m.state == stateCompletion {
