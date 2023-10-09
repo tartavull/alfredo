@@ -49,7 +49,6 @@ def progress(num_steps, metrics):
         {
             "step": num_steps,
             "Total Reward": metrics["eval/episode_reward"],
-            #"Target Reward": metrics["eval/episode_reward_to_target"],
             "Vel Reward": metrics["eval/episode_reward_velocity"],
             "Alive Reward": metrics["eval/episode_reward_alive"],
             "Ctrl Reward": metrics["eval/episode_reward_ctrl"],
@@ -72,7 +71,7 @@ scene_fp = os.path.dirname(scenes.__file__)
 # ============================
 # Loading and Defining Envs
 # ============================
-pf_paths = [f"{scene_fp}/flatworld/flatworld_A1_alternate.xml"]
+pf_paths = [f"{scene_fp}/flatworld/flatworld_A1.xml"]
 
 # make and save initial ppo_network
 key = jax.random.PRNGKey(wandb.config.seed)
@@ -107,10 +106,6 @@ model.save_params(f"param-store/A1_params_0", params_to_save)
 i = 0
 
 for p in pf_paths:
-    # p_split_unscrper = re.split('[/_.]', p)
-    # p_split_slper = re.split('[/.]', p)
-    # m_name = p_split_unscrper[-3]
-    # p_index = int(p_split_unscrper[-2])
 
     d_and_t = datetime.now()
     print(f"[{d_and_t}] loop start for model: {i}")

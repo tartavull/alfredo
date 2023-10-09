@@ -1,19 +1,5 @@
-# Copyright 2023 The Brax Authors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 # pylint:disable=g-multiple-import
-"""Trains a humanoid to run in the +x direction."""
+"""Trains Alfredo to run/walk/move in the +x direction."""
 from typing import Tuple
 
 import jax
@@ -41,7 +27,10 @@ class Alfredo(PipelineEnv):
         backend="generalized",
         **kwargs,
     ):
-        path = epath.resource_path("brax") / "envs/assets/humanoid.xml"
+
+        # forcing this model to need an input paramFile_path
+        # will throw error if this is not included in kwargs
+        path=""
 
         if "paramFile_path" in kwargs:
             path = kwargs["paramFile_path"]
@@ -90,7 +79,6 @@ class Alfredo(PipelineEnv):
         self._terminate_when_unhealthy = terminate_when_unhealthy
         self._healthy_z_range = healthy_z_range
         self._reset_noise_scale = reset_noise_scale
-        # self._goal_idx = self.sys.link_names.index('target')
 
         self._exclude_current_positions_from_observation = (
             exclude_current_positions_from_observation
@@ -105,14 +93,7 @@ class Alfredo(PipelineEnv):
         qpos = self.sys.init_q + jax.random.uniform(
             rng1, (self.sys.q_size(),), minval=low, maxval=hi
         )
-
         qvel = jax.random.uniform(rng2, (self.sys.qd_size(),), minval=low, maxval=hi)
-
-        # _, target = self._random_target(rng)
-        # target = jp.array([10.0, 0.0])
-        # print(f'{target}')
-        # qpos = qpos.at[-2:].set(target)
-        # qvel = qvel.at[-2:].set(0.0)
 
         pipeline_state = self.pipeline_init(qpos, qvel)
 
@@ -120,11 +101,9 @@ class Alfredo(PipelineEnv):
 
         reward, done, zero = jp.zeros(3)
         metrics = {
-            # "reward_to_target": zero,
             "reward_ctrl": zero,
             "reward_alive": zero,
             "reward_velocity": zero,
-            # "dist_to_target": zero,
             "agent_x_position": zero,
             "agent_y_position": zero,
             "agent_x_velocity": zero,
@@ -136,37 +115,16 @@ class Alfredo(PipelineEnv):
     def step(self, state: State, action: jp.ndarray) -> State:
         """Runs one timestep of the environment's dynamics."""
         prev_pipeline_state = state.pipeline_state
-
-        # print(f"action -> {action}")
-        # print(f"q -> {prev_pipeline_state.q}")
-        # print(f"qd -> {prev_pipeline_state.qd}")
         pipeline_state = self.pipeline_step(prev_pipeline_state, action)
         obs = self._get_obs(pipeline_state, action)
-        # print(f"q_after -> {pipeline_state.q}")
-        # print(f"qd_after -> {pipeline_state.qd}")
 
         com_before, *_ = self._com(prev_pipeline_state)
         com_after, *_ = self._com(pipeline_state)
         a_velocity = (com_after - com_before) / self.dt
-        # print(f"com_before -> {com_before}")
-        # print(f"com_after -> {com_after}")
-        # print(f"a_vel -> {a_velocity}")
 
         reward_vel = math.safe_norm(a_velocity)
         forward_reward = self._forward_reward_weight * a_velocity[0]  # * reward_vel
-        # print(f"a_vel -> {a_velocity}")
-        # print(f"target_pos -> {pipeline_state.q[-2:]}")
-        # dist_diff = jp.array(
-        #    [pipeline_state.q[-2] - com_after[0], pipeline_state.q[-1] - com_after[1]]
-        # )
-
-        # dist_to_target = math.safe_norm(dist_diff)
-        # reward_to_target = -dist_to_target
-
         ctrl_cost = self._ctrl_cost_weight * jp.sum(jp.square(action))
-        # print(f"dis_to_target -> {dist_to_target}")
-        # print(f"reward_to_target -> {reward_to_target}")
-        # print(f"ctrl_cost -> {ctrl_cost}")
 
         min_z, max_z = self._healthy_z_range
         is_healthy = jp.where(pipeline_state.x.pos[0, 2] < min_z, x=0.0, y=1.0)
@@ -177,28 +135,18 @@ class Alfredo(PipelineEnv):
         else:
             healthy_reward = self._healthy_reward * is_healthy
 
-        reward = healthy_reward - ctrl_cost + forward_reward  # + reward_to_target
+        reward = healthy_reward - ctrl_cost + forward_reward
 
         done = 1.0 - is_healthy if self._terminate_when_unhealthy else 0.0
 
         state.metrics.update(
-            # reward_to_target=reward_to_target,
             reward_ctrl=-ctrl_cost,
             reward_alive=healthy_reward,
             reward_velocity=forward_reward,
-            # dist_to_target=dist_to_target,
             agent_x_position=com_after[0],
             agent_y_position=com_after[1],
             agent_x_velocity=a_velocity[0],
             agent_y_velocity=a_velocity[1],
-            # reward_to_target=0.0,
-            # reward_ctrl=ctrl_cost,
-            # reward_alive=healthy_reward,
-            # dist_to_target=0.0,
-            # agent_x_position=0.0,
-            # agent_y_position=0.0,
-            # agent_x_velocity=0.0,
-            # agent_y_velocity=0.0,
         )
 
         return state.replace(
@@ -208,12 +156,8 @@ class Alfredo(PipelineEnv):
     def _get_obs(self, pipeline_state: base.State, action: jp.ndarray) -> jp.ndarray:
         """Observes humanoid body position, velocities, and angles."""
 
-        # a_positions = pipeline_state.q[:-2]
-        # a_velocities = pipeline_state.qd[:-2]
         a_positions = pipeline_state.q
         a_velocities = pipeline_state.qd
-
-        # target_position = pipeline_state.q[-2:]
 
         if self._exclude_current_positions_from_observation:
             a_positions = a_positions[2:]
@@ -249,10 +193,6 @@ class Alfredo(PipelineEnv):
             ]
         )
 
-        # return jp.concatenate(
-        #    [a_positions, a_velocities, target_position, qfrc_actuator, com]
-        # )
-
     def _com(self, pipeline_state: base.State) -> jp.ndarray:
         """Computes Center of Mass of the Humanoid"""
 
@@ -267,15 +207,8 @@ class Alfredo(PipelineEnv):
                 mass=inertia.mass ** (1 - self.sys.spring_mass_scale),
             )
 
-        # mass_sum = jp.sum(inertia.mass[:-1])
         mass_sum = jp.sum(inertia.mass)
-
         x_i = pipeline_state.x.vmap().do(inertia.transform)
-
-        # com = (
-        #    jp.sum(jax.vmap(jp.multiply)(inertia.mass[:-1], x_i.pos[:-1]), axis=0)
-        #    / mass_sum
-        # )
 
         com = jp.sum(jax.vmap(jp.multiply)(inertia.mass, x_i.pos), axis=0) / mass_sum
 
@@ -286,12 +219,3 @@ class Alfredo(PipelineEnv):
             x_i,
         )  # pytype: disable=bad-return-type  # jax-ndarray
 
-    def _random_target(self, rng: jp.ndarray) -> Tuple[jp.ndarray, jp.ndarray]:
-        """Returns a target location in a random circle with radius 10m"""
-
-        rng, rng1, rng2 = jax.random.split(rng, 3)
-        dist = 10 * jax.random.uniform(rng1)
-        ang = jp.pi * 2.0 * jax.random.uniform(rng2)
-        target_x = dist * jp.cos(ang)
-        target_y = dist * jp.sin(ang)
-        return rng, jp.array([target_x, target_y])

@@ -28,9 +28,10 @@ scene_fp = os.path.dirname(scenes.__file__)
 
 pf_path = f"{scene_fp}/{sys.argv[-2]}"
 tpf_path = f"{cwd}/{sys.argv[-1]}"
-print(scene_fp)
-print(pf_path)
-print(tpf_path)
+
+print(f"model description file: {pf_path}")
+print(f"neural parameter file: {tpf_path}")
+
 params = model.load_params(tpf_path)
 
 # create an env with auto-reset and load previously trained parameters
@@ -77,6 +78,7 @@ html_string = html.render(env.sys.replace(dt=env.dt), rollout)
 
 # save output to html filepaths
 d_and_t = datetime.now()
+d_and_t = d_and_t.strftime("%Y-%m-%d_%H-%M-%S")
 tpf_path_split = re.split("[/]", tpf_path)
 html_file_path = f"{cwd}/vis-store/{tpf_path_split[-1]}_{d_and_t}.html"
 html_file_path = html_file_path.replace(" ", "_")
