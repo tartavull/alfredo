@@ -1,4 +1,4 @@
-package auto
+package chat
 
 import (
     "fmt"
@@ -13,7 +13,7 @@ type LLMResponse struct {
     Commands []string  `json:"commands"`
 }
 
-func (a *Auto) ParseResponse(jsonStr string) (*LLMResponse, error) {
+func ParseResponse(jsonStr string) (*LLMResponse, error) {
     jsonBlob := []byte(jsonStr)
 
     response := LLMResponse{}
