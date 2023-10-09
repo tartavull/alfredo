@@ -56,7 +56,7 @@ func newMods(r *lipgloss.Renderer) *Mods {
 		state:    stateStart,
 		renderer: r,
 		styles:   s,
-        auto: auto.New(&c, s),
+        auto: auto.New(&c),
 	}
 
 }
@@ -113,25 +113,16 @@ func (m *Mods) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
-        m.auto.SetSize(msg.Width, msg.Height)
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
 			return m, tea.Quit
 		}
 	}
-    if m.Config.Auto {
-        m.state = stateAuto
-        model, cmd := m.auto.Update(msg)
-        m.auto = model.(*auto.Auto)
-        return m, cmd
-    }
-	if m.state == stateConfigLoaded || m.state == stateCompletion {
-		var cmd tea.Cmd
-		m.anim, cmd = m.anim.Update(msg)
-		return m, cmd
-	}
-	return m, nil
+    m.state = stateAuto
+    model, cmd := m.auto.Update(msg)
+    m.auto = model.(*auto.Auto)
+    return m, cmd
 }
 
 // View implements tea.Model.
