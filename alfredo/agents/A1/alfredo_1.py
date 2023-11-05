@@ -9,6 +9,7 @@ from brax.io import mjcf
 from etils import epath
 from jax import numpy as jp
 
+from alfredo.tools import compose_scene
 
 class Alfredo(PipelineEnv):
     # pyformat: disable
@@ -28,15 +29,25 @@ class Alfredo(PipelineEnv):
         **kwargs,
     ):
 
-        # forcing this model to need an input paramFile_path
-        # will throw error if this is not included in kwargs
+        # forcing this model to need an input scene_xml_path or 
+        # the combination of env_xml_path and agent_xml_path
+        # if none of these options are present, an error will be thrown
         path=""
 
-        if "paramFile_path" in kwargs:
-            path = kwargs["paramFile_path"]
-            del kwargs["paramFile_path"]
+        if "env_xml_path" and "agent_xml_path" in kwargs: 
+            env_xp = kwargs["env_xml_path"]
+            agent_xp = kwargs["agent_xml_path"]
+            xml_scene = compose_scene(env_xp, agent_xp)
+            del kwargs["env_xml_path"]
+            del kwargs["agent_xml_path"]
+            
+            sys = mjcf.loads(xml_scene)
 
-        sys = mjcf.load(path)
+        if "scene_xml_path" in kwargs:
+            path = kwargs["scene_xml_path"]
+            del kwargs["scene_xml_path"]
+
+            sys = mjcf.load(path)
 
         n_frames = 5
 
