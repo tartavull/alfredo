@@ -22,13 +22,22 @@ backend = "positional"
 # get filepaths from commandline args
 cwd = os.getcwd()
 
+# get the filepath to the env and agent xmls
 import alfredo.scenes as scenes
 
-scene_fp = os.path.dirname(scenes.__file__)
-pf_path = f"{scene_fp}/{sys.argv[-1]}"
+import alfredo.agents as agents
+agents_fp = os.path.dirname(agents.__file__)
+agent_xml_path = f"{agents_fp}/A1/a1.xml"
+
+scenes_fp = os.path.dirname(scenes.__file__)
+
+env_xml_paths = [f"{scenes_fp}/flatworld/flatworld_A1_env.xml"]
 
 # create an env and initial state
-env = Alfredo(backend=backend, paramFile_path=pf_path)
+env = Alfredo(backend=backend, 
+              env_xml_path=env_xml_paths[0],
+              agent_xml_path=agent_xml_path)
+
 state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
 
 # render scene
