@@ -1,1 +1,1 @@
-from .xmlcompose import *
+from .tXMLCompose import *
