@@ -40,8 +40,8 @@ env = Alfredo(backend=backend,
 
 state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
 
-print(f"Alfredo brax env dir: {dir(env)}")
-print(f"state: {state}")
+#print(f"Alfredo brax env dir: {dir(env)}")
+#print(f"state: {state}")
 
 com = env._com(state.pipeline_state)
 obs = env._get_obs(state.pipeline_state, jp.zeros(env.action_size))
