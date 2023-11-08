@@ -63,22 +63,29 @@ def progress(num_steps, metrics):
 # ==============================
 cwd = os.getcwd()
 
-# get the filepath to the scene xmls
+# get the filepath to the env and agent xmls
 import alfredo.scenes as scenes
 
-scene_fp = os.path.dirname(scenes.__file__)
+import alfredo.agents as agents
+agents_fp = os.path.dirname(agents.__file__)
+agent_xml_path = f"{agents_fp}/A1/a1.xml"
+
+scenes_fp = os.path.dirname(scenes.__file__)
+
+env_xml_paths = [f"{scenes_fp}/flatworld/flatworld_A1_env.xml"]
 
 # ============================
 # Loading and Defining Envs
 # ============================
-pf_paths = [f"{scene_fp}/flatworld/flatworld_A1.xml"]
 
 # make and save initial ppo_network
 key = jax.random.PRNGKey(wandb.config.seed)
 global_key, local_key = jax.random.split(key)
 key_policy, key_value = jax.random.split(global_key)
 
-env = Alfredo(backend=wandb.config.backend, paramFile_path=pf_paths[0])
+env = Alfredo(backend=wandb.config.backend, 
+              env_xml_path=env_xml_paths[0],
+              agent_xml_path=agent_xml_path)
 
 rng = jax.random.PRNGKey(seed=1)
 state = env.reset(rng)
@@ -105,11 +112,13 @@ model.save_params(f"param-store/A1_params_0", params_to_save)
 # ============================
 i = 0
 
-for p in pf_paths:
+for p in env_xml_paths:
 
     d_and_t = datetime.now()
     print(f"[{d_and_t}] loop start for model: {i}")
-    env = Alfredo(backend=wandb.config.backend, paramFile_path=p)
+    env = Alfredo(backend=wandb.config.backend, 
+                  env_xml_path=p,
+                  agent_xml_path=agent_xml_path)
 
     mF = f"{cwd}/param-store/{wandb.config.env_name}_params_{i}"
     mParams = model.load_params(mF)

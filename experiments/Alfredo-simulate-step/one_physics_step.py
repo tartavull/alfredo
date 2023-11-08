@@ -40,15 +40,18 @@ env = Alfredo(backend=backend,
 
 state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
 
-# render scene
-html_string = html.render(env.sys.replace(dt=env.dt), [state.pipeline_state])
+#print(f"Alfredo brax env dir: {dir(env)}")
+#print(f"state: {state}")
 
-# save output to html filepaths
-d_and_t = datetime.now()
-html_file_path = f"{cwd}/vis-store/A1_dev_.html"
-
-html_file_path = html_file_path.replace(" ", "_")
-
-with open(html_file_path, "w") as file:
-    file.write(html_string)
-    print(f"saved visualization to {html_file_path}")
+com = env._com(state.pipeline_state)
+obs = env._get_obs(state.pipeline_state, jp.zeros(env.action_size))
+#print(f"CoM = {com}")
+#print(f"pipeline_state: {state.pipeline_state}")
+#print(f"observation: {obs}")
+print(f"\n-----------------------------------------------------------------\n")
+nState = env.step(state, jp.zeros(env.action_size))
+com = env._com(state.pipeline_state)
+obs = env._get_obs(state.pipeline_state, jp.zeros(env.action_size))
+#print(f"CoM = {com}")
+#print(f"pipeline_state: {state.pipeline_state}")
+#print(f"observation: {obs}")

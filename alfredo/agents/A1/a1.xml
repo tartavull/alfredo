@@ -1,0 +1,102 @@
+<agent>
+
+    <body name="alfredo" pos="0 0 1.4">
+        <camera name="followme" mode="trackcom" pos="0 -4 0" xyaxes="1 0 0 0 0 1" />
+
+        <joint armature="0" damping="0" limited="false" name="root" pos="0 0 0" stiffness="0" type="free" />
+        <geom fromto="-.07 0 -.035 .07 0 -.035" name="torso1" size="0.13" type="box" />
+        <geom name="head" pos="0 0 .19" size=".09" type="sphere" user="258" />
+
+        <body name="upper_arm_r" pos="0 -0.17 0.06">
+            <joint armature="0.0068" axis="1 0 0" name="shoulder_1_r" pos="0 0 0" range="-75 85" stiffness="1" type="hinge" />
+            <joint armature="0.0051" axis="0 0 1" name="shoulder_2_r" pos="0 0 0" range="-60 85" stiffness="1" type="hinge" />
+            <geom fromto="0 0 0 0 -.277 0" name="triceps_r" size="0.04 0.16" type="capsule" />
+
+            <body name="lower_arm_r" pos="0 -.29 0">
+                <joint armature="0.0028" axis="0 0 -1" name="elbow_r" pos="0 0 0" range="-90 10" stiffness="0" type="hinge" />
+                <geom fromto="0.01 0.01 0.01 0 -.295 0" name="forearm_r" size="0.031" type="capsule" />
+                <geom contype="1" name="gripper_r" pos="0.0 -.3 0.0" size="0.04" type="sphere" />
+                <camera pos="0 0 0" />
+            </body>
+        </body>
+
+        <body name="upper_arm_l" pos="0 0.17 0.06">
+            <joint armature="0.0068" axis="-1 0 0" name="shoulder_1_l" pos="0 0 0" range="-75 85" stiffness="1" type="hinge" />
+            <joint armature="0.0051" axis="0 0 -1" name="shoulder_2_l" pos="0 0 0" range="-60 85" stiffness="1" type="hinge" />
+            <geom fromto="0 0 0 0 .277 0" name="triceps_l" size="0.04 0.16" type="capsule" />
+
+            <body name="lower_arm_l" pos="0 .29 0">
+                <joint armature="0.0028" axis="0 0 1" name="elbow_l" pos="0 0 0" range="-90 10" stiffness="0" type="hinge" />
+                <geom fromto="0.01 -0.01 0.01 0 .295 0" name="forearm_l" size="0.031" type="capsule" />
+                <geom contype="1" name="gripper_l" pos="0.0 0.3 0.0" size="0.04" type="sphere" />
+            </body>
+        </body>
+
+        <body name="pelv" pos="0 0 -0.270" quat="1.000 0 -0.002 0">
+            <joint armature="0.02" axis="0 0 1" damping="5" name="ab_z" pos="0 0 0.065" range="-45 45" stiffness="20" type="hinge" />
+            <joint armature="0.02" axis="0 1 0" damping="5" name="ab_y" pos="0 0 0.065" range="-75 30" stiffness="10" type="hinge" />
+            <joint armature="0.02" axis="1 0 0" damping="5" name="ab_x" pos="0 0 0.065" range="-35 35" stiffness="10" type="hinge" />
+            <geom fromto="-.02 -.07 0 -.02 .07 0" name="booty" size="0.09" type="capsule" />
+
+            <body name="thigh_r" pos="0 -0.1 -0.04">
+                <joint armature="0.01" axis="1 0 0" damping="5" name="hip_r_x" pos="0 0 0" range="-25 5" stiffness="10" type="hinge" />
+                <joint armature="0.01" axis="0 0 1" damping="5" name="hip_r_z" pos="0 0 0" range="-60 35" stiffness="10" type="hinge" />
+                <joint armature="0.0080" axis="0 1 0" damping="5" name="hip_r_y" pos="0 0 0" range="-110 20" stiffness="20" type="hinge" />
+                <geom fromto="0 0 0 0 0.01 -.34" name="right_thigh1" size="0.06" type="capsule" />
+
+                <body name="shin_r" pos="0 0.01 -0.403">
+                    <joint armature="0.0060" axis="0 -1 0" name="knee_r" pos="0 0 .02" range="-160 -2" type="hinge" />
+                    <geom fromto="0 0 0 0 0 -.3" name="calves_r" size="0.049" type="capsule" />
+
+                    <body name="foot_r" pos="0 0 -0.37">
+                        <joint armature="0.006" axis="0 -1 0" name="ankle_r" pos="0 0 0" range="-45 20" type="hinge" />
+                        <geom contype="1" fromto="-0.07 0 0 0.150 0 0" name="footm_r" size="0.042983" type="box" user="0" density="200" />
+                    </body>
+                </body>
+            </body>
+
+            <body name="thigh_l" pos="0 0.1 -0.04">
+                <joint armature="0.01" axis="-1 0 0" damping="5" name="hip_l_x" pos="0 0 0" range="-25 5" stiffness="10" type="hinge" />
+                <joint armature="0.01" axis="0 0 -1" damping="5" name="hip_l_z" pos="0 0 0" range="-60 35" stiffness="10" type="hinge" />
+                <joint armature="0.01" axis="0 1 0" damping="5" name="hip_l_y" pos="0 0 0" range="-110 20" stiffness="20" type="hinge" />
+                <geom fromto="0 0 0 0 -0.01 -.34" name="quad_l" size="0.06" type="capsule" />
+
+                <body name="shin_l" pos="0 -0.01 -0.403">
+                    <joint armature="0.0060" axis="0 -1 0" name="knee_l" pos="0 0 .02" range="-160 -2" stiffness="1" type="hinge" />
+                    <geom fromto="0 0 0 0 0 -.3" name="calves_l" size="0.049" type="capsule" />
+
+                    <body name="foot_l" pos="0 0 -0.37">
+                        <joint armature="0.006" axis="0 -1 0" name="ankle_l" pos="0 0 0" range="-45 20" type="hinge" />
+                        <geom contype="1" fromto="-0.07 0 0 0.150 0 0" name="footm_l" size="0.042983" type="box" user="0" density="200"/>
+                    </body>
+                </body>
+            </body>
+        </body>
+        <!--/body-->
+    </body>
+
+    <actuator>
+
+        <motor gear="100" joint="ab_y" name="ab_y" />
+        <motor gear="100" joint="ab_z" name="ab_z" />
+        <motor gear="100" joint="ab_x" name="ab_x" />
+        <motor gear="100" joint="hip_r_x" name="hip_r_x" />
+        <motor gear="100" joint="hip_r_z" name="hip_r_z" />
+        <motor gear="300" joint="hip_r_y" name="hip_r_y" />
+        <motor gear="200" joint="knee_r" name="knee_r" />
+        <motor gear="200" joint="ankle_r" name="ankle_r" />
+        <motor gear="100" joint="hip_l_x" name="hip_l_x" />
+        <motor gear="100" joint="hip_l_z" name="hip_l_z" />
+        <motor gear="300" joint="hip_l_y" name="hip_l_y" />
+        <motor gear="200" joint="knee_l" name="knee_l" />
+        <motor gear="200" joint="ankle_l" name="ankle_l" />
+        <motor gear="25" joint="shoulder_1_r" name="shoulder_1_r" />
+        <motor gear="25" joint="shoulder_2_r" name="shoulder_2_r" />
+        <motor gear="25" joint="elbow_r" name="elbow_r" />
+        <motor gear="25" joint="shoulder_1_l" name="shoulder_1_l" />
+        <motor gear="25" joint="shoulder_2_l" name="shoulder_2_l" />
+        <motor gear="25" joint="elbow_l" name="elbow_l" />
+
+    </actuator>
+
+</agent>

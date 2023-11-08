@@ -22,20 +22,28 @@ backend = "positional"
 # get filepaths from commandline args
 cwd = os.getcwd()
 
+# get the filepath to the env and agent xmls
 import alfredo.scenes as scenes
 
-scene_fp = os.path.dirname(scenes.__file__)
+import alfredo.agents as agents
+agents_fp = os.path.dirname(agents.__file__)
+agent_xml_path = f"{agents_fp}/A1/a1.xml"
 
-pf_path = f"{scene_fp}/{sys.argv[-2]}"
+scenes_fp = os.path.dirname(scenes.__file__)
+
+env_xml_path = f"{scenes_fp}/{sys.argv[-2]}"
 tpf_path = f"{cwd}/{sys.argv[-1]}"
 
-print(f"model description file: {pf_path}")
+print(f"agent description file: {agent_xml_path}")
+print(f"environment description file: {env_xml_path}")
 print(f"neural parameter file: {tpf_path}")
 
 params = model.load_params(tpf_path)
 
 # create an env with auto-reset and load previously trained parameters
-env = Alfredo(backend=backend, paramFile_path=pf_path)
+env = Alfredo(backend=backend, 
+              env_xml_path=env_xml_path,
+              agent_xml_path=agent_xml_path)
 
 auto_reset = True
 episode_length = 1000

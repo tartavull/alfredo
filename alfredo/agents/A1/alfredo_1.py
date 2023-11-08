@@ -9,6 +9,11 @@ from brax.io import mjcf
 from etils import epath
 from jax import numpy as jp
 
+from alfredo.tools import compose_scene
+from alfredo.rewards import rConstant
+from alfredo.rewards import rHealthy_simple_z
+from alfredo.rewards import rSpeed_X
+from alfredo.rewards import rControl_act_ss
 
 class Alfredo(PipelineEnv):
     # pyformat: disable
@@ -28,15 +33,26 @@ class Alfredo(PipelineEnv):
         **kwargs,
     ):
 
-        # forcing this model to need an input paramFile_path
-        # will throw error if this is not included in kwargs
+        # forcing this model to need an input scene_xml_path or 
+        # the combination of env_xml_path and agent_xml_path
+        # if none of these options are present, an error will be thrown
         path=""
 
-        if "paramFile_path" in kwargs:
-            path = kwargs["paramFile_path"]
-            del kwargs["paramFile_path"]
+        if "env_xml_path" and "agent_xml_path" in kwargs: 
+            env_xp = kwargs["env_xml_path"]
+            agent_xp = kwargs["agent_xml_path"]
+            xml_scene = compose_scene(env_xp, agent_xp)
+            del kwargs["env_xml_path"]
+            del kwargs["agent_xml_path"]
+            
+            sys = mjcf.loads(xml_scene)
+        
+        # this is vestigial - get rid of this someday soon
+        if "scene_xml_path" in kwargs:
+            path = kwargs["scene_xml_path"]
+            del kwargs["scene_xml_path"]
 
-        sys = mjcf.load(path)
+            sys = mjcf.load(path)
 
         n_frames = 5
 
@@ -120,33 +136,38 @@ class Alfredo(PipelineEnv):
 
         com_before, *_ = self._com(prev_pipeline_state)
         com_after, *_ = self._com(pipeline_state)
-        a_velocity = (com_after - com_before) / self.dt
 
-        reward_vel = math.safe_norm(a_velocity)
-        forward_reward = self._forward_reward_weight * a_velocity[0]  # * reward_vel
-        ctrl_cost = self._ctrl_cost_weight * jp.sum(jp.square(action))
+        x_speed_reward = rSpeed_X(self.sys,
+                                  state.pipeline_state,
+                                  CoM_prev=com_before,
+                                  CoM_now=com_after,
+                                  dt=self.dt,
+                                  weight=self._forward_reward_weight)
 
-        min_z, max_z = self._healthy_z_range
-        is_healthy = jp.where(pipeline_state.x.pos[0, 2] < min_z, x=0.0, y=1.0)
-        is_healthy = jp.where(pipeline_state.x.pos[0, 2] > max_z, x=0.0, y=is_healthy)
+        ctrl_cost = rControl_act_ss(self.sys,
+                                    state.pipeline_state,
+                                    action,
+                                    weight=-self._ctrl_cost_weight)
+        
+        healthy_reward = rHealthy_simple_z(self.sys,
+                                           state.pipeline_state,
+                                           self._healthy_z_range,
+                                           early_terminate=self._terminate_when_unhealthy,
+                                           weight=self._healthy_reward,
+                                           focus_idx_range=(0, 2))
 
-        if self._terminate_when_unhealthy:
-            healthy_reward = self._healthy_reward
-        else:
-            healthy_reward = self._healthy_reward * is_healthy
+        reward = healthy_reward[0] + ctrl_cost + x_speed_reward[0]
 
-        reward = healthy_reward - ctrl_cost + forward_reward
-
-        done = 1.0 - is_healthy if self._terminate_when_unhealthy else 0.0
+        done = 1.0 - healthy_reward[1] if self._terminate_when_unhealthy else 0.0
 
         state.metrics.update(
-            reward_ctrl=-ctrl_cost,
-            reward_alive=healthy_reward,
-            reward_velocity=forward_reward,
+            reward_ctrl=ctrl_cost,
+            reward_alive=healthy_reward[0],
+            reward_velocity=x_speed_reward[0],
             agent_x_position=com_after[0],
             agent_y_position=com_after[1],
-            agent_x_velocity=a_velocity[0],
-            agent_y_velocity=a_velocity[1],
+            agent_x_velocity=x_speed_reward[1],
+            agent_y_velocity=x_speed_reward[2],
         )
 
         return state.replace(
@@ -154,10 +175,12 @@ class Alfredo(PipelineEnv):
         )
 
     def _get_obs(self, pipeline_state: base.State, action: jp.ndarray) -> jp.ndarray:
-        """Observes humanoid body position, velocities, and angles."""
+        """Observes Alfredo's body position, velocities, and angles."""
 
         a_positions = pipeline_state.q
         a_velocities = pipeline_state.qd
+        #print(f"a_positions = {a_positions}")
+        #print(f"a_velocities = {a_velocities}")
 
         if self._exclude_current_positions_from_observation:
             a_positions = a_positions[2:]
@@ -194,7 +217,7 @@ class Alfredo(PipelineEnv):
         )
 
     def _com(self, pipeline_state: base.State) -> jp.ndarray:
-        """Computes Center of Mass of the Humanoid"""
+        """Computes Center of Mass of Alfredo"""
 
         inertia = self.sys.link.inertia
 
