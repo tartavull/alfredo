@@ -1,4 +1,4 @@
-package auto
+package ui
 
 import (
 	"strings"
@@ -14,7 +14,7 @@ import (
 )
 
 
-type Auto struct {
+type UI struct {
     common *common.Common
     picked pane
     tabs *tabs.Tabs
@@ -36,8 +36,8 @@ func (p pane) String() string {
 	}[p]
 }
 
-func New(c *common.Common) *Auto {
-    a := &Auto{
+func New(c *common.Common) *UI {
+    a := &UI{
         common: c,
         picked: paneChat,
 		tabs:   InitTabs(c),
@@ -49,50 +49,52 @@ func New(c *common.Common) *Auto {
     return a
 }
 
-func (a *Auto) Init() tea.Cmd {
-    a.panes[0].Init()
+func (ui *UI) Init() tea.Cmd {
+    ui.panes[0].Init()
+    ui.panes[1].Init()
     return nil
 }
 
 func InitTabs(c *common.Common) *tabs.Tabs {
-	ts := make([]string, paneLast)
-	for i, b := range []pane{paneChat, paneHistory} {
-		ts[i] = b.String()
-	}
-	t := tabs.New(c, ts)
+	t := tabs.New(c, []string{"Chat", "History"})
 	return t
 }
 
-func (a *Auto) SetSize(width, height int) {
+func (a *UI) SetSize(width, height int) {
     a.common.SetSize(width, height)
 }
 
-func (a *Auto) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (ui *UI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds := make([]tea.Cmd, 0)
 	switch msg := msg.(type) {
 	case tabs.ActiveTabMsg:
-		a.picked = pane(msg)
+		ui.picked = pane(msg)
         //TODO sent pane active and inactive messages
     case tea.WindowSizeMsg:
-        a.SetSize(msg.Width, msg.Height)
+        ui.SetSize(msg.Width, msg.Height)
+    case tea.KeyMsg:
+		switch msg.String() {
+		case "esc":
+			return ui, tea.Quit
+		}
 	}
 
-	_, cmd := a.tabs.Update(msg)
+	_, cmd := ui.tabs.Update(msg)
 	cmds = append(cmds, cmd)
 
-	_, cmd = a.panes[a.picked].Update(msg)
+	_, cmd = ui.panes[ui.picked].Update(msg)
 	cmds = append(cmds, cmd)
-	return a, tea.Batch(cmds...)
+	return ui, tea.Batch(cmds...)
 }
 
-func (a *Auto) View() string {
+func (ui *UI) View() string {
     var builder strings.Builder
-    builder.WriteString(a.common.Styles.Logo.Render(" Alfredo "))
+    builder.WriteString(ui.common.Styles.Logo.Render(" Alfredo "))
     builder.WriteString("\n\n")
-    builder.WriteString(a.tabs.View())
+    builder.WriteString(ui.tabs.View())
     builder.WriteString("\n\n")
-    builder.WriteString(a.panes[a.picked].View())
-    return lipgloss.Place(a.common.Width, a.common.Height, 
+    builder.WriteString(ui.panes[ui.picked].View())
+    return lipgloss.Place(ui.common.Width, ui.common.Height, 
         lipgloss.Left, lipgloss.Top, 
-        a.common.Styles.App.Render(builder.String()))
+        ui.common.Styles.App.Render(builder.String()))
 }
