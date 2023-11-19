@@ -14,6 +14,7 @@ from alfredo.rewards import rConstant
 from alfredo.rewards import rHealthy_simple_z
 from alfredo.rewards import rSpeed_X
 from alfredo.rewards import rControl_act_ss
+from alfredo.rewards import rTorques
 
 class Alfredo(PipelineEnv):
     # pyformat: disable
@@ -24,7 +25,7 @@ class Alfredo(PipelineEnv):
         self,
         forward_reward_weight=1.25,
         ctrl_cost_weight=0.1,
-        healthy_reward=5.0,
+        healthy_reward=1.0,
         terminate_when_unhealthy=True,
         healthy_z_range=(1.0, 2.0),
         reset_noise_scale=1e-2,
@@ -120,6 +121,7 @@ class Alfredo(PipelineEnv):
             "reward_ctrl": zero,
             "reward_alive": zero,
             "reward_velocity": zero,
+            "reward_torque":zero,
             "agent_x_position": zero,
             "agent_y_position": zero,
             "agent_x_velocity": zero,
@@ -149,6 +151,11 @@ class Alfredo(PipelineEnv):
                                     action,
                                     weight=-self._ctrl_cost_weight)
         
+        torque_cost = rTorques(self.sys,
+                               state.pipeline_state,
+                               action,
+                               weight=-0.0003)        
+        
         healthy_reward = rHealthy_simple_z(self.sys,
                                            state.pipeline_state,
                                            self._healthy_z_range,
@@ -156,7 +163,7 @@ class Alfredo(PipelineEnv):
                                            weight=self._healthy_reward,
                                            focus_idx_range=(0, 2))
 
-        reward = healthy_reward[0] + ctrl_cost + x_speed_reward[0]
+        reward = healthy_reward[0] + ctrl_cost + x_speed_reward[0] + torque_cost
 
         done = 1.0 - healthy_reward[1] if self._terminate_when_unhealthy else 0.0
 
@@ -164,6 +171,7 @@ class Alfredo(PipelineEnv):
             reward_ctrl=ctrl_cost,
             reward_alive=healthy_reward[0],
             reward_velocity=x_speed_reward[0],
+            reward_torque=torque_cost,
             agent_x_position=com_after[0],
             agent_y_position=com_after[1],
             agent_x_velocity=x_speed_reward[1],

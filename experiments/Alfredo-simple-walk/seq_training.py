@@ -52,6 +52,7 @@ def progress(num_steps, metrics):
             "Vel Reward": metrics["eval/episode_reward_velocity"],
             "Alive Reward": metrics["eval/episode_reward_alive"],
             "Ctrl Reward": metrics["eval/episode_reward_ctrl"],
+            "Torque Reward": metrics["eval/episode_reward_torque"],
             "a_vel_x": metrics["eval/episode_agent_x_velocity"],
             "a_vel_y": metrics["eval/episode_agent_y_velocity"],
         }

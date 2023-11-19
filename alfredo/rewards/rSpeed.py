@@ -13,7 +13,7 @@ def rSpeed_X(sys: base.System,
              CoM_now: jp.ndarray,
              dt,
              weight=1.0,
-             focus_idx_range=(1, -1)) -> jp.ndarray:
+             focus_idx_range=(0, -1)) -> jp.ndarray:
    
 
     velocity = (CoM_now - CoM_prev) / dt
@@ -31,7 +31,7 @@ def rSpeed_Y(sys: base.System,
              CoM_now: jp.ndarray,
              dt,
              weight=1.0,
-             focus_idx_range=(1, -1)) -> jp.ndarray:
+             focus_idx_range=(0, -1)) -> jp.ndarray:
    
 
     velocity = (CoM_now - CoM_prev) / dt

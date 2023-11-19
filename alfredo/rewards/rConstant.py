@@ -10,6 +10,6 @@ from jax import numpy as jp
 def rConstant(sys: base.System, 
               pipeline_state: base.State, 
               weight=1.0,
-              focus_idx_range=(1, -1)) -> jp.ndarray:
+              focus_idx_range=(0, -1)) -> jp.ndarray:
    
     return jp.array([weight])

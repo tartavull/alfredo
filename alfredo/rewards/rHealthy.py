@@ -12,7 +12,7 @@ def rHealthy_simple_z(sys: base.System,
                       z_range: Tuple,
                       early_terminate: True,
                       weight=1.0,
-                      focus_idx_range=(1, -1)) -> jp.ndarray:
+                      focus_idx_range=(0, -1)) -> jp.ndarray:
    
     min_z, max_z = z_range
     focus_s = focus_idx_range[0]
