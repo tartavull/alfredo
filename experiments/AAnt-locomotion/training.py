@@ -1,7 +1,3 @@
-# ============================
-# Imports
-# ============================
-
 import functools
 import os
 import re
@@ -21,27 +17,22 @@ from brax.training.agents.ppo import losses as ppo_losses
 from brax.training.agents.ppo import networks as ppo_networks
 from jax import numpy as jp
 
-from alfredo.agents.A1 import Alfredo
+from alfredo.agents.aant import AAnt
 from alfredo.train import ppo
 
 # Initialize a new run
-wandb.init(
-    project="alfredo",
-    config={
-        "env_name": "A1",
-        "backend": "positional",
-        "seed": 0,
-        "len_training": 1_500_000,
-        "batch_size": 1024,
-    },
-)
-
-# ==============================
-# Useful Functions & Data Defs
-# ==============================
+#wandb.init(
+#    project="aant",
+#    config={
+#        "env_name": "AAnt",
+#        "backend": "positional",
+#        "seed": 0,
+#        "len_training": 1_500_000,
+#        "batch_size": 1024,
+#    },
+#)
 
 normalize_fn = running_statistics.normalize
-
 
 def progress(num_steps, metrics):
     print(num_steps)
@@ -49,50 +40,38 @@ def progress(num_steps, metrics):
         {
             "step": num_steps,
             "Total Reward": metrics["eval/episode_reward"],
-            #"Vel Reward": metrics["eval/episode_reward_velocity"],
-            "Alive Reward": metrics["eval/episode_reward_alive"],
+            "Forward Reward": metrics["eval/episode_reward_forward"],
+            "Alive Reward": metrics["eval/episode_reward_survive"],
             "Ctrl Reward": metrics["eval/episode_reward_ctrl"],
-            "Torque Reward": metrics["eval/episode_reward_torque"],
-            #"a_vel_x": metrics["eval/episode_agent_x_velocity"],
-            #"a_vel_y": metrics["eval/episode_agent_y_velocity"],
-            "Linear Vel Reward": metrics["eval/episode_lin_vel_reward"],
-            #"Yaw Vel Reward": metrics["eval/episode_yaw_vel_reward"]
+            "Contact Reward": metrics["eval/episode_reward_contact"],
         }
     )
 
-
-# ==============================
-# General Variable Defs
-# ==============================
 cwd = os.getcwd()
 
 # get the filepath to the env and agent xmls
 import alfredo.scenes as scenes
-
 import alfredo.agents as agents
 agents_fp = os.path.dirname(agents.__file__)
-agent_xml_path = f"{agents_fp}/A1/a1.xml"
+agent_xml_path = f"{agents_fp}/aant/aant.xml"
 
 scenes_fp = os.path.dirname(scenes.__file__)
 
 env_xml_paths = [f"{scenes_fp}/flatworld/flatworld_A1_env.xml"]
 
-# ============================
-# Loading and Defining Envs
-# ============================
-
 # make and save initial ppo_network
-key = jax.random.PRNGKey(wandb.config.seed)
+key = jax.random.PRNGKey(0)#wandb.config.seed)
 global_key, local_key = jax.random.split(key)
 key_policy, key_value = jax.random.split(global_key)
 
-env = Alfredo(backend=wandb.config.backend, 
-              env_xml_path=env_xml_paths[0],
-              agent_xml_path=agent_xml_path)
+env = AAnt(backend='positional',#wandb.config.backend, 
+           env_xml_path=env_xml_paths[0],
+           agent_xml_path=agent_xml_path)
 
 rng = jax.random.PRNGKey(seed=1)
 state = env.reset(rng)
 
+"""
 ppo_network = ppo_networks.make_ppo_networks(
     env.observation_size, env.action_size, normalize_fn
 )
@@ -108,7 +87,7 @@ normalizer_params = running_statistics.init_state(
 
 params_to_save = (normalizer_params, init_params.policy, init_params.value)
 
-model.save_params(f"param-store/A1_params_0", params_to_save)
+model.save_params(f"param-store/AAant_params_0", params_to_save)
 
 # ============================
 # Training & Saving Params
@@ -119,9 +98,9 @@ for p in env_xml_paths:
 
     d_and_t = datetime.now()
     print(f"[{d_and_t}] loop start for model: {i}")
-    env = Alfredo(backend=wandb.config.backend, 
-                  env_xml_path=p,
-                  agent_xml_path=agent_xml_path)
+    env = AAnt(backend=wandb.config.backend, 
+               env_xml_path=p,
+               agent_xml_path=agent_xml_path)
 
     mF = f"{cwd}/param-store/{wandb.config.env_name}_params_{i}"
     mParams = model.load_params(mF)
@@ -131,7 +110,7 @@ for p in env_xml_paths:
     state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
     d_and_t = datetime.now()
     print(f"[{d_and_t}] jitting end for model: {i}")
-
+  
     # define new training function
     train_fn = functools.partial(
         ppo.train,
@@ -165,3 +144,4 @@ for p in env_xml_paths:
 
     d_and_t = datetime.now()
     print(f"[{d_and_t}] loop end for model: {i}")
+"""

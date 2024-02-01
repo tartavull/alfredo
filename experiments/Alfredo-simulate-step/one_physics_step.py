@@ -38,20 +38,61 @@ env = Alfredo(backend=backend,
               env_xml_path=env_xml_paths[0],
               agent_xml_path=agent_xml_path)
 
-state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
+state = env.reset(rng=jax.random.PRNGKey(seed=0))
+#state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
+
+x_vel = 0.8     # m/s
+y_vel = 0.0     # m/s
+yaw_vel = 0.0   # rad/s
+jcmd = jp.array([x_vel, y_vel, yaw_vel])
+state.info['jcmd'] = jcmd
 
 #print(f"Alfredo brax env dir: {dir(env)}")
 #print(f"state: {state}")
 
-com = env._com(state.pipeline_state)
+com, *_ = env._com(state.pipeline_state)
 obs = env._get_obs(state.pipeline_state, jp.zeros(env.action_size))
 #print(f"CoM = {com}")
 #print(f"pipeline_state: {state.pipeline_state}")
 #print(f"observation: {obs}")
 print(f"\n-----------------------------------------------------------------\n")
-nState = env.step(state, jp.zeros(env.action_size))
-com = env._com(state.pipeline_state)
+state = env.step(state, jp.zeros(env.action_size))
+com, *_ = env._com(state.pipeline_state)
 obs = env._get_obs(state.pipeline_state, jp.zeros(env.action_size))
 #print(f"CoM = {com}")
 #print(f"pipeline_state: {state.pipeline_state}")
 #print(f"observation: {obs}")
+
+print(f"\n-----------------------------------------------------------------\n")
+state = env.step(state, jp.zeros(env.action_size))
+com, *_ = env._com(state.pipeline_state)
+obs = env._get_obs(state.pipeline_state, jp.zeros(env.action_size))
+#print(f"CoM = {com}")
+#print(f"pipeline_state: {state.pipeline_state}")
+#print(f"observation: {obs}")
+
+print(f"\n-----------------------------------------------------------------\n")
+state = env.step(state, jp.zeros(env.action_size))
+com, *_ = env._com(state.pipeline_state)
+obs = env._get_obs(state.pipeline_state, jp.zeros(env.action_size))
+#print(f"CoM = {com}")
+#print(f"pipeline_state: {state.pipeline_state}")
+#print(f"observation: {obs}")
+
+print(f"\n-----------------------------------------------------------------\n")
+state = env.step(state, jp.zeros(env.action_size))
+com, *_ = env._com(state.pipeline_state)
+obs = env._get_obs(state.pipeline_state, jp.zeros(env.action_size))
+#print(f"CoM = {com}")
+#print(f"pipeline_state: {state.pipeline_state}")
+#print(f"observation: {obs}")
+
+print(f"\n-----------------------------------------------------------------\n")
+state = env.step(state, jp.zeros(env.action_size))
+com, *_ = env._com(state.pipeline_state)
+obs = env._get_obs(state.pipeline_state, jp.zeros(env.action_size))
+#print(f"CoM = {com}")
+#print(f"pipeline_state: {state.pipeline_state}")
+#print(f"observation: {obs}")
+
+

@@ -49,11 +49,11 @@ auto_reset = True
 episode_length = 1000
 action_repeat = 1
 
-if episode_length is not None:
-    env = training.EpisodeWrapper(env, episode_length, action_repeat)
+#if episode_length is not None:
+#    env = training.EpisodeWrapper(env, episode_length, action_repeat)
 
-if auto_reset:
-    env = training.AutoResetWrapper(env)
+#if auto_reset:
+#    env = training.AutoResetWrapper(env)
 
 jit_env_reset = jax.jit(env.reset)
 jit_env_step = jax.jit(env.step)
@@ -75,12 +75,20 @@ inference_fn = make_policy(policy_params)
 
 jit_inference_fn = jax.jit(inference_fn)
 
+x_vel = -1.0     # m/s
+y_vel = 0.0     # m/s
+yaw_vel = 0.0   # rad/s
+jcmd = jp.array([x_vel, y_vel, yaw_vel])
+
 # generate policy rollout
 for _ in range(episode_length):
     rollout.append(state.pipeline_state)
     act_rng, rng = jax.random.split(rng)
+
+    state.info['jcmd'] = jcmd
     act, _ = jit_inference_fn(state.obs, act_rng)
     state = jit_env_step(state, act)
+    print(state.info)
 
 html_string = html.render(env.sys.replace(dt=env.dt), rollout)
 

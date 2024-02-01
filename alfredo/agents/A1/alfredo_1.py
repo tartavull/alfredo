@@ -15,6 +15,8 @@ from alfredo.rewards import rHealthy_simple_z
 from alfredo.rewards import rSpeed_X
 from alfredo.rewards import rControl_act_ss
 from alfredo.rewards import rTorques
+from alfredo.rewards import rTracking_lin_vel
+from alfredo.rewards import rTracking_yaw_vel
 
 class Alfredo(PipelineEnv):
     # pyformat: disable
@@ -88,6 +90,9 @@ class Alfredo(PipelineEnv):
         kwargs["n_frames"] = kwargs.get("n_frames", n_frames)
 
         super().__init__(sys=sys, backend=backend, **kwargs)
+        
+        #torso_idx = self.sys.link_names.index('alfredo')
+        #print(self.sys.link_names)
 
         self._forward_reward_weight = forward_reward_weight
         self._ctrl_cost_weight = ctrl_cost_weight
@@ -103,9 +108,11 @@ class Alfredo(PipelineEnv):
 
     def reset(self, rng: jp.ndarray) -> State:
         """Resets the environment to an initial state."""
-        rng, rng1, rng2 = jax.random.split(rng, 3)
-
+        rng, rng1, rng2, rng3 = jax.random.split(rng, 4)
+        
         low, hi = -self._reset_noise_scale, self._reset_noise_scale
+        
+        jcmd = self._sample_command(rng3) 
 
         qpos = self.sys.init_q + jax.random.uniform(
             rng1, (self.sys.q_size(),), minval=low, maxval=hi
@@ -115,20 +122,28 @@ class Alfredo(PipelineEnv):
         pipeline_state = self.pipeline_init(qpos, qvel)
 
         obs = self._get_obs(pipeline_state, jp.zeros(self.sys.act_size()))
+        com, *_ = self._com(pipeline_state)
+
+        state_info = {
+            'jcmd':jcmd,
+            'CoM': com,
+        }
 
         reward, done, zero = jp.zeros(3)
         metrics = {
             "reward_ctrl": zero,
             "reward_alive": zero,
-            "reward_velocity": zero,
+            #"reward_velocity": zero,
             "reward_torque":zero,
             "agent_x_position": zero,
             "agent_y_position": zero,
-            "agent_x_velocity": zero,
-            "agent_y_velocity": zero,
+            #"agent_x_velocity": zero,
+            #"agent_y_velocity": zero,
+            "lin_vel_reward":zero,
+            #"yaw_vel_reward":zero,
         }
 
-        return State(pipeline_state, obs, reward, done, metrics)
+        return State(pipeline_state, obs, reward, done, metrics, state_info)
 
     def step(self, state: State, action: jp.ndarray) -> State:
         """Runs one timestep of the environment's dynamics."""
@@ -138,6 +153,21 @@ class Alfredo(PipelineEnv):
 
         com_before, *_ = self._com(prev_pipeline_state)
         com_after, *_ = self._com(pipeline_state)
+        
+        lin_vel_reward = rTracking_lin_vel(self.sys,
+                                           state.pipeline_state,
+                                           com_before,
+                                           com_after,
+                                           self.dt,
+                                           state.info['jcmd'],
+                                           weight=10.0,
+                                           focus_idx_range=(0,0))
+
+        yaw_vel_reward = rTracking_yaw_vel(self.sys,
+                                           state.pipeline_state,
+                                           state.info['jcmd'],
+                                           weight=0.8,
+                                           focus_idx_range=(0,0))
 
         x_speed_reward = rSpeed_X(self.sys,
                                   state.pipeline_state,
@@ -160,22 +190,31 @@ class Alfredo(PipelineEnv):
                                            state.pipeline_state,
                                            self._healthy_z_range,
                                            early_terminate=self._terminate_when_unhealthy,
-                                           weight=self._healthy_reward,
+                                           weight=0.2,
                                            focus_idx_range=(0, 2))
-
-        reward = healthy_reward[0] + ctrl_cost + x_speed_reward[0] + torque_cost
+        reward = 0.0
+        reward = healthy_reward[0] 
+        reward += ctrl_cost 
+        #reward += x_speed_reward[0] 
+        reward += torque_cost
+        reward += lin_vel_reward 
+        #reward += yaw_vel_reward 
+        
+        state.info['CoM'] = com_after
 
         done = 1.0 - healthy_reward[1] if self._terminate_when_unhealthy else 0.0
 
         state.metrics.update(
             reward_ctrl=ctrl_cost,
             reward_alive=healthy_reward[0],
-            reward_velocity=x_speed_reward[0],
+            #reward_velocity=x_speed_reward[0],
             reward_torque=torque_cost,
             agent_x_position=com_after[0],
             agent_y_position=com_after[1],
-            agent_x_velocity=x_speed_reward[1],
-            agent_y_velocity=x_speed_reward[2],
+            #agent_x_velocity=x_speed_reward[1],
+            #agent_y_velocity=x_speed_reward[2],
+            lin_vel_reward=lin_vel_reward,
+            #yaw_vel_reward=yaw_vel_reward,
         )
 
         return state.replace(
@@ -187,27 +226,6 @@ class Alfredo(PipelineEnv):
 
         a_positions = pipeline_state.q
         a_velocities = pipeline_state.qd
-        #print(f"a_positions = {a_positions}")
-        #print(f"a_velocities = {a_velocities}")
-
-        if self._exclude_current_positions_from_observation:
-            a_positions = a_positions[2:]
-
-        com, inertia, mass_sum, x_i = self._com(pipeline_state)
-        cinr = x_i.replace(pos=x_i.pos - com).vmap().do(inertia)
-        com_inertia = jp.hstack(
-            [cinr.i.reshape((cinr.i.shape[0], -1)), inertia.mass[:, None]]
-        )
-
-        xd_i = (
-            base.Transform.create(pos=x_i.pos - pipeline_state.x.pos)
-            .vmap()
-            .do(pipeline_state.xd)
-        )
-
-        com_vel = inertia.mass[:, None] * xd_i.vel / mass_sum
-        com_ang = xd_i.ang
-        com_velocity = jp.hstack([com_vel, com_ang])
 
         qfrc_actuator = actuator.to_tau(
             self.sys, action, pipeline_state.q, pipeline_state.qd
@@ -218,8 +236,6 @@ class Alfredo(PipelineEnv):
             [
                 a_positions,
                 a_velocities,
-                com_inertia.ravel(),
-                com_velocity.ravel(),
                 qfrc_actuator,
             ]
         )
@@ -249,4 +265,26 @@ class Alfredo(PipelineEnv):
             mass_sum,
             x_i,
         )  # pytype: disable=bad-return-type  # jax-ndarray
+    
+    def _sample_command(self, rng: jax.Array) -> jax.Array:
+        lin_vel_x_range = [-0.6, 1.5]   #[m/s]
+        lin_vel_y_range = [-0.6, 1.5]   #[m/s]
+        yaw_vel_range = [-0.7, 0.7]     #[rad/s]
 
+        _, key1, key2, key3 = jax.random.split(rng, 4)
+        
+        lin_vel_x = jax.random.uniform(
+            key1, (1,), minval=lin_vel_x_range[0], maxval=lin_vel_x_range[1]        
+        )
+
+        lin_vel_y = jax.random.uniform(
+            key2, (1,), minval=lin_vel_y_range[0], maxval=lin_vel_y_range[1]        
+        )
+        
+        yaw_vel = jax.random.uniform(
+            key3, (1,), minval=yaw_vel_range[0], maxval=yaw_vel_range[1]        
+        )
+
+        jcmd = jp.array([lin_vel_x[0], lin_vel_y[0], yaw_vel[0]])
+
+        return jcmd

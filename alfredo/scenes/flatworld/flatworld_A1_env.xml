@@ -8,7 +8,7 @@
         <motor ctrllimited="true" ctrlrange="-.4 .4" />
     </default>
 
-    <option iterations="8" timestep="0.003" />
+    <option iterations="30" timestep="0.002" />
 
     <custom>
         <numeric data="2500" name="constraint_limit_stiffness" />
