@@ -1,5 +1,19 @@
 <agent>
     
+    <custom>
+      <numeric data="0.0 0.0 0.55 1.0 0.0 0.0 0.0 0.0 1.0 0.0 -1.0 0.0 -1.0 0.0 1.0" name="init_qpos"/>
+      <numeric data="1000" name="constraint_limit_stiffness"/>
+      <numeric data="4000" name="constraint_stiffness"/>
+      <numeric data="10" name="constraint_ang_damping"/>
+      <numeric data="20" name="constraint_vel_damping"/>
+      <numeric data="0.5" name="joint_scale_pos"/>
+      <numeric data="0.2" name="joint_scale_ang"/>
+      <numeric data="0.0" name="ang_damping"/>
+      <numeric data="1" name="spring_mass_scale"/>
+      <numeric data="1" name="spring_inertia_scale"/>
+      <numeric data="15" name="solver_maxls"/>
+    </custom>
+
     <body name="torso" pos="0 0 0.75">
       <camera name="track" mode="trackcom" pos="0 -3 0.3" xyaxes="1 0 0 0 0 1"/>
       <geom name="torso_geom" pos="0 0 0" size="0.25" type="sphere"/>

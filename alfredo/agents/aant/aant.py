@@ -57,7 +57,7 @@ class AAnt(PipelineEnv):
 
         super().__init__(sys=sys, backend=backend, **kwargs)
 
-        print(sys)
+        print(self.sys.init_q)
 
         self._ctrl_cost_weight = ctrl_cost_weight
         self._use_contact_forces = use_contact_forces

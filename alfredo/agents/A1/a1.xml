@@ -1,5 +1,19 @@
 <agent>
 
+    <custom>
+        <numeric data="2500" name="constraint_limit_stiffness" />
+        <numeric data="27000" name="constraint_stiffness" />
+        <numeric data="30" name="constraint_ang_damping" />
+        <numeric data="80" name="constraint_vel_damping" />
+        <numeric data="-0.05" name="ang_damping" />
+        <numeric data="0.5" name="joint_scale_pos" />
+        <numeric data="0.1" name="joint_scale_ang" />
+        <numeric data="0" name="spring_mass_scale" />
+        <numeric data="1" name="spring_inertia_scale" />
+        <numeric data="20" name="matrix_inv_iterations" />
+        <numeric data="15" name="solver_maxls" />
+    </custom>
+
     <body name="alfredo" pos="0 0 1.4">
         <camera name="followme" mode="trackcom" pos="0 -4 0" xyaxes="1 0 0 0 0 1" />
 
