@@ -41,8 +41,10 @@ def progress(num_steps, metrics):
             "step": num_steps,
             "Total Reward": metrics["eval/episode_reward"],
             "Lin Vel Reward": metrics["eval/episode_reward_lin_vel"],
+            "Yaw Vel Reward": metrics["eval/episode_reward_yaw_vel"],
             "Alive Reward": metrics["eval/episode_reward_alive"],
             "Ctrl Reward": metrics["eval/episode_reward_ctrl"],
+            "Upright Reward": metrics["eval/episode_reward_upright"],
             "Torque Reward": metrics["eval/episode_reward_torque"],
         }
     )
@@ -91,7 +93,7 @@ model.save_params(f"param-store/AAnt_params_0", params_to_save)
 # ============================
 # Training & Saving Params
 # ============================
-i = 0
+i = 3
 
 for p in env_xml_paths:
 
@@ -106,7 +108,7 @@ for p in env_xml_paths:
 
     d_and_t = datetime.now()
     print(f"[{d_and_t}] jitting start for model: {i}")
-    state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
+    state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=1))
     d_and_t = datetime.now()
     print(f"[{d_and_t}] jitting end for model: {i}")
   
@@ -114,7 +116,7 @@ for p in env_xml_paths:
     train_fn = functools.partial(
         ppo.train,
         num_timesteps=wandb.config.len_training,
-        num_evals=100,
+        num_evals=300,
         reward_scaling=0.1,
         episode_length=1000,
         normalize_observations=True,

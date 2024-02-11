@@ -14,6 +14,7 @@ from alfredo.rewards import rControl_act_ss
 from alfredo.rewards import rTorques
 from alfredo.rewards import rTracking_lin_vel
 from alfredo.rewards import rTracking_yaw_vel
+from alfredo.rewards import rUpright
 
 class AAnt(PipelineEnv):
     """ """
@@ -105,9 +106,11 @@ class AAnt(PipelineEnv):
             'reward_ctrl': zero,
             'reward_alive': zero,
             'reward_torque': zero,
-            'reward_lin_vel': zero,    
+            'reward_lin_vel': zero,
+            'reward_yaw_vel': zero,
+            'reward_upright': zero,
         }
-        
+
         return State(pipeline_state, obs, reward, done, metrics, state_info)
 
     def step(self, state: State, action: jax.Array) -> State:
@@ -122,9 +125,14 @@ class AAnt(PipelineEnv):
                                            jp.array([0, 0, 0]), #dummy values for current CoM
                                            self.dt,
                                            state.info['jcmd'],
-                                           weight=10.0,
+                                           weight=15.5,
                                            focus_idx_range=(0,0))
 
+        yaw_vel_reward = rTracking_yaw_vel(self.sys,
+                                           state.pipeline_state,
+                                           state.info['jcmd'],
+                                           weight=10.8,
+                                           focus_idx_range=(0,0))
         
         ctrl_cost = rControl_act_ss(self.sys,
                                     state.pipeline_state,
@@ -135,6 +143,10 @@ class AAnt(PipelineEnv):
                                state.pipeline_state,
                                action,
                                weight=-0.0003)        
+
+        upright_reward = rUpright(self.sys,
+                                  state.pipeline_state,
+                                  weight=1.0)
         
         healthy_reward = rHealthy_simple_z(self.sys,
                                            state.pipeline_state,
@@ -146,7 +158,9 @@ class AAnt(PipelineEnv):
         reward = healthy_reward[0] 
         reward += ctrl_cost 
         reward += torque_cost
+        reward += upright_reward
         reward += lin_vel_reward
+        reward += yaw_vel_reward
         
         obs = self._get_obs(pipeline_state, state.info)
         done = 1.0 - healthy_reward[1] if self._terminate_when_unhealthy else 0.0
@@ -155,7 +169,9 @@ class AAnt(PipelineEnv):
             reward_ctrl = ctrl_cost,
             reward_alive = healthy_reward[0],
             reward_torque = torque_cost,
-            reward_lin_vel = lin_vel_reward
+            reward_upright = upright_reward,
+            reward_lin_vel = lin_vel_reward,
+            reward_yaw_vel = yaw_vel_reward
         )
         
         return state.replace(
@@ -176,7 +192,7 @@ class AAnt(PipelineEnv):
     def _sample_command(self, rng: jax.Array) -> jax.Array:
         lin_vel_x_range = [-0.6, 1.5]   #[m/s]
         lin_vel_y_range = [-0.6, 1.5]   #[m/s]
-        yaw_vel_range = [-0.7, 0.7]     #[rad/s]
+        yaw_vel_range = [-0.0, 0.0]     #[rad/s]
 
         _, key1, key2, key3 = jax.random.split(rng, 4)
         

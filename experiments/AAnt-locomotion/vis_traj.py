@@ -75,7 +75,7 @@ inference_fn = make_policy(policy_params)
 jit_inference_fn = jax.jit(inference_fn)
 
 x_vel = 0.0     # m/s
-y_vel = 1.0     # m/s
+y_vel = -1.5     # m/s
 yaw_vel = 0.0   # rad/s
 jcmd = jp.array([x_vel, y_vel, yaw_vel])
 

@@ -1,7 +1,7 @@
 <agent>
     
     <custom>
-      <numeric data="0.0 0.0 0.55 1.0 0.0 0.0 0.0 0.0 1.0 0.0 -1.0 0.0 -1.0 0.0 1.0" name="init_qpos"/>
+      <numeric data="0.0 0.0 0.75 1.0 0.0 0.0 0.0 0.0 1.0 0.0 -1.0 0.0 -1.0 0.0 1.0" name="init_qpos"/>
       <numeric data="1000" name="constraint_limit_stiffness"/>
       <numeric data="4000" name="constraint_stiffness"/>
       <numeric data="10" name="constraint_ang_damping"/>
