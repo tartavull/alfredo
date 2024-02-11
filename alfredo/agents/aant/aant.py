@@ -7,6 +7,13 @@ import jax
 from jax import numpy as jp
 
 from alfredo.tools import compose_scene
+from alfredo.rewards import rConstant
+from alfredo.rewards import rHealthy_simple_z
+from alfredo.rewards import rSpeed_X
+from alfredo.rewards import rControl_act_ss
+from alfredo.rewards import rTorques
+from alfredo.rewards import rTracking_lin_vel
+from alfredo.rewards import rTracking_yaw_vel
 
 class AAnt(PipelineEnv):
     """ """
@@ -57,8 +64,6 @@ class AAnt(PipelineEnv):
 
         super().__init__(sys=sys, backend=backend, **kwargs)
 
-        print(self.sys.init_q)
-
         self._ctrl_cost_weight = ctrl_cost_weight
         self._use_contact_forces = use_contact_forces
         self._contact_cost_weight = contact_cost_weight
@@ -76,9 +81,11 @@ class AAnt(PipelineEnv):
 
 
     def reset(self, rng: jax.Array) -> State:
-        rng, rng1, rng2 = jax.random.split(rng, 3)
+        rng, rng1, rng2, rng3 = jax.random.split(rng, 4)
 
         low, hi = -self._reset_noise_scale, self._reset_noise_scale
+
+        jcmd = self._sample_command(rng3)
         
         q = self.sys.init_q + jax.random.uniform(
             rng1, (self.sys.q_size(),), minval=low, maxval=hi
@@ -86,70 +93,105 @@ class AAnt(PipelineEnv):
         
         qd = hi * jax.random.normal(rng2, (self.sys.qd_size(),))
 
+        state_info = {
+            'jcmd':jcmd,
+        }
+        
         pipeline_state = self.pipeline_init(q, qd)
-        obs = self._get_obs(pipeline_state)
+        obs = self._get_obs(pipeline_state, state_info)
 
         reward, done, zero = jp.zeros(3)
         metrics = {
-            'reward_forward': zero,
-            'reward_survive': zero,
             'reward_ctrl': zero,
-            'reward_contact': zero,
-            'x_position': zero,
-            'y_position': zero,
-            'distance_from_origin': zero,
-            'x_velocity': zero,
-            'y_velocity': zero,
+            'reward_alive': zero,
+            'reward_torque': zero,
+            'reward_lin_vel': zero,    
         }
         
-        return State(pipeline_state, obs, reward, done, metrics)
+        return State(pipeline_state, obs, reward, done, metrics, state_info)
 
     def step(self, state: State, action: jax.Array) -> State:
         """Run one timestep of the environment's dynamics."""
         pipeline_state0 = state.pipeline_state
         pipeline_state = self.pipeline_step(pipeline_state0, action)
 
-        velocity = (pipeline_state.x.pos[0] - pipeline_state0.x.pos[0]) / self.dt
-        forward_reward = velocity[0]
+        
+        lin_vel_reward = rTracking_lin_vel(self.sys,
+                                           state.pipeline_state,
+                                           jp.array([0, 0, 0]), #dummy values for previous CoM
+                                           jp.array([0, 0, 0]), #dummy values for current CoM
+                                           self.dt,
+                                           state.info['jcmd'],
+                                           weight=10.0,
+                                           focus_idx_range=(0,0))
 
-        min_z, max_z = self._healthy_z_range
-        is_healthy = jp.where(pipeline_state.x.pos[0, 2] < min_z, 0.0, 1.0)
-        is_healthy = jp.where(pipeline_state.x.pos[0, 2] > max_z, 0.0, is_healthy)
         
-        if self._terminate_when_unhealthy:
-            healthy_reward = self._healthy_reward
-        else:
-            healthy_reward = self._healthy_reward * is_healthy
+        ctrl_cost = rControl_act_ss(self.sys,
+                                    state.pipeline_state,
+                                    action,
+                                    weight=-self._ctrl_cost_weight)
         
-        ctrl_cost = self._ctrl_cost_weight * jp.sum(jp.square(action))
+        torque_cost = rTorques(self.sys,
+                               state.pipeline_state,
+                               action,
+                               weight=-0.0003)        
         
-        contact_cost = 0.0
+        healthy_reward = rHealthy_simple_z(self.sys,
+                                           state.pipeline_state,
+                                           self._healthy_z_range,
+                                           early_terminate=self._terminate_when_unhealthy,
+                                           weight=0.2,
+                                           focus_idx_range=(0, 2))
+        reward = 0.0
+        reward = healthy_reward[0] 
+        reward += ctrl_cost 
+        reward += torque_cost
+        reward += lin_vel_reward
+        
+        obs = self._get_obs(pipeline_state, state.info)
+        done = 1.0 - healthy_reward[1] if self._terminate_when_unhealthy else 0.0
 
-        obs = self._get_obs(pipeline_state)
-        reward = forward_reward + healthy_reward - ctrl_cost - contact_cost
-        done = 1.0 - is_healthy if self._terminate_when_unhealthy else 0.0
         state.metrics.update(
-            reward_forward=forward_reward,
-            reward_survive=healthy_reward,
-            reward_ctrl=-ctrl_cost,
-            reward_contact=-contact_cost,
-            x_position=pipeline_state.x.pos[0, 0],
-            y_position=pipeline_state.x.pos[0, 1],
-            distance_from_origin=math.safe_norm(pipeline_state.x.pos[0]),
-            x_velocity=velocity[0],
-            y_velocity=velocity[1],
+            reward_ctrl = ctrl_cost,
+            reward_alive = healthy_reward[0],
+            reward_torque = torque_cost,
+            reward_lin_vel = lin_vel_reward
         )
         
         return state.replace(
             pipeline_state=pipeline_state, obs=obs, reward=reward, done=done
         )
 
-    def _get_obs(self, pipeline_state: base.State) -> jax.Array:
+    def _get_obs(self, pipeline_state, state_info) -> jax.Array:
         """Observe ant body position and velocities."""
         qpos = pipeline_state.q
         qvel = pipeline_state.qd
-
+        jcmd = state_info['jcmd']
+        
         if self._exclude_current_positions_from_observation:
             qpos = pipeline_state.q[2:]
 
-        return jp.concatenate([qpos] + [qvel])
+        return jp.concatenate([qpos] + [qvel] + [jcmd])
+
+    def _sample_command(self, rng: jax.Array) -> jax.Array:
+        lin_vel_x_range = [-0.6, 1.5]   #[m/s]
+        lin_vel_y_range = [-0.6, 1.5]   #[m/s]
+        yaw_vel_range = [-0.7, 0.7]     #[rad/s]
+
+        _, key1, key2, key3 = jax.random.split(rng, 4)
+        
+        lin_vel_x = jax.random.uniform(
+            key1, (1,), minval=lin_vel_x_range[0], maxval=lin_vel_x_range[1]        
+        )
+
+        lin_vel_y = jax.random.uniform(
+            key2, (1,), minval=lin_vel_y_range[0], maxval=lin_vel_y_range[1]        
+        )
+        
+        yaw_vel = jax.random.uniform(
+            key3, (1,), minval=yaw_vel_range[0], maxval=yaw_vel_range[1]        
+        )
+
+        jcmd = jp.array([lin_vel_x[0], lin_vel_y[0], yaw_vel[0]])
+
+        return jcmd
