@@ -74,17 +74,20 @@ inference_fn = make_policy(policy_params)
 
 jit_inference_fn = jax.jit(inference_fn)
 
-x_vel = 0.0     # m/s
-y_vel = -1.5     # m/s
-yaw_vel = 0.0   # rad/s
-jcmd = jp.array([x_vel, y_vel, yaw_vel])
+#x_vel = 0.0     # m/s
+#y_vel = -1.5     # m/s
+#yaw_vel = 0.0   # rad/s
+#jcmd = jp.array([x_vel, y_vel, yaw_vel])
+
+wcmd = jp.array([10.0, 10.0, 0.0])
 
 # generate policy rollout
 for _ in range(episode_length):
     rollout.append(state.pipeline_state)
     act_rng, rng = jax.random.split(rng)
 
-    state.info['jcmd'] = jcmd
+    #state.info['jcmd'] = jcmd
+    state.info['wcmd'] = wcmd
     act, _ = jit_inference_fn(state.obs, act_rng)
     state = jit_env_step(state, act)
     print(state.info)

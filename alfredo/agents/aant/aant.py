@@ -15,6 +15,7 @@ from alfredo.rewards import rTorques
 from alfredo.rewards import rTracking_lin_vel
 from alfredo.rewards import rTracking_yaw_vel
 from alfredo.rewards import rUpright
+from alfredo.rewards import rTracking_Waypoint
 
 class AAnt(PipelineEnv):
     """ """
@@ -25,7 +26,7 @@ class AAnt(PipelineEnv):
                  contact_cost_weight=5e-4,
                  healthy_reward=1.0,
                  terminate_when_unhealthy=True,
-                 healthy_z_range=(0.2, 1.0),
+                 healthy_z_range=(0.4, 1.0),
                  contact_force_range=(-1.0, 1.0),
                  reset_noise_scale=0.1,
                  exclude_current_positions_from_observation=True,
@@ -87,7 +88,8 @@ class AAnt(PipelineEnv):
         low, hi = -self._reset_noise_scale, self._reset_noise_scale
 
         jcmd = self._sample_command(rng3)
-        
+        wcmd = self._sample_waypoint(rng3) 
+
         q = self.sys.init_q + jax.random.uniform(
             rng1, (self.sys.q_size(),), minval=low, maxval=hi
         )
@@ -96,6 +98,7 @@ class AAnt(PipelineEnv):
 
         state_info = {
             'jcmd':jcmd,
+            'wcmd':wcmd,
         }
         
         pipeline_state = self.pipeline_init(q, qd)
@@ -106,19 +109,26 @@ class AAnt(PipelineEnv):
             'reward_ctrl': zero,
             'reward_alive': zero,
             'reward_torque': zero,
-            'reward_lin_vel': zero,
-            'reward_yaw_vel': zero,
+            #'reward_lin_vel': zero,
+            #'reward_yaw_vel': zero,
             'reward_upright': zero,
+            'reward_waypoint': zero,
         }
 
         return State(pipeline_state, obs, reward, done, metrics, state_info)
 
     def step(self, state: State, action: jax.Array) -> State:
         """Run one timestep of the environment's dynamics."""
+                
         pipeline_state0 = state.pipeline_state
         pipeline_state = self.pipeline_step(pipeline_state0, action)
 
-        
+        waypoint_cost = rTracking_Waypoint(self.sys,
+                                           state.pipeline_state,
+                                           state.info['wcmd'],
+                                           weight=1.0,
+                                           focus_idx_range=0)
+
         lin_vel_reward = rTracking_lin_vel(self.sys,
                                            state.pipeline_state,
                                            jp.array([0, 0, 0]), #dummy values for previous CoM
@@ -146,21 +156,22 @@ class AAnt(PipelineEnv):
 
         upright_reward = rUpright(self.sys,
                                   state.pipeline_state,
-                                  weight=1.0)
+                                  weight=0.001)
         
         healthy_reward = rHealthy_simple_z(self.sys,
                                            state.pipeline_state,
                                            self._healthy_z_range,
                                            early_terminate=self._terminate_when_unhealthy,
-                                           weight=0.2,
+                                           weight=1.0,
                                            focus_idx_range=(0, 2))
         reward = 0.0
-        reward = healthy_reward[0] 
+        reward = healthy_reward[0]
         reward += ctrl_cost 
         reward += torque_cost
         reward += upright_reward
-        reward += lin_vel_reward
-        reward += yaw_vel_reward
+        reward += waypoint_cost
+        #reward += lin_vel_reward
+        #reward += yaw_vel_reward
         
         obs = self._get_obs(pipeline_state, state.info)
         done = 1.0 - healthy_reward[1] if self._terminate_when_unhealthy else 0.0
@@ -170,8 +181,9 @@ class AAnt(PipelineEnv):
             reward_alive = healthy_reward[0],
             reward_torque = torque_cost,
             reward_upright = upright_reward,
-            reward_lin_vel = lin_vel_reward,
-            reward_yaw_vel = yaw_vel_reward
+            #reward_lin_vel = lin_vel_reward,
+            #reward_yaw_vel = yaw_vel_reward,
+            reward_waypoint = waypoint_cost,
         )
         
         return state.replace(
@@ -182,13 +194,37 @@ class AAnt(PipelineEnv):
         """Observe ant body position and velocities."""
         qpos = pipeline_state.q
         qvel = pipeline_state.qd
-        jcmd = state_info['jcmd']
+        #jcmd = state_info['jcmd']
+        wcmd = state_info['wcmd']
         
         if self._exclude_current_positions_from_observation:
             qpos = pipeline_state.q[2:]
 
-        return jp.concatenate([qpos] + [qvel] + [jcmd])
+        return jp.concatenate([qpos] + [qvel] + [wcmd]) #[jcmd])
 
+    def _sample_waypoint(self, rng: jax.Array) -> jax.Array:
+        x_range = [-10, 10] 
+        y_range = [-10, 10] 
+        z_range = [0, 2]
+
+        _, key1, key2, key3 = jax.random.split(rng, 4) 
+        
+        x = jax.random.uniform(
+            key1, (1,), minval=x_range[0], maxval=x_range[1]        
+        )
+        
+        y = jax.random.uniform(
+            key1, (1,), minval=y_range[0], maxval=y_range[1]        
+        )
+        
+        z = jax.random.uniform(
+            key1, (1,), minval=z_range[0], maxval=z_range[1]        
+        )
+
+        wcmd = jp.array([x[0], y[0], z[0]])
+
+        return wcmd
+        
     def _sample_command(self, rng: jax.Array) -> jax.Array:
         lin_vel_x_range = [-0.6, 1.5]   #[m/s]
         lin_vel_y_range = [-0.6, 1.5]   #[m/s]

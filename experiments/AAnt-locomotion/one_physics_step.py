@@ -47,13 +47,13 @@ yaw_vel = 0.0   # rad/s
 jcmd = jp.array([x_vel, y_vel, yaw_vel])
 state.info['jcmd'] = jcmd
 
-up = jp.array([0.0, 0.0, 1])
+#up = jp.array([0.0, 0.0, 1])
 # rot_up = math.rotate(up, jp.array([1, 0, 0, 0]))
-rot_up = math.rotate(up, state.pipeline_state.x.rot[6])
-rew = jp.dot(up, rot_up)
-print(f"x.rot = {state.pipeline_state.x.rot}")
-print(f"up: {up}, rot_up: {rot_up}")
-print(rew)
+#rot_up = math.rotate(up, state.pipeline_state.x.rot[6])
+#rew = jp.dot(up, rot_up)
+#print(f"x.rot = {state.pipeline_state.x.rot}")
+#print(f"up: {up}, rot_up: {rot_up}")
+#print(rew)
 
 print(f"\n-----------------------------------------------------------------\n")
 state = env.step(state, jp.zeros(env.action_size))
