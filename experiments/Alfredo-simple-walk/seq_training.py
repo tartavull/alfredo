@@ -49,17 +49,12 @@ def progress(num_steps, metrics):
         {
             "step": num_steps,
             "Total Reward": metrics["eval/episode_reward"],
-            #"Vel Reward": metrics["eval/episode_reward_velocity"],
             "Alive Reward": metrics["eval/episode_reward_alive"],
             "Ctrl Reward": metrics["eval/episode_reward_ctrl"],
             "Torque Reward": metrics["eval/episode_reward_torque"],
-            #"a_vel_x": metrics["eval/episode_agent_x_velocity"],
-            #"a_vel_y": metrics["eval/episode_agent_y_velocity"],
-            "Linear Vel Reward": metrics["eval/episode_lin_vel_reward"],
-            #"Yaw Vel Reward": metrics["eval/episode_yaw_vel_reward"]
+            "Waypoint Reward": metrics["eval/episode_reward_waypoint"],
         }
     )
-
 
 # ==============================
 # General Variable Defs
@@ -136,7 +131,7 @@ for p in env_xml_paths:
     train_fn = functools.partial(
         ppo.train,
         num_timesteps=wandb.config.len_training,
-        num_evals=500,
+        num_evals=20,
         reward_scaling=0.1,
         episode_length=1000,
         normalize_observations=True,

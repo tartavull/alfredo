@@ -214,11 +214,11 @@ class AAnt(PipelineEnv):
         )
         
         y = jax.random.uniform(
-            key1, (1,), minval=y_range[0], maxval=y_range[1]        
+            key2, (1,), minval=y_range[0], maxval=y_range[1]        
         )
         
         z = jax.random.uniform(
-            key1, (1,), minval=z_range[0], maxval=z_range[1]        
+            key3, (1,), minval=z_range[0], maxval=z_range[1]        
         )
 
         wcmd = jp.array([x[0], y[0], z[0]])

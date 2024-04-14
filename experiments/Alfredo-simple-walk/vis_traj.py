@@ -30,6 +30,7 @@ agents_fp = os.path.dirname(agents.__file__)
 agent_xml_path = f"{agents_fp}/A1/a1.xml"
 
 scenes_fp = os.path.dirname(scenes.__file__)
+print(scenes_fp)
 
 env_xml_path = f"{scenes_fp}/{sys.argv[-2]}"
 tpf_path = f"{cwd}/{sys.argv[-1]}"
@@ -75,17 +76,19 @@ inference_fn = make_policy(policy_params)
 
 jit_inference_fn = jax.jit(inference_fn)
 
-x_vel = -1.0     # m/s
-y_vel = 0.0     # m/s
-yaw_vel = 0.0   # rad/s
-jcmd = jp.array([x_vel, y_vel, yaw_vel])
+# x_vel = -1.0     # m/s
+# y_vel = 0.0     # m/s
+# yaw_vel = 0.0   # rad/s
+# jcmd = jp.array([x_vel, y_vel, yaw_vel])
+
+wcmd = jp.array([0.0, 10.0, 0.0])
 
 # generate policy rollout
 for _ in range(episode_length):
     rollout.append(state.pipeline_state)
     act_rng, rng = jax.random.split(rng)
 
-    state.info['jcmd'] = jcmd
+    state.info['wcmd'] = wcmd
     act, _ = jit_inference_fn(state.obs, act_rng)
     state = jit_env_step(state, act)
     print(state.info)
