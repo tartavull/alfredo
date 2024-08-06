@@ -67,11 +67,11 @@ def rTracking_Waypoint(sys: base.System,
                        weight=1.0,
                        focus_idx_range=0) -> jp.ndarray:
 
-    x_i = pipeline_state.x.vmap().do(
-        base.Transform.create(pos=sys.link.inertia.transform.pos)
-    )
+    # x_i = pipeline_state.x.vmap().do(
+    #     base.Transform.create(pos=sys.link.inertia.transform.pos)
+    # )
     
-    pos_goal_diff = x_i.pos[focus_idx_range] - waypoint 
+    pos_goal_diff = pipeline_state.x.pos[focus_idx_range] - waypoint 
     inv_euclid_dist = -math.safe_norm(pos_goal_diff)
     
     return weight*inv_euclid_dist

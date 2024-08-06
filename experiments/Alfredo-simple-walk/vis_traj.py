@@ -81,7 +81,7 @@ jit_inference_fn = jax.jit(inference_fn)
 # yaw_vel = 0.0   # rad/s
 # jcmd = jp.array([x_vel, y_vel, yaw_vel])
 
-wcmd = jp.array([0.0, 10.0, 0.0])
+wcmd = jp.array([10.0, 0.0, 1.0])
 
 # generate policy rollout
 for _ in range(episode_length):

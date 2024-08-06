@@ -128,7 +128,7 @@ class Alfredo(PipelineEnv):
             'CoM': com,
         }       
         
-        obs = self._get_obs(pipeline_state, jp.zeros(self.sys.act_size()), state_info)
+        obs = self._get_obs(pipeline_state, state_info)
 
         reward, done, zero = jp.zeros(3)
         metrics = {
@@ -149,7 +149,7 @@ class Alfredo(PipelineEnv):
         waypoint_cost = rTracking_Waypoint(self.sys,
                                            state.pipeline_state,
                                            state.info['wcmd'],
-                                           weight=1.0,
+                                           weight=2.0,
                                            focus_idx_range=0)
 
         ctrl_cost = rControl_act_ss(self.sys,
@@ -176,7 +176,7 @@ class Alfredo(PipelineEnv):
         reward += waypoint_cost
 
 
-        obs = self._get_obs(pipeline_state, action, state.info)
+        obs = self._get_obs(pipeline_state, state.info)
         done = 1.0 - healthy_reward[1] if self._terminate_when_unhealthy else 0.0
 
         state.metrics.update(
@@ -190,28 +190,18 @@ class Alfredo(PipelineEnv):
             pipeline_state=pipeline_state, obs=obs, reward=reward, done=done
         )
 
-    def _get_obs(self, pipeline_state: base.State, action: jp.ndarray, state_info) -> jp.ndarray:
-        """Observes Alfredo's body position, velocities, and angles."""
-
-        a_positions = pipeline_state.q
-        a_velocities = pipeline_state.qd
+    def _get_obs(self, pipeline_state: base.State, state_info) -> jax.Array:
+        """Observes Alfredo's body position, and velocities"""
+        qpos = pipeline_state.q
+        qvel = pipeline_state.qd
 
         wcmd = state_info['wcmd']
+     
+        if self._exclude_current_positions_from_observation:
+            qpos = pipeline_state.q[2:]
 
-        qfrc_actuator = actuator.to_tau(
-            self.sys, action, pipeline_state.q, pipeline_state.qd
-        )
-
-        # external_contact_forces are excluded
-        return jp.concatenate(
-            [
-                a_positions,
-                a_velocities,
-                qfrc_actuator,
-                wcmd
-            ]
-        )
-
+        return jp.concatenate([qpos] + [qvel] + [wcmd])
+        
     def _com(self, pipeline_state: base.State) -> jp.ndarray:
         """Computes Center of Mass of Alfredo"""
 

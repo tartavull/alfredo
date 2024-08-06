@@ -131,7 +131,7 @@ for p in env_xml_paths:
     train_fn = functools.partial(
         ppo.train,
         num_timesteps=wandb.config.len_training,
-        num_evals=20,
+        num_evals=200,
         reward_scaling=0.1,
         episode_length=1000,
         normalize_observations=True,

@@ -18,8 +18,8 @@
         <camera name="followme" mode="trackcom" pos="0 -4 0" xyaxes="1 0 0 0 0 1" />
 
         <joint armature="0" damping="0" limited="false" name="root" pos="0 0 0" stiffness="0" type="free" />
-        <geom fromto="-.07 0 -.035 .07 0 -.035" name="torso1" size="0.13" type="box" />
-        <geom name="head" pos="0 0 .19" size=".09" type="sphere" user="258" />
+        <geom contype="1" fromto="-.07 0 -.035 .07 0 -.035" name="torso1" size="0.13" type="box" />
+        <geom contype="1" name="head" pos="0 0 .19" size=".09" type="sphere" user="258" />
 
         <body name="upper_arm_r" pos="0 -0.17 0.06">
             <joint armature="0.0068" axis="1 0 0" name="shoulder_1_r" pos="0 0 0" range="-75 85" stiffness="1" type="hinge" />
@@ -50,7 +50,7 @@
             <joint armature="0.02" axis="0 0 1" damping="5" name="ab_z" pos="0 0 0.065" range="-45 45" stiffness="20" type="hinge" />
             <joint armature="0.02" axis="0 1 0" damping="5" name="ab_y" pos="0 0 0.065" range="-75 30" stiffness="10" type="hinge" />
             <joint armature="0.02" axis="1 0 0" damping="5" name="ab_x" pos="0 0 0.065" range="-35 35" stiffness="10" type="hinge" />
-            <geom fromto="-.02 -.07 0 -.02 .07 0" name="booty" size="0.09" type="capsule" />
+            <geom contype="1" fromto="-.02 -.07 0 -.02 .07 0" name="booty" size="0.09" type="capsule" />
 
             <body name="thigh_r" pos="0 -0.1 -0.04">
                 <joint armature="0.01" axis="1 0 0" damping="5" name="hip_r_x" pos="0 0 0" range="-25 5" stiffness="10" type="hinge" />
