@@ -33,27 +33,78 @@ scenes_fp = os.path.dirname(scenes.__file__)
 
 env_xml_paths = [f"{scenes_fp}/flatworld/flatworld_A1_env.xml"]
 
+tpf_path = f"{cwd}/{sys.argv[-1]}"
+
+print(f"agent description file: {agent_xml_path}")
+print(f"environment description file: {env_xml_paths[0]}")
+print(f"neural parameter file: {tpf_path}")
+
+params = model.load_params(tpf_path)
+
 # create an env and initial state
 env = AAnt(backend=backend, 
            env_xml_path=env_xml_paths[0],
            agent_xml_path=agent_xml_path)
 
-state = env.reset(rng=jax.random.PRNGKey(seed=0))
-#state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
+rng = jax.random.PRNGKey(seed=0)
+state = env.reset(rng=rng) #state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
 
-x_vel = 0.8     # m/s
-y_vel = 0.0     # m/s
-yaw_vel = 0.0   # rad/s
-jcmd = jp.array([x_vel, y_vel, yaw_vel])
-state.info['jcmd'] = jcmd
+normalize = lambda x, y: x
+normalize = running_statistics.normalize
 
-#up = jp.array([0.0, 0.0, 1])
-# rot_up = math.rotate(up, jp.array([1, 0, 0, 0]))
-#rot_up = math.rotate(up, state.pipeline_state.x.rot[6])
-#rew = jp.dot(up, rot_up)
-#print(f"x.rot = {state.pipeline_state.x.rot}")
-#print(f"up: {up}, rot_up: {rot_up}")
-#print(rew)
+ppo_network = ppo_networks.make_ppo_networks(
+    state.obs.shape[-1], env.action_size, preprocess_observations_fn=normalize
+)
 
-print(f"\n-----------------------------------------------------------------\n")
-state = env.step(state, jp.zeros(env.action_size))
+make_policy = ppo_networks.make_inference_fn(ppo_network)
+policy_params = (params[0], params[1])
+inference_fn = make_policy(policy_params)
+
+wcmd = jp.array([10.0, 10.0, 1.0])
+
+print(f"q: {state.pipeline_state.q}")
+print(f"\n")
+print(f"qd: {state.pipeline_state.qd}")
+print(f"\n")
+print(f"x: {state.pipeline_state.x}")
+print(f"\n")
+print(f"xd: {state.pipeline_state.xd}")
+print(f"\n")
+print(f"contact: {state.pipeline_state.contact}")
+print(f"\n")
+print(state.metrics)
+print(f"\n")
+
+episode_length = 10
+for _ in range(episode_length):
+    print(f"\n---------------------------------------------------------------\n")
+    
+    act_rng, rng = jax.random.split(rng)
+    print(f"rng: {rng}")    
+    print(f"act_rng: {act_rng}")
+    print(f"\n")
+    
+    state.info['wcmd'] = wcmd
+    print(f"state info: {state.info}")
+    print(f"\n")
+
+    act, _ = inference_fn(state.obs, act_rng)
+    print(f"observation: {state.obs}")
+    print(f"\n")
+    print(f"action: {act}")
+    print(f"\n")
+
+    state = env.step(state, act)
+
+    print(f"q: {state.pipeline_state.q}")
+    print(f"\n")
+    print(f"qd: {state.pipeline_state.qd}")
+    print(f"\n")
+    print(f"x: {state.pipeline_state.x}")
+    print(f"\n")
+    print(f"xd: {state.pipeline_state.xd}")
+    print(f"\n")
+    print(f"contact: {state.pipeline_state.contact}")
+    print(f"\n")
+    print(state.metrics)
+    print(f"\n")
