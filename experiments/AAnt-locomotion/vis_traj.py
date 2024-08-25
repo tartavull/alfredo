@@ -79,7 +79,7 @@ jit_inference_fn = jax.jit(inference_fn)
 #yaw_vel = 0.0   # rad/s
 #jcmd = jp.array([x_vel, y_vel, yaw_vel])
 
-wcmd = jp.array([10.0, 10.0, 0.0])
+wcmd = jp.array([10.0, 10.0, 0.5])
 
 # generate policy rollout
 for _ in range(episode_length):
@@ -91,6 +91,9 @@ for _ in range(episode_length):
     act, _ = jit_inference_fn(state.obs, act_rng)
     state = jit_env_step(state, act)
     print(state.info)
+
+
+print(rollout[-1])
 
 html_string = html.render(env.sys.replace(dt=env.dt), rollout)
 

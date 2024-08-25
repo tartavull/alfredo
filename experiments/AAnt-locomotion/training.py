@@ -47,6 +47,9 @@ def progress(num_steps, metrics):
             "Ctrl Reward": metrics["eval/episode_reward_ctrl"],
             "Upright Reward": metrics["eval/episode_reward_upright"],
             "Torque Reward": metrics["eval/episode_reward_torque"],
+            "Abs Pos X World": metrics["eval/episode_pos_x_world_abs"], 
+            "Abs Pos Y World": metrics["eval/episode_pos_y_world_abs"], 
+            "Abs Pos Z World": metrics["eval/episode_pos_z_world_abs"], 
         }
     )
 
@@ -117,7 +120,7 @@ for p in env_xml_paths:
     train_fn = functools.partial(
         ppo.train,
         num_timesteps=wandb.config.len_training,
-        num_evals=20,
+        num_evals=100,
         reward_scaling=0.1,
         episode_length=1000,
         normalize_observations=True,
