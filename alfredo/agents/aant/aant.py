@@ -88,9 +88,9 @@ class AAnt(PipelineEnv):
         low, hi = -self._reset_noise_scale, self._reset_noise_scale
 
         jcmd = self._sample_command(rng3)
-        #wcmd = self._sample_waypoint(rng3) 
+        wcmd = self._sample_waypoint(rng3) 
 
-        wcmd = jp.array([0.0, 10.0])
+        #wcmd = jp.array([0.0, 10.0])
 
         q = self.sys.init_q + jax.random.uniform(
             rng1, (self.sys.q_size(),), minval=low, maxval=hi
@@ -255,7 +255,7 @@ class AAnt(PipelineEnv):
             key3, (1,), minval=z_range[0], maxval=z_range[1]        
         )
 
-        wcmd = jp.array([x[0], y[0], z[0]])
+        wcmd = jp.array([x[0], y[0]])
 
         return wcmd
         

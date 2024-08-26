@@ -60,7 +60,7 @@ make_policy = ppo_networks.make_inference_fn(ppo_network)
 policy_params = (params[0], params[1])
 inference_fn = make_policy(policy_params)
 
-wcmd = jp.array([0.0, 1000.0])
+wcmd = jp.array([0.0, 10.0])
 key_envs, _ = jax.random.split(rng)
 state = env.reset(rng=key_envs)
 

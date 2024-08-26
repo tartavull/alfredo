@@ -58,7 +58,7 @@ jit_env_reset = jax.jit(env.reset)
 jit_env_step = jax.jit(env.step)
 
 rollout = []
-rng = jax.random.PRNGKey(seed=13294)
+rng = jax.random.PRNGKey(seed=13194)
 state = jit_env_reset(rng=rng)
 
 normalize = lambda x, y: x
@@ -79,7 +79,7 @@ jit_inference_fn = jax.jit(inference_fn)
 #yaw_vel = 0.0   # rad/s
 #jcmd = jp.array([x_vel, y_vel, yaw_vel])
 
-wcmd = jp.array([0.0, 10.0])
+wcmd = jp.array([-10.0, 10.0])
 
 # generate policy rollout
 for _ in range(episode_length):
