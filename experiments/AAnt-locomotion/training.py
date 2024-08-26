@@ -28,7 +28,8 @@ wandb.init(
         "backend": "positional",
         "seed": 0,
         "len_training": 1_500_000,
-        "batch_size": 1024,
+        "batch_size": 2048,
+        "episode_len": 1000,
     },
 )
 
@@ -36,20 +37,25 @@ normalize_fn = running_statistics.normalize
 
 def progress(num_steps, metrics):
     print(num_steps)
+    print(metrics)
+    epi_len = wandb.config.episode_len
     wandb.log(
         {
             "step": num_steps,
-            "Total Reward": metrics["eval/episode_reward"],
-            "Waypoint Reward": metrics["eval/episode_reward_waypoint"],
+            "Total Reward": metrics["eval/episode_reward"]/epi_len,
+            "Waypoint Reward": metrics["eval/episode_reward_waypoint"]/epi_len,
             #"Lin Vel Reward": metrics["eval/episode_reward_lin_vel"],
             #"Yaw Vel Reward": metrics["eval/episode_reward_yaw_vel"],
-            "Alive Reward": metrics["eval/episode_reward_alive"],
-            "Ctrl Reward": metrics["eval/episode_reward_ctrl"],
-            "Upright Reward": metrics["eval/episode_reward_upright"],
-            "Torque Reward": metrics["eval/episode_reward_torque"],
-            "Abs Pos X World": metrics["eval/episode_pos_x_world_abs"], 
-            "Abs Pos Y World": metrics["eval/episode_pos_y_world_abs"], 
-            "Abs Pos Z World": metrics["eval/episode_pos_z_world_abs"], 
+            "Alive Reward": metrics["eval/episode_reward_alive"]/epi_len,
+            "Ctrl Reward": metrics["eval/episode_reward_ctrl"]/epi_len,
+            "Upright Reward": metrics["eval/episode_reward_upright"]/epi_len,
+            "Torque Reward": metrics["eval/episode_reward_torque"]/epi_len,
+            "Abs Pos X World": metrics["eval/episode_pos_x_world_abs"]/epi_len, 
+            "Abs Pos Y World": metrics["eval/episode_pos_y_world_abs"]/epi_len, 
+            "Abs Pos Z World": metrics["eval/episode_pos_z_world_abs"]/epi_len,
+            "Dist Goal X": metrics["eval/episode_dist_goal_x"]/epi_len, 
+            "Dist Goal Y": metrics["eval/episode_dist_goal_y"]/epi_len, 
+            #"Dist Goal Z": metrics["eval/episode_dist_goal_z"]/epi_len,
         }
     )
 
@@ -120,9 +126,9 @@ for p in env_xml_paths:
     train_fn = functools.partial(
         ppo.train,
         num_timesteps=wandb.config.len_training,
-        num_evals=100,
+        num_evals=400,
         reward_scaling=0.1,
-        episode_length=1000,
+        episode_length=wandb.config.episode_len,
         normalize_observations=True,
         action_repeat=1,
         unroll_length=10,

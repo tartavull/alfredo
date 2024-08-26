@@ -90,7 +90,7 @@ class AAnt(PipelineEnv):
         jcmd = self._sample_command(rng3)
         #wcmd = self._sample_waypoint(rng3) 
 
-        wcmd = jp.array([10.0, 10.0, 0.5])
+        wcmd = jp.array([0.0, 10.0])
 
         q = self.sys.init_q + jax.random.uniform(
             rng1, (self.sys.q_size(),), minval=low, maxval=hi
@@ -118,6 +118,9 @@ class AAnt(PipelineEnv):
             'pos_x_world_abs': zero,
             'pos_y_world_abs': zero,
             'pos_z_world_abs': zero,
+            'dist_goal_x': zero,
+            'dist_goal_y': zero,
+            #'dist_goal_z': zero,
         }
 
         return State(pipeline_state, obs, reward, done, metrics, state_info)
@@ -128,14 +131,16 @@ class AAnt(PipelineEnv):
         pipeline_state0 = state.pipeline_state
         pipeline_state = self.pipeline_step(pipeline_state0, action)
 
+        #print(f"wcmd: {state.info['wcmd']}")
+        #print(f"x.pos[0]: {pipeline_state.x.pos[0]}")
         waypoint_cost = rTracking_Waypoint(self.sys,
-                                           state.pipeline_state,
+                                           pipeline_state,
                                            state.info['wcmd'],
-                                           weight=1.0,
+                                           weight=100.0,
                                            focus_idx_range=0)
 
         lin_vel_reward = rTracking_lin_vel(self.sys,
-                                           state.pipeline_state,
+                                           pipeline_state,
                                            jp.array([0, 0, 0]), #dummy values for previous CoM
                                            jp.array([0, 0, 0]), #dummy values for current CoM
                                            self.dt,
@@ -144,30 +149,30 @@ class AAnt(PipelineEnv):
                                            focus_idx_range=(0,0))
 
         yaw_vel_reward = rTracking_yaw_vel(self.sys,
-                                           state.pipeline_state,
+                                           pipeline_state,
                                            state.info['jcmd'],
                                            weight=10.8,
                                            focus_idx_range=(0,0))
         
         ctrl_cost = rControl_act_ss(self.sys,
-                                    state.pipeline_state,
+                                    pipeline_state,
                                     action,
                                     weight=0.0)
         
         torque_cost = rTorques(self.sys,
-                               state.pipeline_state,
+                               pipeline_state,
                                action,
                                weight=0.0)        
 
         upright_reward = rUpright(self.sys,
-                                  state.pipeline_state,
+                                  pipeline_state,
                                   weight=0.0)
         
         healthy_reward = rHealthy_simple_z(self.sys,
-                                           state.pipeline_state,
+                                           pipeline_state,
                                            self._healthy_z_range,
                                            early_terminate=self._terminate_when_unhealthy,
-                                           weight=1.0,
+                                           weight=0.0,
                                            focus_idx_range=(0, 2))
         reward = 0.0
         reward = healthy_reward[0]
@@ -181,15 +186,23 @@ class AAnt(PipelineEnv):
         pos_world = pipeline_state.x.pos[0]
         abs_pos_world = jp.abs(pos_world)
 
-        print(f'true position in world: {pos_world}')
-        print(f'absolute position in world: {abs_pos_world}\n')
+        #print(f"wcmd: {state.info['wcmd']}")
+        #print(f"x.pos[0]: {pipeline_state.x.pos[0]}")
+        wcmd = state.info['wcmd']
+        dist_goal = pos_world[0:2] - wcmd
+        #print(dist_goal)
+        
+        #print(f'true position in world: {pos_world}')
+        #print(f'absolute position in world: {abs_pos_world}')
+        #print(f"dist_goal: {dist_goal}\n")
         
         obs = self._get_obs(pipeline_state, state.info)
         # print(f"\n")
         # print(f"healthy_reward? {healthy_reward}")
         # print(f"\n")
-        done = 1.0 - healthy_reward[1] if self._terminate_when_unhealthy else 0.0
-
+        #done = 1.0 - healthy_reward[1] if self._terminate_when_unhealthy else 0.0
+        done = 0.0
+        
         state.metrics.update(
             reward_ctrl = ctrl_cost,
             reward_alive = healthy_reward[0],
@@ -201,6 +214,9 @@ class AAnt(PipelineEnv):
             pos_x_world_abs = abs_pos_world[0],
             pos_y_world_abs = abs_pos_world[1],
             pos_z_world_abs = abs_pos_world[2],
+            dist_goal_x = dist_goal[0],
+            dist_goal_y = dist_goal[1],
+            #dist_goal_z = dist_goal[2],
         )
         
         return state.replace(

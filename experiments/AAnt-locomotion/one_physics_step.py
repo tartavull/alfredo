@@ -46,7 +46,7 @@ env = AAnt(backend=backend,
            env_xml_path=env_xml_paths[0],
            agent_xml_path=agent_xml_path)
 
-rng = jax.random.PRNGKey(seed=0)
+rng = jax.random.PRNGKey(seed=3)
 state = env.reset(rng=rng) #state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
 
 normalize = lambda x, y: x
@@ -60,7 +60,9 @@ make_policy = ppo_networks.make_inference_fn(ppo_network)
 policy_params = (params[0], params[1])
 inference_fn = make_policy(policy_params)
 
-wcmd = jp.array([10.0, 10.0, 0.5])
+wcmd = jp.array([0.0, 1000.0])
+key_envs, _ = jax.random.split(rng)
+state = env.reset(rng=key_envs)
 
 print(f"q: {state.pipeline_state.q}")
 print(f"\n")

@@ -70,8 +70,15 @@ def rTracking_Waypoint(sys: base.System,
     # x_i = pipeline_state.x.vmap().do(
     #     base.Transform.create(pos=sys.link.inertia.transform.pos)
     # )
+
+    #print(f"wcmd: {waypoint}")
+    #print(f"x.pos[0]: {pipeline_state.x.pos[0]}")
+    torso_pos = pipeline_state.x.pos[focus_idx_range]
+    pos_goal_diff = torso_pos[0:2] - waypoint[0:2] 
+    #print(f"pos_goal_diff: {pos_goal_diff}")
+    pos_sum_abs_diff = -jp.sum(jp.abs(pos_goal_diff))
+    #inv_euclid_dist = -math.safe_norm(pos_goal_diff)
+    #print(f"pos_sum_abs_diff: {pos_sum_abs_diff}") 
     
-    pos_goal_diff = pipeline_state.x.pos[focus_idx_range] - waypoint 
-    inv_euclid_dist = -math.safe_norm(pos_goal_diff)
-    
-    return weight*inv_euclid_dist
+    #return weight*inv_euclid_dist
+    return weight*pos_sum_abs_diff
