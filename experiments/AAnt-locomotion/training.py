@@ -28,7 +28,7 @@ wandb.init(
         "backend": "positional",
         "seed": 1,
         "len_training": 1_500_000,
-        "num_evals": 200,
+        "num_evals": 500,
         "num_envs": 2048,
         "batch_size": 2048,
         "num_minibatches": 8,
@@ -81,7 +81,10 @@ agent_xml_path = f"{agents_fp}/aant/aant.xml"
 
 scenes_fp = os.path.dirname(scenes.__file__)
 
-env_xml_paths = [f"{scenes_fp}/flatworld/flatworld_A1_env.xml"]
+env_xml_paths = [f"{scenes_fp}/flatworld/flatworld_A1_env.xml", 
+                 f"{scenes_fp}/flatworld/flatworld_A1_env.xml",
+                 f"{scenes_fp}/flatworld/flatworld_A1_env.xml",
+                 f"{scenes_fp}/flatworld/flatworld_A1_env.xml"]
 
 # make and save initial ppo_network
 key = jax.random.PRNGKey(wandb.config.seed)
@@ -115,7 +118,7 @@ model.save_params(f"param-store/AAnt_params_0", params_to_save)
 # ============================
 # Training & Saving Params
 # ============================
-i = 0
+i = 8
 
 for p in env_xml_paths:
 

@@ -157,12 +157,12 @@ class AAnt(PipelineEnv):
         ctrl_cost = rControl_act_ss(self.sys,
                                     pipeline_state,
                                     action,
-                                    weight=0.0)
+                                    weight=-self._ctrl_cost_weight)
         
         torque_cost = rTorques(self.sys,
                                pipeline_state,
                                action,
-                               weight=0.0)        
+                               weight=-0.003)
 
         upright_reward = rUpright(self.sys,
                                   pipeline_state,
