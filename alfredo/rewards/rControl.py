@@ -86,8 +86,8 @@ def rTracking_Waypoint(sys: base.System,
 def rStand_still(sys: base.System,
                  pipeline_state: base.State,
                  jcmd: jax.Array,
-                 joint_angles, jax.Array
-                 default_pose, jax.Array
+                 joint_angles: jax.Array,
+                 default_pose: jax.Array,
                  weight: 1.0,
                  focus_idx_range=0) -> jp.ndarray:
 

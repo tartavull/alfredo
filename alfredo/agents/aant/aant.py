@@ -89,7 +89,7 @@ class AAnt(PipelineEnv):
         jcmd = self._sample_command(rng3)
         wcmd = self._sample_waypoint(rng3) 
 
-        print(sys.init_q)
+        print(f"init_q: {self.sys.init_q}")
         #wcmd = jp.array([0.0, 10.0])
 
         q = self.sys.init_q + jax.random.uniform(
