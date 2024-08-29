@@ -89,7 +89,7 @@ def rStand_still(sys: base.System,
                  joint_angles, jax.Array
                  default_pose, jax.Array
                  weight: 1.0,
-                 focus_idx_range=0i,) -> jp.ndarray:
+                 focus_idx_range=0) -> jp.ndarray:
 
     close_to_still = jp.sum(jp.abs(joint_angles - default_pose)) * math.normalize(jcmd[:2])[1] < 0.1
 
