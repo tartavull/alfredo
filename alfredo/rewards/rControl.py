@@ -54,7 +54,7 @@ def rTracking_yaw_vel(sys: base.System,
     #local_yaw_vel = math.rotate(pipeline_state.xd.ang[focus_idx_range[0]:focus_idx_range[1]], 
     #                            math.quat_inv(pipeline_state.x.rotate[focus_idx_range[0], focus_idx_range[1]])) 
     local_yaw_vel = math.rotate(pipeline_state.xd.vel[0], 
-                            math.quat_inv(pipeline_state.x.rot[0]))
+                                math.quat_inv(pipeline_state.x.rot[0]))
     yaw_vel_error = jp.square(jcmd[2] - local_yaw_vel[2])
     yv_reward = jp.exp(-yaw_vel_error/sigma)
 
@@ -82,3 +82,15 @@ def rTracking_Waypoint(sys: base.System,
     
     #return weight*inv_euclid_dist
     return weight*pos_sum_abs_diff
+
+def rStand_still(sys: base.System,
+                 pipeline_state: base.State,
+                 jcmd: jax.Array,
+                 joint_angles, jax.Array
+                 default_pose, jax.Array
+                 weight: 1.0,
+                 focus_idx_range=0i,) -> jp.ndarray:
+
+    close_to_still = jp.sum(jp.abs(joint_angles - default_pose)) * math.normalize(jcmd[:2])[1] < 0.1
+
+    return weight * close_to_still

@@ -46,7 +46,6 @@ class AAnt(PipelineEnv):
             del kwargs["agent_xml_path"]
             
             sys = mjcf.loads(xml_scene)
-        
 
         n_frames = 5
 
