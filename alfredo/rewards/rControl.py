@@ -32,6 +32,9 @@ def rTracking_lin_vel(sys: base.System,
     local_vel = math.rotate(pipeline_state.xd.vel[0], 
                             math.quat_inv(pipeline_state.x.rot[0]))
 
+    #print(f"rot_quat: {pipeline_state.x.rot[0]}")
+    #print(f"global_vel: {pipeline_state.xd.vel[0]}")
+    #print(f"local_vel: {local_vel}\n")
     #print(f"com_prev:{CoM_prev}, com_now:{CoM_now}")
     #local_vel = (CoM_prev - CoM_now)/dt
     #print(f"jcmd[:2]: {jcmd[:2]}")
@@ -53,9 +56,13 @@ def rTracking_yaw_vel(sys: base.System,
 
     #local_yaw_vel = math.rotate(pipeline_state.xd.ang[focus_idx_range[0]:focus_idx_range[1]], 
     #                            math.quat_inv(pipeline_state.x.rotate[focus_idx_range[0], focus_idx_range[1]])) 
-    local_yaw_vel = math.rotate(pipeline_state.xd.vel[0], 
+    local_ang_vel = math.rotate(pipeline_state.xd.ang[0], 
                                 math.quat_inv(pipeline_state.x.rot[0]))
-    yaw_vel_error = jp.square(jcmd[2] - local_yaw_vel[2])
+
+    #print(f"global_ang_vel: {pipeline_state.xd.vel[0]}")
+    #print(f"local_ang_vel: {local_ang_vel}\n")
+    
+    yaw_vel_error = jp.square(jcmd[2] - local_ang_vel[2])
     yv_reward = jp.exp(-yaw_vel_error/sigma)
 
     return weight*yv_reward

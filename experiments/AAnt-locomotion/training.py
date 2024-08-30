@@ -26,7 +26,7 @@ wandb.init(
     config={
         "env_name": "AAnt",
         "backend": "positional",
-        "seed": 1,
+        "seed": 13,
         "len_training": 1_500_000,
         "num_evals": 500,
         "num_envs": 2048,
@@ -35,7 +35,7 @@ wandb.init(
         "updates_per_batch": 8,
         "episode_len": 1000,
         "unroll_len": 10,
-        "reward_scaling":0.1,
+        "reward_scaling":1,
         "action_repeat": 1,
         "discounting": 0.97,
         "learning_rate": 3e-4,
@@ -56,8 +56,8 @@ def progress(num_steps, metrics):
             "step": num_steps,
             "Total Reward": metrics["eval/episode_reward"]/epi_len,
             "Waypoint Reward": metrics["eval/episode_reward_waypoint"]/epi_len,
-            #"Lin Vel Reward": metrics["eval/episode_reward_lin_vel"],
-            #"Yaw Vel Reward": metrics["eval/episode_reward_yaw_vel"],
+            "Lin Vel Reward": metrics["eval/episode_reward_lin_vel"],
+            "Yaw Vel Reward": metrics["eval/episode_reward_yaw_vel"],
             "Alive Reward": metrics["eval/episode_reward_alive"]/epi_len,
             "Ctrl Reward": metrics["eval/episode_reward_ctrl"]/epi_len,
             "Upright Reward": metrics["eval/episode_reward_upright"]/epi_len,
@@ -81,10 +81,10 @@ agent_xml_path = f"{agents_fp}/aant/aant.xml"
 
 scenes_fp = os.path.dirname(scenes.__file__)
 
-env_xml_paths = [f"{scenes_fp}/flatworld/flatworld_A1_env.xml", 
-                 f"{scenes_fp}/flatworld/flatworld_A1_env.xml",
-                 f"{scenes_fp}/flatworld/flatworld_A1_env.xml",
-                 f"{scenes_fp}/flatworld/flatworld_A1_env.xml"]
+env_xml_paths = [f"{scenes_fp}/flatworld/flatworld_A1_env.xml"] 
+                 #f"{scenes_fp}/flatworld/flatworld_A1_env.xml",
+                 #f"{scenes_fp}/flatworld/flatworld_A1_env.xml",
+                 #f"{scenes_fp}/flatworld/flatworld_A1_env.xml"]
 
 # make and save initial ppo_network
 key = jax.random.PRNGKey(wandb.config.seed)
@@ -118,7 +118,7 @@ model.save_params(f"param-store/AAnt_params_0", params_to_save)
 # ============================
 # Training & Saving Params
 # ============================
-i = 8
+i = 0
 
 for p in env_xml_paths:
 
