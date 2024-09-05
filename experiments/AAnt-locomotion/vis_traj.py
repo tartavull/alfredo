@@ -76,7 +76,7 @@ jit_inference_fn = jax.jit(inference_fn)
 
 x_vel = 0.0     # m/s
 y_vel = 0.0     # m/s
-yaw_vel = 0.7   # rad/s
+yaw_vel = -0.7   # rad/s
 jcmd = jp.array([x_vel, y_vel, yaw_vel])
 
 wcmd = jp.array([10.0, 10.0])

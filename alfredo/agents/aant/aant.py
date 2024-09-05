@@ -16,6 +16,7 @@ from alfredo.rewards import rTracking_lin_vel
 from alfredo.rewards import rTracking_yaw_vel
 from alfredo.rewards import rUpright
 from alfredo.rewards import rTracking_Waypoint
+from alfredo.rewards import rStand_still
 
 class AAnt(PipelineEnv):
     """ """
@@ -121,8 +122,8 @@ class AAnt(PipelineEnv):
             'pos_x_world_abs': zero,
             'pos_y_world_abs': zero,
             'pos_z_world_abs': zero,
-            'dist_goal_x': zero,
-            'dist_goal_y': zero,
+            #'dist_goal_x': zero,
+            #'dist_goal_y': zero,
             #'dist_goal_z': zero,
         }
 
@@ -148,13 +149,13 @@ class AAnt(PipelineEnv):
                                            jp.array([0, 0, 0]), #dummy values for current CoM
                                            self.dt,
                                            state.info['jcmd'],
-                                           weight=1.5,
+                                           weight=15.0,
                                            focus_idx_range=(0,0))
 
         yaw_vel_reward = rTracking_yaw_vel(self.sys,
                                            pipeline_state,
                                            state.info['jcmd'],
-                                           weight=0.8,
+                                           weight=1.0,
                                            focus_idx_range=(0,0))
         
         ctrl_cost = rControl_act_ss(self.sys,
@@ -194,8 +195,8 @@ class AAnt(PipelineEnv):
 
         #print(f"wcmd: {state.info['wcmd']}")
         #print(f"x.pos[0]: {pipeline_state.x.pos[0]}")
-        wcmd = state.info['wcmd']
-        dist_goal = pos_world[0:2] - wcmd
+        #wcmd = state.info['wcmd']
+        #dist_goal = pos_world[0:2] - wcmd
         #print(dist_goal)
         
         #print(f'true position in world: {pos_world}')
@@ -220,8 +221,8 @@ class AAnt(PipelineEnv):
             pos_x_world_abs = abs_pos_world[0],
             pos_y_world_abs = abs_pos_world[1],
             pos_z_world_abs = abs_pos_world[2],
-            dist_goal_x = dist_goal[0],
-            dist_goal_y = dist_goal[1],
+            #dist_goal_x = dist_goal[0],
+            #dist_goal_y = dist_goal[1],
             #dist_goal_z = dist_goal[2],
         )
         
@@ -270,9 +271,9 @@ class AAnt(PipelineEnv):
         return wcmd
         
     def _sample_command(self, rng: jax.Array) -> jax.Array:
-        lin_vel_x_range = [-1, 3]   #[m/s]
-        lin_vel_y_range = [-1, 3]   #[m/s]
-        yaw_vel_range = [-0.7, 0.7]     #[rad/s]
+        lin_vel_x_range = [0.0, 0.0]   #[m/s]
+        lin_vel_y_range = [0.0, 0.0]   #[m/s]
+        yaw_vel_range = [-1.0, 1.0]     #[rad/s]
 
         _, key1, key2, key3 = jax.random.split(rng, 4)
         

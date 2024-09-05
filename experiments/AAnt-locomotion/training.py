@@ -56,8 +56,8 @@ def progress(num_steps, metrics):
             "step": num_steps,
             "Total Reward": metrics["eval/episode_reward"]/epi_len,
             "Waypoint Reward": metrics["eval/episode_reward_waypoint"]/epi_len,
-            "Lin Vel Reward": metrics["eval/episode_reward_lin_vel"],
-            "Yaw Vel Reward": metrics["eval/episode_reward_yaw_vel"],
+            "Lin Vel Reward": metrics["eval/episode_reward_lin_vel"]/epi_len,
+            "Yaw Vel Reward": metrics["eval/episode_reward_yaw_vel"]/epi_len,
             "Alive Reward": metrics["eval/episode_reward_alive"]/epi_len,
             "Ctrl Reward": metrics["eval/episode_reward_ctrl"]/epi_len,
             "Upright Reward": metrics["eval/episode_reward_upright"]/epi_len,
@@ -65,8 +65,8 @@ def progress(num_steps, metrics):
             "Abs Pos X World": metrics["eval/episode_pos_x_world_abs"]/epi_len, 
             "Abs Pos Y World": metrics["eval/episode_pos_y_world_abs"]/epi_len, 
             "Abs Pos Z World": metrics["eval/episode_pos_z_world_abs"]/epi_len,
-            "Dist Goal X": metrics["eval/episode_dist_goal_x"]/epi_len, 
-            "Dist Goal Y": metrics["eval/episode_dist_goal_y"]/epi_len, 
+            #"Dist Goal X": metrics["eval/episode_dist_goal_x"]/epi_len, 
+            #"Dist Goal Y": metrics["eval/episode_dist_goal_y"]/epi_len, 
             #"Dist Goal Z": metrics["eval/episode_dist_goal_z"]/epi_len,
         }
     )
@@ -81,10 +81,10 @@ agent_xml_path = f"{agents_fp}/aant/aant.xml"
 
 scenes_fp = os.path.dirname(scenes.__file__)
 
-env_xml_paths = [f"{scenes_fp}/flatworld/flatworld_A1_env.xml"] 
-                 #f"{scenes_fp}/flatworld/flatworld_A1_env.xml",
-                 #f"{scenes_fp}/flatworld/flatworld_A1_env.xml",
-                 #f"{scenes_fp}/flatworld/flatworld_A1_env.xml"]
+env_xml_paths = [f"{scenes_fp}/flatworld/flatworld_A1_env.xml", 
+                 f"{scenes_fp}/flatworld/flatworld_A1_env.xml",
+                 f"{scenes_fp}/flatworld/flatworld_A1_env.xml",
+                 f"{scenes_fp}/flatworld/flatworld_A1_env.xml"]
 
 # make and save initial ppo_network
 key = jax.random.PRNGKey(wandb.config.seed)
