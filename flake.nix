@@ -68,6 +68,12 @@
               inherit (python-final) jaxlib;
             };
 
+            orbax-checkpoint = callPackage ./nix/orbax-checkpoint.nix {
+              inherit (python-final) jax;
+              inherit (python-final) jaxlib;
+              inherit tensorstore;
+            };
+
             flax = callPackage ./nix/flax.nix {
               inherit (python-final) jax;
               inherit (python-final) jaxlib;
@@ -86,6 +92,7 @@
               inherit (python-final) optax;
               inherit (python-final) flax;
               inherit (python-final) mujoco;
+              inherit (python-final) orbax-checkpoint;
               inherit dm_env;
               inherit pytinyrenderer;
               inherit trimesh;

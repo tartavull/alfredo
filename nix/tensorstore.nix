@@ -5,14 +5,21 @@
 
 buildPythonPackage rec {
   name = "tensorstore";
+  
   src = fetchFromGitHub {
     owner = "google";
     repo = "tensorstore";
-    rev = "v0.1.35";
-    hash = "sha256-VmJHDoU+lDS3PT4cEDZVDY+VYTa0F2X9aUWIEZW29vM=";
+    rev = "v0.1.60";
+    hash = "sha256-rT0R1x51xHAElPwernUjBIIneRhncnsohMRAIhXyaYk=";
   };
   format = "pyproject";
+  
   propagatedBuildInputs = [
     setuptools
   ];
+
+  preConfigure = ''
+    export HOME=$PWD
+  '';
+  
 }

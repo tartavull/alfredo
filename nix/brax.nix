@@ -21,6 +21,7 @@
 , typing-extensions
 , flax
 , mujoco
+, orbax-checkpoint
 }:
 
 
@@ -29,8 +30,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "google";
     repo = "brax";
-    rev = "v0.9.1";
-    hash = "sha256-tFoTsz+EEd35nO39/owBBKbJG1LnAGUZBoOJkYVuwlI=";
+    rev = "v0.10.5";
+    hash = "sha256-Ek1j/tghkNOny6uPWM+WHlTB3eZI5yl3oXq4DdIEJv4=";
   };
 
   nativeBuildInputs = [
@@ -67,5 +68,6 @@ buildPythonPackage rec {
     optax
     mujoco
     flax
+    orbax-checkpoint
   ];
 }
