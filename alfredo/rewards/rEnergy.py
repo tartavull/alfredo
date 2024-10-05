@@ -11,8 +11,7 @@ from jax import numpy as jp
 def rTorques(sys: base.System, 
              pipeline_state: base.State, 
              action: jp.ndarray,
-             weight=1.0,
-             focus_idx_range=(0, -1)) -> jp.ndarray:
+             focus_idx_range=(0, -1)) -> jax.Array:
     
     s_idx = focus_idx_range[0]
     e_idx = focus_idx_range[1]
@@ -25,4 +24,4 @@ def rTorques(sys: base.System,
     
     tr = jp.sqrt(jp.sum(jp.square(torque))) + jp.sum(jp.abs(torque))
 
-    return weight*tr
+    return jp.array([tr])

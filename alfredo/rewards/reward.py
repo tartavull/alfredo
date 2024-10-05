@@ -27,5 +27,8 @@ class Reward:
         scale and general parameters are set.
         Otherwise, this errors out quite spectacularly
         """
+
+        res = self.f(**self.params)
+        res = res.at[0].multiply(self.scale) #may not be the best way to do this
         
-        return self.scale*self.f(**self.params) 
+        return res

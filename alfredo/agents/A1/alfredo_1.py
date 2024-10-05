@@ -12,7 +12,6 @@ from jax import numpy as jp
 from alfredo.tools import compose_scene
 from alfredo.rewards import rConstant
 from alfredo.rewards import rHealthy_simple_z
-from alfredo.rewards import rSpeed_X
 from alfredo.rewards import rControl_act_ss
 from alfredo.rewards import rTorques
 from alfredo.rewards import rTracking_lin_vel
