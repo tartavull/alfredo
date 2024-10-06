@@ -7,16 +7,6 @@ import jax
 from jax import numpy as jp
 
 from alfredo.tools import compose_scene
-from alfredo.rewards import Reward
-from alfredo.rewards import rConstant
-from alfredo.rewards import rHealthy_simple_z
-from alfredo.rewards import rControl_act_ss
-from alfredo.rewards import rTorques
-from alfredo.rewards import rTracking_lin_vel
-from alfredo.rewards import rTracking_yaw_vel
-from alfredo.rewards import rUpright
-from alfredo.rewards import rTracking_Waypoint
-from alfredo.rewards import rStand_still
 
 class AAnt(PipelineEnv):
     """ """
