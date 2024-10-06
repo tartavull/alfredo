@@ -15,13 +15,7 @@ class AAnt(PipelineEnv):
                  rewards = {},
                  env_xml_path = "",
                  agent_xml_path = "",
-                 ctrl_cost_weight=0.5,
-                 use_contact_forces=False,
-                 contact_cost_weight=5e-4,
-                 healthy_reward=1.0,
-                 terminate_when_unhealthy=True,
-                 healthy_z_range=(0.3, 1.0),
-                 contact_force_range=(-1.0, 1.0),
+                 terminate_when_unhealthy=False,
                  reset_noise_scale=0.1,
                  exclude_current_positions_from_observation=True,
                  backend='generalized',
@@ -65,20 +59,11 @@ class AAnt(PipelineEnv):
         super().__init__(sys=sys, backend=backend, **kwargs)
 
         # Setting other object parameters based on input params
-        self._ctrl_cost_weight = ctrl_cost_weight
-        self._use_contact_forces = use_contact_forces
-        self._contact_cost_weight = contact_cost_weight
-        self._healthy_reward = healthy_reward
         self._terminate_when_unhealthy = terminate_when_unhealthy
-        self._healthy_z_range = healthy_z_range
-        self._contact_force_range = contact_force_range
         self._reset_noise_scale = reset_noise_scale
         self._exclude_current_positions_from_observation = (
             exclude_current_positions_from_observation
         )
-
-        if self._use_contact_forces:
-            raise NotImplementedError('use_contact_forces not implemented.')        
 
 
     def reset(self, rng: jax.Array) -> State:
