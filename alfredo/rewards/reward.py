@@ -32,3 +32,10 @@ class Reward:
         res = res.at[0].multiply(self.scale) #may not be the best way to do this
         
         return res
+
+    def __str__(self):
+        """
+        provides a standard string output  
+        """
+
+        return f'reward: {self.f}, scale: {self.scale}'

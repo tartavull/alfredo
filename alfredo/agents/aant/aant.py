@@ -17,7 +17,7 @@ class AAnt(PipelineEnv):
                  agent_xml_path = "",
                  terminate_when_unhealthy=False,
                  reset_noise_scale=0.1,
-                 exclude_current_positions_from_observation=True,
+                 exclude_current_positions_from_observation=False,
                  backend='generalized',
                  **kwargs,):
 
@@ -105,7 +105,7 @@ class AAnt(PipelineEnv):
 
         # get initial observation vector        
         obs = self._get_obs(pipeline_state, state_info)
-       
+
         return State(pipeline_state, obs, reward, done, metrics, state_info)
 
     def step(self, state: State, action: jax.Array) -> State:
@@ -126,7 +126,7 @@ class AAnt(PipelineEnv):
             r.add_param('pipeline_state', pipeline_state)
 
             reward_value = r.compute()
-            state.info['rewards'][rn] = reward_value
+            state.info['rewards'][rn] = reward_value[0]
             total_reward += reward_value[0]
             # print(f'{rn} reward_val = {reward_value}\n')
 

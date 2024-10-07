@@ -16,6 +16,10 @@ from jax import numpy as jp
 
 from alfredo.agents.aant import AAnt
 
+from alfredo.rewards import Reward
+from alfredo.rewards import rTracking_lin_vel
+from alfredo.rewards import rTracking_yaw_vel
+
 backend = "positional"
 
 # Load desired model xml and trained param set
@@ -39,8 +43,15 @@ print(f"neural parameter file: {tpf_path}")
 
 params = model.load_params(tpf_path)
 
+# Define Reward Structure
+# For visualizing, this is just to be able to create the env
+# May want to make this not necessary in the future ..?
+rewards = {'r_lin_vel': Reward(rTracking_lin_vel, sc=8.0, ps={}),
+           'r_yaw_vel': Reward(rTracking_yaw_vel, sc=1.0, ps={})}
+
 # create an env with auto-reset and load previously trained parameters
-env = AAnt(backend=backend, 
+env = AAnt(backend=backend,
+           rewards=rewards, 
            env_xml_path=env_xml_path,
            agent_xml_path=agent_xml_path)
 
@@ -75,8 +86,8 @@ inference_fn = make_policy(policy_params)
 jit_inference_fn = jax.jit(inference_fn)
 
 x_vel = 0.0     # m/s
-y_vel = 0.0     # m/s
-yaw_vel = -0.7   # rad/s
+y_vel = 3.0     # m/s
+yaw_vel = 0.0   # rad/s
 jcmd = jp.array([x_vel, y_vel, yaw_vel])
 
 wcmd = jp.array([10.0, 10.0])

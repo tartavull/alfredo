@@ -39,6 +39,8 @@ cwd = os.getcwd()
 rewards = {'r_lin_vel': Reward(rTracking_lin_vel, sc=15.0, ps={}),
            'r_yaw_vel': Reward(rTracking_yaw_vel, sc=1.2, ps={})}
 
+print(rewards)
+
 # Get the filepath to the env and agent xmls
 import alfredo.scenes as scenes
 import alfredo.agents as agents
@@ -65,7 +67,8 @@ env = AAnt(backend=backend,
            agent_xml_path=agent_xml_path)
 
 rng = jax.random.PRNGKey(seed=3)
-state = env.reset(rng=rng) #state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
+state = env.reset(rng=rng)
+#state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=0))
 
 # Initialize inference neural network
 normalize = lambda x, y: x
@@ -82,6 +85,7 @@ inference_fn = make_policy(policy_params)
 # Reset the env
 key_envs, _ = jax.random.split(rng)
 state = env.reset(rng=key_envs)
+#state = jax.jit(env.reset)(rng=key_envs)
 
 # Debug printing
 print(f"q: {state.pipeline_state.q}")

@@ -6,11 +6,10 @@ from datetime import datetime
 import brax
 import flax
 import jax
-import matplotlib.pyplot as plt
 import optax
 import wandb
 from brax import envs
-# from brax.envs.wrappers import training
+
 from brax.io import html, json, model
 from brax.training.acme import running_statistics, specs
 from brax.training.agents.ppo import losses as ppo_losses
@@ -20,60 +19,68 @@ from jax import numpy as jp
 from alfredo.agents.aant import AAnt
 from alfredo.train import ppo
 
+from alfredo.rewards import Reward
+from alfredo.rewards import rTracking_lin_vel
+from alfredo.rewards import rTracking_yaw_vel
+
+
+# Define Reward Structure
+rewards = {'r_lin_vel': Reward(rTracking_lin_vel, sc=8.0, ps={}),
+           'r_yaw_vel': Reward(rTracking_yaw_vel, sc=1.0, ps={})}
+
 # Initialize a new run
 wandb.init(
     project="aant",
     config={
         "env_name": "AAnt",
-        "backend": "positional",
         "seed": 13,
-        "len_training": 1_500_000,
-        "num_evals": 500,
-        "num_envs": 2048,
-        "batch_size": 2048,
-        "num_minibatches": 8,
-        "updates_per_batch": 8,
-        "episode_len": 1000,
-        "unroll_len": 10,
-        "reward_scaling":1,
-        "action_repeat": 1,
-        "discounting": 0.97,
-        "learning_rate": 3e-4,
-        "entropy_cost": 1e-3,
-        "reward_scaling": 0.1,
-        "normalize_obs": True,
+        
+        "training_params": {
+            "backend": "positional",
+            "len_training": 1_500_000,
+            "num_evals": 500,
+            "num_envs": 2048,
+            "batch_size": 2048,
+            "num_minibatches": 8,
+            "updates_per_batch": 8,
+            "episode_len": 1000,
+            "unroll_len": 10,
+            "reward_scaling":1,
+            "action_repeat": 1,
+            "discounting": 0.97,
+            "learning_rate": 3e-4,
+            "entropy_cost": 1e-3,
+            "reward_scaling": 0.1,
+            "normalize_obs": True,
+        },
+        
+        "rewards":rewards,
+
+        "aux_model_params":{
+            
+        }
     },
 )
 
-normalize_fn = running_statistics.normalize
-
+# define callback function that will report training progress
 def progress(num_steps, metrics):
     print(num_steps)
     print(metrics)
-    epi_len = wandb.config.episode_len
-    wandb.log(
-        {
-            "step": num_steps,
-            "Total Reward": metrics["eval/episode_reward"]/epi_len,
-            "Waypoint Reward": metrics["eval/episode_reward_waypoint"]/epi_len,
-            "Lin Vel Reward": metrics["eval/episode_reward_lin_vel"]/epi_len,
-            "Yaw Vel Reward": metrics["eval/episode_reward_yaw_vel"]/epi_len,
-            "Alive Reward": metrics["eval/episode_reward_alive"]/epi_len,
-            "Ctrl Reward": metrics["eval/episode_reward_ctrl"]/epi_len,
-            "Upright Reward": metrics["eval/episode_reward_upright"]/epi_len,
-            "Torque Reward": metrics["eval/episode_reward_torque"]/epi_len,
-            "Abs Pos X World": metrics["eval/episode_pos_x_world_abs"]/epi_len, 
-            "Abs Pos Y World": metrics["eval/episode_pos_y_world_abs"]/epi_len, 
-            "Abs Pos Z World": metrics["eval/episode_pos_z_world_abs"]/epi_len,
-            #"Dist Goal X": metrics["eval/episode_dist_goal_x"]/epi_len, 
-            #"Dist Goal Y": metrics["eval/episode_dist_goal_y"]/epi_len, 
-            #"Dist Goal Z": metrics["eval/episode_dist_goal_z"]/epi_len,
-        }
-    )
+    
+    epi_len = wandb.config.training_params['episode_len']
 
-cwd = os.getcwd()
+    log_dict = {'step': num_steps}
+
+    for mn, m in metrics.items():
+        name_in_log = mn.split('/')[-1]
+        log_dict[name_in_log] = m/epi_len
+    
+    wandb.log(log_dict)
+
 
 # get the filepath to the env and agent xmls
+cwd = os.getcwd()
+
 import alfredo.scenes as scenes
 import alfredo.agents as agents
 agents_fp = os.path.dirname(agents.__file__)
@@ -91,12 +98,15 @@ key = jax.random.PRNGKey(wandb.config.seed)
 global_key, local_key = jax.random.split(key)
 key_policy, key_value = jax.random.split(global_key)
 
-env = AAnt(backend=wandb.config.backend, 
+env = AAnt(backend=wandb.config.training_params['backend'],
+           rewards=rewards, 
            env_xml_path=env_xml_paths[0],
            agent_xml_path=agent_xml_path)
 
-rng = jax.random.PRNGKey(seed=1)
+rng = jax.random.PRNGKey(seed=0)
 state = env.reset(rng)
+
+normalize_fn = running_statistics.normalize
 
 ppo_network = ppo_networks.make_ppo_networks(
     env.observation_size, env.action_size, normalize_fn
@@ -124,7 +134,8 @@ for p in env_xml_paths:
 
     d_and_t = datetime.now()
     print(f"[{d_and_t}] loop start for model: {i}")
-    env = AAnt(backend=wandb.config.backend, 
+    env = AAnt(backend=wandb.config.training_params['backend'], 
+               rewards=rewards, 
                env_xml_path=p,
                agent_xml_path=agent_xml_path)
 
@@ -133,27 +144,27 @@ for p in env_xml_paths:
 
     d_and_t = datetime.now()
     print(f"[{d_and_t}] jitting start for model: {i}")
-    state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=1))
+    state = jax.jit(env.reset)(rng=jax.random.PRNGKey(seed=wandb.config.seed))
     d_and_t = datetime.now()
     print(f"[{d_and_t}] jitting end for model: {i}")
   
     # define new training function
     train_fn = functools.partial(
         ppo.train,
-        num_timesteps=wandb.config.len_training,
-        num_evals=wandb.config.num_evals,
-        reward_scaling=wandb.config.reward_scaling,
-        episode_length=wandb.config.episode_len,
-        normalize_observations=wandb.config.normalize_obs,
-        action_repeat=wandb.config.action_repeat,
-        unroll_length=wandb.config.unroll_len,
-        num_minibatches=wandb.config.num_minibatches,
-        num_updates_per_batch=wandb.config.updates_per_batch,
-        discounting=wandb.config.discounting,
-        learning_rate=wandb.config.learning_rate,
-        entropy_cost=wandb.config.entropy_cost,
-        num_envs=wandb.config.num_envs,
-        batch_size=wandb.config.batch_size,
+        num_timesteps=wandb.config.training_params['len_training'],
+        num_evals=wandb.config.training_params['num_evals'],
+        reward_scaling=wandb.config.training_params['reward_scaling'],
+        episode_length=wandb.config.training_params['episode_len'],
+        normalize_observations=wandb.config.training_params['normalize_obs'],
+        action_repeat=wandb.config.training_params['action_repeat'],
+        unroll_length=wandb.config.training_params['unroll_len'],
+        num_minibatches=wandb.config.training_params['num_minibatches'],
+        num_updates_per_batch=wandb.config.training_params['updates_per_batch'],
+        discounting=wandb.config.training_params['discounting'],
+        learning_rate=wandb.config.training_params['learning_rate'],
+        entropy_cost=wandb.config.training_params['entropy_cost'],
+        num_envs=wandb.config.training_params['num_envs'],
+        batch_size=wandb.config.training_params['batch_size'],
         seed=wandb.config.seed,
         in_params=mParams,
     )
