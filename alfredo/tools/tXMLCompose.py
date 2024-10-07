@@ -15,10 +15,13 @@ def compose_scene(xml_env, xml_agent):
     worldbody = env_root.find('worldbody')
 
     ag_root = agent_tree.getroot()
+    ag_custom = ag_root.find('custom')
     ag_body = ag_root.find('body')
     ag_actuator = ag_root.find('actuator')
 
+    
     worldbody.append(ag_body)
+    env_root.append(ag_custom)
     env_root.append(ag_actuator)
     
     beautify(env_root)

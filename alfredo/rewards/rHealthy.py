@@ -11,9 +11,8 @@ def rHealthy_simple_z(sys: base.System,
                       pipeline_state: base.State, 
                       z_range: Tuple,
                       early_terminate: True,
-                      weight=1.0,
-                      focus_idx_range=(1, -1)) -> jp.ndarray:
-   
+                      focus_idx_range=(0, -1)) -> jax.Array:
+
     min_z, max_z = z_range
     focus_s = focus_idx_range[0]
     focus_e = focus_idx_range[-1]
@@ -24,8 +23,8 @@ def rHealthy_simple_z(sys: base.System,
     is_healthy = jp.where(focus_x_pos > max_z, x=0.0, y=is_healthy)
 
     if early_terminate:
-        hr = weight
+        hr = 1.0
     else:
-        hr = weight * is_healthy
+        hr = 1.0 * is_healthy
 
     return jp.array([hr, is_healthy])

@@ -14,7 +14,11 @@ from brax.training.acme import running_statistics
 from brax.training.agents.ppo import networks as ppo_networks
 from jax import numpy as jp
 
-from alfredo.agents.A1.alfredo_1 import Alfredo
+from alfredo.agents.aant import AAnt
+
+from alfredo.rewards import Reward
+from alfredo.rewards import rTracking_lin_vel
+from alfredo.rewards import rTracking_yaw_vel
 
 backend = "positional"
 
@@ -24,10 +28,9 @@ cwd = os.getcwd()
 
 # get the filepath to the env and agent xmls
 import alfredo.scenes as scenes
-
 import alfredo.agents as agents
 agents_fp = os.path.dirname(agents.__file__)
-agent_xml_path = f"{agents_fp}/A1/a1.xml"
+agent_xml_path = f"{agents_fp}/aant/aant.xml"
 
 scenes_fp = os.path.dirname(scenes.__file__)
 
@@ -40,26 +43,33 @@ print(f"neural parameter file: {tpf_path}")
 
 params = model.load_params(tpf_path)
 
+# Define Reward Structure
+# For visualizing, this is just to be able to create the env
+# May want to make this not necessary in the future ..?
+rewards = {'r_lin_vel': Reward(rTracking_lin_vel, sc=8.0, ps={}),
+           'r_yaw_vel': Reward(rTracking_yaw_vel, sc=1.0, ps={})}
+
 # create an env with auto-reset and load previously trained parameters
-env = Alfredo(backend=backend, 
-              env_xml_path=env_xml_path,
-              agent_xml_path=agent_xml_path)
+env = AAnt(backend=backend,
+           rewards=rewards, 
+           env_xml_path=env_xml_path,
+           agent_xml_path=agent_xml_path)
 
 auto_reset = True
 episode_length = 1000
 action_repeat = 1
 
-if episode_length is not None:
-    env = training.EpisodeWrapper(env, episode_length, action_repeat)
+#if episode_length is not None:
+#    env = training.EpisodeWrapper(env, episode_length, action_repeat)
 
-if auto_reset:
-    env = training.AutoResetWrapper(env)
+#if auto_reset:
+#    env = training.AutoResetWrapper(env)
 
 jit_env_reset = jax.jit(env.reset)
 jit_env_step = jax.jit(env.step)
 
 rollout = []
-rng = jax.random.PRNGKey(seed=1)
+rng = jax.random.PRNGKey(seed=13194)
 state = jit_env_reset(rng=rng)
 
 normalize = lambda x, y: x
@@ -75,12 +85,26 @@ inference_fn = make_policy(policy_params)
 
 jit_inference_fn = jax.jit(inference_fn)
 
+x_vel = 0.0     # m/s
+y_vel = 3.0     # m/s
+yaw_vel = 0.0   # rad/s
+jcmd = jp.array([x_vel, y_vel, yaw_vel])
+
+wcmd = jp.array([10.0, 10.0])
+
 # generate policy rollout
 for _ in range(episode_length):
     rollout.append(state.pipeline_state)
     act_rng, rng = jax.random.split(rng)
+
+    state.info['jcmd'] = jcmd
+    state.info['wcmd'] = wcmd
     act, _ = jit_inference_fn(state.obs, act_rng)
     state = jit_env_step(state, act)
+    print(state.info)
+
+
+print(rollout[-1])
 
 html_string = html.render(env.sys.replace(dt=env.dt), rollout)
 
