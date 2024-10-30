@@ -33,9 +33,10 @@ class AAnt(PipelineEnv):
 
         # reward dictionary must be provided
         if rewards:
-           self._rewards = rewards
+            self._rewards = rewards
         else:
-           raise Exception("reward_Structure must be in kwargs")
+            self._rewards = {}
+        #    raise Exception("reward_Structure must be in kwargs")
 
         # TODO: clean this up in the future &
         #       make n_frames a function of input dt
@@ -115,9 +116,10 @@ class AAnt(PipelineEnv):
         pipeline_state0 = state.pipeline_state
         pipeline_state = self.pipeline_step(pipeline_state0, action)
 
-        # Add all additional parameters to compute rewards
-        self._rewards['r_lin_vel'].add_param('jcmd', state.info['jcmd'])
-        self._rewards['r_yaw_vel'].add_param('jcmd', state.info['jcmd'])
+        if self._rewards:
+            # Add all additional parameters to compute rewards
+            self._rewards['r_lin_vel'].add_param('jcmd', state.info['jcmd'])
+            self._rewards['r_yaw_vel'].add_param('jcmd', state.info['jcmd'])
 
         # Compute all rewards and accumulate total reward
         total_reward = 0.0
