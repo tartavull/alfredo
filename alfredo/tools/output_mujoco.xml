@@ -1,0 +1,123 @@
+<?xml version="1.0" ?>
+<mujoco model="blender_export">
+  <compiler angle="radian" meshdir="assets" texturedir="assets" autolimits="true"/>
+  <default>
+    <geom type="mesh"/>
+  </default>
+  <asset>
+    <mesh file="Lower_Torso.001.stl"/>
+    <mesh file="Upper_Torso.stl"/>
+    <mesh file="Up_Torso_Connector.stl"/>
+    <mesh file="Waist.stl"/>
+    <mesh file="Upper_Leg.L.stl"/>
+    <mesh file="Lower_leg.L.stl"/>
+    <mesh file="Foot.L.stl"/>
+    <mesh file="Upper_Leg.R.stl"/>
+    <mesh file="Lower_leg.R.stl"/>
+    <mesh file="Foot.R.stl"/>
+    <mesh file="Shoulder_Joint.L.stl"/>
+    <mesh file="Shoulder_Proc.L.stl"/>
+    <mesh file="Forearm.L.stl"/>
+    <mesh file="Gripper.L.stl"/>
+    <mesh file="Shoulder_Joint.R.stl"/>
+    <mesh file="Shoulder_Proc.R.stl"/>
+    <mesh file="Forearm.R.stl"/>
+    <mesh file="Grippler.R.stl"/>
+  </asset>
+  <worldbody>
+    <body name="upper_torso" pos="-0.0 -0.046934254467487335 -0.1510855257511139">
+      <joint name="upper_torso_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+      <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+      <body name="head" pos="-0.0 -0.046934254467487335 -0.5910855531692505">
+        <joint name="head_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+        <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+        <geom pos="0.0 0.046934254467487335 0.5910855531692505" mesh="Lower_Torso.001"/>
+      </body>
+      <body name="lower_torso" pos="-0.0 -0.026934253051877022 0.13658195734024048">
+        <joint name="lower_torso_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+        <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+        <geom pos="0.0 0.026934253051877022 -0.13658195734024048" mesh="Upper_Torso"/>
+        <body name="abdomen" pos="-0.0 -0.03135300055146217 0.30497461557388306">
+          <joint name="abdomen_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+          <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+          <geom pos="0.0 0.03135300055146217 -0.30497461557388306" mesh="Up_Torso_Connector"/>
+          <body name="butt" pos="-0.0011813845485448837 -0.03135300055146217 0.3940219283103943">
+            <joint name="butt_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+            <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+            <geom pos="0.0011813845485448837 0.03135300055146217 -0.3940219283103943" mesh="Waist"/>
+            <body name="upper_leg.L" pos="-0.13744674623012543 -0.045465484261512756 0.6201940178871155">
+              <joint name="upper_leg.L_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+              <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+              <geom pos="0.13744674623012543 0.045465484261512756 -0.6201940178871155" mesh="Upper_Leg.L"/>
+              <body name="lower_leg.L" pos="-0.13744674623012543 -0.045465484261512756 0.7746409773826599">
+                <joint name="lower_leg.L_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+                <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+                <geom pos="0.13744674623012543 0.045465484261512756 -0.7746409773826599" mesh="Lower_leg.L"/>
+                <body name="foot.L" pos="-0.13744674623012543 0.042303696274757385 0.7746409773826599">
+                  <joint name="foot.L_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+                  <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+                  <geom pos="0.13744674623012543 -0.042303696274757385 -0.7746409773826599" mesh="Foot.L"/>
+                </body>
+              </body>
+            </body>
+            <body name="upper_leg.R" pos="0.13744674623012543 -0.045465484261512756 0.6201940178871155">
+              <joint name="upper_leg.R_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+              <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+              <geom pos="-0.13744674623012543 0.045465484261512756 -0.6201940178871155" mesh="Upper_Leg.R"/>
+              <body name="lower_leg.R" pos="0.13744674623012543 -0.045465484261512756 0.7746409773826599">
+                <joint name="lower_leg.R_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+                <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+                <geom pos="-0.13744674623012543 0.045465484261512756 -0.7746409773826599" mesh="Lower_leg.R"/>
+                <body name="foot.R" pos="0.13744674623012543 0.042303696274757385 0.7746409773826599">
+                  <joint name="foot.R_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+                  <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+                  <geom pos="-0.13744674623012543 -0.042303696274757385 -0.7746409773826599" mesh="Foot.R"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+        <body name="shoulder.L" pos="-0.2630476653575897 -0.04546540975570679 -0.04832768440246582">
+          <joint name="shoulder.L_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+          <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+          <geom pos="0.2630476653575897 0.04546540975570679 0.04832768440246582" mesh="Shoulder_Joint.L"/>
+          <body name="upper_arm.L" pos="-0.5699310898780823 -0.09635002911090851 -0.048329293727874756">
+            <joint name="upper_arm.L_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+            <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+            <geom pos="0.5699310898780823 0.09635002911090851 0.048329293727874756" mesh="Shoulder_Proc.L"/>
+            <body name="forearm.L" pos="-0.8617641925811768 -0.08084022998809814 -0.058915674686431885">
+              <joint name="forearm.L_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+              <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+              <geom pos="0.8617641925811768 0.08084022998809814 0.058915674686431885" mesh="Forearm.L"/>
+              <body name="gripper.L" pos="-0.9517641663551331 -0.08084022998809814 -0.058915674686431885">
+                <joint name="gripper.L_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+                <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+                <geom pos="0.9517641663551331 0.08084022998809814 0.058915674686431885" mesh="Gripper.L"/>
+              </body>
+            </body>
+          </body>
+        </body>
+        <body name="shoulder.R" pos="0.2630476653575897 -0.04546540975570679 -0.04832768440246582">
+          <joint name="shoulder.R_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+          <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+          <geom pos="-0.2630476653575897 0.04546540975570679 0.04832768440246582" mesh="Shoulder_Joint.R"/>
+          <body name="upper_arm.R" pos="0.5699310898780823 -0.09635002911090851 -0.048329293727874756">
+            <joint name="upper_arm.R_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+            <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+            <geom pos="-0.5699310898780823 0.09635002911090851 0.048329293727874756" mesh="Shoulder_Proc.R"/>
+            <body name="forearm.R" pos="0.8617641925811768 -0.08084022998809814 -0.058915674686431885">
+              <joint name="forearm.R_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+              <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+              <geom pos="-0.8617641925811768 0.08084022998809814 0.058915674686431885" mesh="Forearm.R"/>
+              <body name="gripper.R" pos="0.9517641663551331 -0.08084022998809814 -0.058915674686431885">
+                <joint name="gripper.R_joint" type="hinge" pos="0 0 0" axis="0 0 1"/>
+                <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+                <geom pos="-0.9517641663551331 0.08084022998809814 0.058915674686431885" mesh="Grippler.R"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>
