@@ -24,6 +24,7 @@
       trimesh = callPackage ./nix/trimesh.nix { };
       ml_collections = callPackage ./nix/ml_collections.nix { };
       tensorstore = callPackage ./nix/tensorstore.nix { };
+      # tensorstore = pkgs.python3Packages.tensorstore;
     in
     {
       overlays.dev = final: prev: {
@@ -138,6 +139,7 @@
 
           packages = [
             python-env
+            # pkgs.ca-certificates
             pkgs.pre-commit
           ];
 

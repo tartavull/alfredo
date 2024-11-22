@@ -1,6 +1,7 @@
 { buildPythonPackage
 , fetchFromGitHub
 , setuptools
+, pkgs
 }:
 
 buildPythonPackage rec {
@@ -13,6 +14,10 @@ buildPythonPackage rec {
     hash = "sha256-rT0R1x51xHAElPwernUjBIIneRhncnsohMRAIhXyaYk=";
   };
   format = "pyproject";
+
+  buildinputs = [
+    pkgs.bazel
+  ];
   
   propagatedBuildInputs = [
     setuptools
